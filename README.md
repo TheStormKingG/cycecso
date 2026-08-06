@@ -1,4 +1,4 @@
-# cycecso.com
+# CYCLE website
 
 Website of **CYCLE — Caribbean Youth Conservation Leaders Ensemble**, a youth-led
 civil society organisation based in Guyana.
@@ -20,9 +20,13 @@ Static site (no build step) deployed on **GitHub Pages**.
 
 ## Deploy
 
-Push to `main` → GitHub Pages serves the root of the branch.
+Push to `main` → the Actions workflow publishes to GitHub Pages at
+**https://thestormkingg.github.io/cycecso/** (no custom domain for now).
 
-## Custom domain (when ready)
+## Custom domain (later — cycecso.com is not purchased yet)
+
+Once the domain is bought, update the canonical/og/sitemap/robots URLs
+from `thestormkingg.github.io/cycecso` back to `cycecso.com`, then:
 
 1. At the DNS provider for `cycecso.com`, add:
    - `A` records for the apex: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
