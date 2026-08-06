@@ -34,8 +34,8 @@ over the photo), not decorative glass.
 
 ## Motion
 - Slide panning: 900ms cubic-bezier(.62,.02,.18,1); pan layer and slides only.
-- Background Ken Burns: `.zoom` layer scales 1.13 → 1.0 over 90s, alternating
-  (180s round trip, ~1.3 px/s drift). Ambient, never attention-seeking; the scrim sits above it
+- Background Ken Burns: `.zoom` layer scales 1.16 → 1.0 over 36s, alternating
+  (72s round trip, ~4 px/s drift, ~6 px/s at mid-sweep). Ambient, never attention-seeking; the scrim sits above it
   so text contrast never moves.
 - Cycle infographic idles clockwise 42s/turn (WAAPI), glides ~9° to a stop on hover.
 - transform/opacity only; everything honours prefers-reduced-motion.

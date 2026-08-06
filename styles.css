@@ -98,16 +98,16 @@ em { font-style: normal; color: var(--accent); }
 .stage { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
 
 /* Ken Burns: the forest breathes, starting zoomed in and easing out
-   over 90s, then drifting back. Separate layer so it composes with
+   over 36s, then drifting back. Separate layer so it composes with
    the pan's own translate. Slow enough to stay ambient, wide enough
    that the scene reads as alive rather than still. */
 .zoom {
   position: absolute; inset: 0;
-  animation: stage-breathe 90s ease-in-out infinite alternate;
+  animation: stage-breathe 36s ease-in-out infinite alternate;
   will-change: transform;
 }
 @keyframes stage-breathe {
-  from { transform: scale(1.13); }
+  from { transform: scale(1.16); }
   to   { transform: scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
