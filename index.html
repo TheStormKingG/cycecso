@@ -2,314 +2,185 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="only light">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only dark">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src https://ilpnumlkhpjgadgdotwo.supabase.co; base-uri 'none'; form-action 'self'">
 <title>CYCLE — Caribbean Youth Conservation Leaders Ensemble</title>
-<meta name="description" content="CYCLE is a youth-led civil society organisation in Guyana working at the intersection of regenerative agriculture, biodiversity conservation, preventive healthcare, women's economic empowerment, and youth development. Together, we regenerate.">
+<meta name="description" content="CYCLE is a youth-led civil society organisation in Guyana treating regenerative agriculture, biodiversity, health, youth and women's enterprise as one system. Together, we regenerate.">
 <link rel="canonical" href="https://cycecso.vercel.app/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="CYCLE — Caribbean Youth Conservation Leaders Ensemble">
 <meta property="og:description" content="Regenerating communities. Restoring ecosystems. Empowering the Caribbean's next generation.">
 <meta property="og:url" content="https://cycecso.vercel.app/">
-<meta property="og:image" content="https://cycecso.vercel.app/assets/img/cover.jpg">
+<meta property="og:image" content="https://cycecso.vercel.app/assets/img/pano-sm.jpg">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <link rel="preload" href="assets/fonts/Montserrat.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" href="assets/img/pano.jpg" media="(min-width: 801px)">
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<a class="skip-link" href="#main">Skip to main content</a>
+<a class="skip-link" href="#deck">Skip to slide content</a>
 
-<header class="site-header" id="top">
-  <div class="container header-inner">
-    <a class="brand" href="#top" aria-label="CYCLE — home">
-      <span class="brand-mark"><img src="assets/img/logo.png" alt="" width="38" height="38"></span>
-      <span>
-        <span class="brand-name">CYCLE</span>
-        <span class="brand-sub">Caribbean Youth Conservation Leaders Ensemble</span>
-      </span>
-    </a>
-    <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-    </button>
-    <nav class="site-nav" id="site-nav" aria-label="Main navigation">
-      <a href="#about">About</a>
-      <a href="#model">Our Model</a>
-      <a href="#pillars">Pillars</a>
-      <a href="#impact">Impact</a>
-      <a href="#contact">Contact</a>
-      <a href="#contact" class="btn btn-primary nav-cta">Partner with us</a>
-    </nav>
-  </div>
+<!-- One continuous rainforest panorama; pans one viewport per slide -->
+<div class="stage" aria-hidden="true">
+  <div class="pan" id="pan"></div>
+  <div class="scrim"></div>
+</div>
+
+<header class="chrome-top">
+  <a class="brand" href="#about">
+    <span class="brand-mark"><img src="assets/img/logo.png" alt="" width="34" height="34"></span>
+    <span class="brand-text">
+      <span class="brand-name">CYCLE</span>
+      <span class="brand-sub">Caribbean Youth Conservation Leaders Ensemble</span>
+    </span>
+  </a>
+  <p class="counter"><span id="counter-now">1</span><span class="counter-sep">/</span>4</p>
 </header>
 
-<main id="main">
+<main class="deck" id="deck">
 
-  <!-- ── Hero ─────────────────────────────────────────────────── -->
-  <section class="hero" aria-labelledby="hero-heading">
-    <div class="container hero-grid">
-      <div>
-        <p class="kicker">Youth-led · Guyana · Caribbean</p>
-        <h1 id="hero-heading">Together, we <span class="accent">regenerate</span>.</h1>
-        <p class="lede">Regenerating communities. Restoring ecosystems. Empowering the Caribbean's next generation — through one integrated programme of agriculture, health, youth, enterprise, and biodiversity.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#contact">Partner with us</a>
-          <a class="btn btn-ghost" href="#model">Explore our model</a>
-        </div>
-      </div>
-      <div class="hero-figure">
-        <div class="hero-photo">
-          <img src="assets/img/cover.jpg" alt="Lush green Guyanese landscape under a bright sky" width="1600" height="1066" fetchpriority="high">
-        </div>
-        <p class="hero-chip"><span class="dot" aria-hidden="true"></span> Five pillars · One programme</p>
-      </div>
+  <!-- ══ 01 · WHO WE ARE ══════════════════════════════════════ -->
+  <section class="slide is-active" id="about" aria-label="Slide 1 of 4: Who we are">
+    <div class="slide-inner s-about">
+      <p class="eyebrow"><span class="num">01</span> Who we are</p>
+      <h1 class="headline">Together, we <em>regenerate</em>.</h1>
+      <p class="lede">CYCLE is a youth-led civil society organisation in Guyana. We treat regenerative
+        agriculture, biodiversity, community health, youth and women's enterprise as
+        <strong>one system</strong> — because a farmer with healthy soil and no market is still poor,
+        and a clinic without nutritious food still treats the same illness twice.</p>
+      <ul class="chip-row">
+        <li class="chip">Youth-led</li>
+        <li class="chip">Rooted in Guyana</li>
+        <li class="chip">Caribbean-wide by 2030</li>
+      </ul>
     </div>
   </section>
 
-  <!-- ── About ────────────────────────────────────────────────── -->
-  <section id="about" aria-labelledby="about-heading">
-    <div class="container">
-      <div class="section-intro reveal">
-        <p class="kicker">Who we are</p>
-        <h2 id="about-heading">A conservation ensemble, not a single note</h2>
-      </div>
-      <div class="about-grid">
-        <div class="about-copy reveal">
-          <p>CYCLE — the Caribbean Youth Conservation Leaders Ensemble — is a youth-led civil society organisation based in Guyana. We work at the intersection of regenerative agriculture, biodiversity conservation, preventive healthcare, women's economic empowerment, and youth development.</p>
-          <p>Founded by young Caribbean professionals, CYCLE delivers integrated programmes through community demonstration farms, field-based ecological services, free health activations, and a dedicated media production unit — the Caribbean Diversity Hub.</p>
-          <p>Our work is guided by five values: regeneration over extraction; inclusion of women and youth as primary agents of change; evidence-based practice anchored in field research; radical transparency through open media; and regional solidarity.</p>
-        </div>
-        <div class="reveal">
-          <div class="mission-card neu">
-            <p class="label">Our mission</p>
-            <blockquote>To empower women, youth, and smallholder farmers to adopt regenerative agricultural systems that increase food production, improve nutrition, and enhance economic resilience through integrated climate-smart agriculture, biodiversity conservation, and nutrition education.</blockquote>
-          </div>
-          <div class="vision-card neu-inset">
-            <p class="label">Our vision</p>
-            <p>A Caribbean where biodiversity conservation drives economic resilience and agricultural innovation supports preventative healthcare for all communities.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- ══ 02 · OUR MODEL ═══════════════════════════════════════ -->
+  <section class="slide" id="model" aria-label="Slide 2 of 4: Our model" hidden>
+    <div class="slide-inner s-model">
+      <p class="eyebrow"><span class="num">02</span> Our model</p>
+      <h2 class="headline">The value is in the turn.</h2>
+      <p class="lede lede-tight">Most organisations pick one of these four and call it a strategy.
+        We run all four as a loop — each turn feeding the next.</p>
 
-  <!-- ── Photo band ───────────────────────────────────────────── -->
-  <section aria-label="Field photography" style="padding-top: 0;">
-    <div class="container photo-band">
-      <figure class="reveal">
-        <img src="assets/img/farming.jpg" alt="Farmer tending young crops in rich soil" width="1600" height="1066" loading="lazy">
-        <figcaption>Regenerative demonstration farms</figcaption>
-      </figure>
-      <figure class="reveal">
-        <img src="assets/img/biodiversity.jpg" alt="Close-up of tropical biodiversity — plants and pollinators" width="1600" height="1066" loading="lazy">
-        <figcaption>Biodiversity monitoring in the field</figcaption>
-      </figure>
-      <figure class="reveal">
-        <img src="assets/img/youth.jpg" alt="Young people learning together outdoors" width="1600" height="1040" loading="lazy">
-        <figcaption>Youth leadership and education</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ── Model ────────────────────────────────────────────────── -->
-  <section id="model" aria-labelledby="model-heading">
-    <div class="container">
-      <div class="section-intro reveal">
-        <p class="kicker">The CYCLE loop</p>
-        <h2 id="model-heading">Our name describes how the work moves</h2>
-        <p>Most organisations pick one of these four and call it a strategy. We think the value is in the turn.</p>
-      </div>
-      <div class="model-grid">
-        <div class="model-step neu reveal">
-          <span class="step-num" aria-hidden="true">1</span>
+      <ol class="loop">
+        <li class="loop-step">
+          <span class="loop-num">1</span>
           <h3>Research &amp; Publish</h3>
-          <p>Field research at Pakuri and Moco Moco on how biodiversity, farming, and community health connect — published openly.</p>
-        </div>
-        <div class="model-step neu reveal">
-          <span class="step-num" aria-hidden="true">2</span>
+          <p>Field science at Pakuri and Moco Moco, published openly.</p>
+        </li>
+        <li class="loop-step">
+          <span class="loop-num">2</span>
           <h3>Empower Agripreneurs</h3>
-          <p>Evidence becomes training, mentorship, and enterprise support for women, Indigenous, and youth farmers.</p>
-        </div>
-        <div class="model-step neu reveal">
-          <span class="step-num" aria-hidden="true">3</span>
+          <p>Training and enterprise support for women, Indigenous and youth farmers.</p>
+        </li>
+        <li class="loop-step">
+          <span class="loop-num">3</span>
           <h3>Showcase &amp; Market</h3>
-          <p>We take their farms public — marketing the produce while raising national awareness of what grows in Guyana's soil.</p>
-        </div>
-        <div class="model-step neu reveal">
-          <span class="step-num" aria-hidden="true">4</span>
+          <p>Their farms and produce taken public, at home and abroad.</p>
+        </li>
+        <li class="loop-step">
+          <span class="loop-num">4</span>
           <h3>Shape Policy</h3>
-          <p>Findings land in policy papers for climate-resilient agriculture, in Guyana and across the Caribbean.</p>
-        </div>
-      </div>
-      <p class="model-close reveal">Then the loop closes. Every policy win seeds deeper research, more agripreneurs, richer farms.</p>
-    </div>
-  </section>
+          <p>Evidence into climate-resilient agriculture policy, Caribbean-wide.</p>
+        </li>
+      </ol>
 
-  <!-- ── Pillars ──────────────────────────────────────────────── -->
-  <section id="pillars" aria-labelledby="pillars-heading">
-    <div class="container">
-      <div class="section-intro reveal">
-        <p class="kicker">Five pillars</p>
-        <h2 id="pillars-heading">One programme, five entry points</h2>
-        <p>Healthy ecosystems, nutritious food, empowered women, and informed youth are not separate mandates. They are inseparable dimensions of a community that can hold its own.</p>
-      </div>
-      <div class="pillars-grid">
-        <div class="pillar-card neu reveal">
-          <span class="neu-ring" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V10"/><path d="M12 10C12 6 9 4 5 4c0 4 3 6 7 6Z"/><path d="M12 13c0-3.5 2.5-5 6.5-5 0 3.5-2.5 5-6.5 5Z"/></svg>
-          </span>
-          <h3>Climate-Smart Regenerative Agriculture</h3>
-          <p>Demonstration farms as living laboratories for soil health, crop diversification, agroforestry, and water conservation — with technical training focused on smallholder farmers, especially women.</p>
-        </div>
-        <div class="pillar-card neu reveal">
-          <span class="neu-ring" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 13.5 12 21l-7.5-7.5A5 5 0 1 1 12 6.9a5 5 0 1 1 7.5 6.6Z"/><path d="M8 13h2l1.5-3 2 5 1.5-2h2"/></svg>
-          </span>
-          <h3>Nutrition &amp; Preventive Healthcare</h3>
-          <p>Free community health screenings co-delivered with agricultural field events, and nutrition workshops that connect farm outputs to household health.</p>
-        </div>
-        <div class="pillar-card neu reveal">
-          <span class="neu-ring" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 9 12 4 2 9l10 5 10-5Z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/></svg>
-          </span>
-          <h3>Youth Empowerment &amp; Environmental Education</h3>
-          <p>Farm-based learning, school outreach, mentorship, and digital e-learning that build environmental literacy and leadership skills across the region.</p>
-        </div>
-        <div class="pillar-card neu reveal">
-          <span class="neu-ring" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4"/><path d="M8 21a4 4 0 0 1 8 0"/><circle cx="12" cy="11" r="4"/><path d="M3 11h2M19 11h2M5.6 5.6l1.4 1.4M18.4 5.6 17 7"/></svg>
-          </span>
-          <h3>Women's Economic Empowerment</h3>
-          <p>Entrepreneurship training, value-chain mentorship, and microfinance facilitation supporting women-led agro-processing enterprises.</p>
-        </div>
-        <div class="pillar-card neu reveal">
-          <span class="neu-ring" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20c5-2 8-6 8-11V6l-8-3-8 3v3c0 5 3 9 8 11Z"/><path d="M9 11c1.5 1 4.5 1 6 0M12 8v6"/></svg>
-          </span>
-          <h3>Biodiversity Conservation</h3>
-          <p>Field biodiversity assessments, real-time species mapping, and pollinator gardens, buffer zones, and native planting embedded in every demonstration farm.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Impact ───────────────────────────────────────────────── -->
-  <section id="impact" class="impact" aria-labelledby="impact-heading">
-    <div class="container">
-      <div class="section-intro reveal">
-        <p class="kicker">By 2030</p>
-        <h2 id="impact-heading">The numbers we're willing to be held to</h2>
-        <p>We publish these targets up front, before we've hit them, because an organisation that only reports the numbers it likes isn't reporting.</p>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-tile reveal"><p class="num">2,500+</p><p class="lbl">People reached</p></div>
-        <div class="stat-tile reveal"><p class="num">500+</p><p class="lbl">Farmers trained</p></div>
-        <div class="stat-tile reveal"><p class="num">40+</p><p class="lbl">Women-led businesses</p></div>
-        <div class="stat-tile reveal"><p class="num">15</p><p class="lbl">Biodiversity sites</p></div>
-      </div>
-      <p class="impact-note reveal">Hold us to it.</p>
-    </div>
-  </section>
-
-  <!-- ── Roadmap ──────────────────────────────────────────────── -->
-  <section id="roadmap" aria-labelledby="roadmap-heading" style="padding-top: 0;">
-    <div class="container">
-      <div class="section-intro reveal">
-        <p class="kicker">Geographic reach</p>
-        <h2 id="roadmap-heading">Five years. Four nations. One replicable framework.</h2>
-      </div>
-      <ul class="roadmap-list">
-        <li class="reveal"><span class="roadmap-year">2026</span><p><strong>Guyana</strong> — programme launch: demonstration farms, field research, and community activations begin.</p></li>
-        <li class="reveal"><span class="roadmap-year">2028</span><p><strong>Trinidad &amp; Tobago and Jamaica</strong> — regional expansion of the documented model.</p></li>
-        <li class="reveal"><span class="roadmap-year">2029</span><p><strong>Haiti</strong> — pilot launched with regional partners.</p></li>
-        <li class="reveal"><span class="roadmap-year">2030</span><p><strong>Caribbean Replication Toolkit</strong> published — so the next organisation doesn't have to start where we started.</p></li>
+      <ul class="chip-row chip-row-sm" aria-label="The five pillars delivered through this loop">
+        <li class="chip">Regenerative Agriculture</li>
+        <li class="chip">Nutrition &amp; Preventive Health</li>
+        <li class="chip">Youth &amp; Environmental Education</li>
+        <li class="chip">Women's Enterprise</li>
+        <li class="chip">Biodiversity Conservation</li>
       </ul>
     </div>
   </section>
 
-  <!-- ── Programmes ───────────────────────────────────────────── -->
-  <section id="programmes" aria-labelledby="programmes-heading" style="padding-top: 0;">
-    <div class="container">
-      <div class="section-intro reveal">
-        <p class="kicker">Programmes</p>
-        <h2 id="programmes-heading">How the work shows up on the ground</h2>
-      </div>
-      <ul class="prog-list">
-        <li class="reveal"><span class="prog-dot" aria-hidden="true"></span><span><strong>Caribbean Diversity Hub (CDH)</strong> — mini-documentaries and environmental storytelling. Inaugural episode: <em>“What the Wetland Gives Us.”</em></span></li>
-        <li class="reveal"><span class="prog-dot" aria-hidden="true"></span><span><strong>Community Field Activations</strong> — co-located ecological literacy and free health screening events.</span></li>
-        <li class="reveal"><span class="prog-dot" aria-hidden="true"></span><span><strong>Farm-Agro-Nutri-Research Programme</strong> — a five-year longitudinal study integrating biodiversity, nutrition, and agroecological data.</span></li>
-        <li class="reveal"><span class="prog-dot" aria-hidden="true"></span><span><strong>Leadership Capacity Building Programme</strong> — a 12-month programme facilitated by senior professionals from regional and international institutions.</span></li>
+  <!-- ══ 03 · IMPACT ══════════════════════════════════════════ -->
+  <section class="slide" id="impact" aria-label="Slide 3 of 4: Impact by 2030" hidden>
+    <div class="slide-inner s-impact">
+      <p class="eyebrow"><span class="num">03</span> By 2030</p>
+      <h2 class="headline">The numbers we're willing to be held to.</h2>
+
+      <ul class="stats">
+        <li class="stat"><span class="stat-num">2,500+</span><span class="stat-lbl">People reached</span></li>
+        <li class="stat"><span class="stat-num">500+</span><span class="stat-lbl">Farmers trained</span></li>
+        <li class="stat"><span class="stat-num">40+</span><span class="stat-lbl">Women-led businesses</span></li>
+        <li class="stat"><span class="stat-num">15</span><span class="stat-lbl">Biodiversity sites</span></li>
       </ul>
-      <div class="sdg-row reveal" role="list" aria-label="United Nations Sustainable Development Goals alignment">
-        <span class="sdg-chip" role="listitem">SDG 2 · Zero Hunger</span>
-        <span class="sdg-chip" role="listitem">SDG 3 · Good Health</span>
-        <span class="sdg-chip" role="listitem">SDG 5 · Gender Equality</span>
-        <span class="sdg-chip" role="listitem">SDG 13 · Climate Action</span>
-        <span class="sdg-chip" role="listitem">SDG 15 · Life on Land</span>
-        <span class="sdg-chip" role="listitem">SDG 17 · Partnerships</span>
-      </div>
+
+      <ol class="timeline" aria-label="Expansion timeline">
+        <li><span class="t-year">2026</span><span class="t-place">Guyana</span></li>
+        <li><span class="t-year">2028</span><span class="t-place">Trinidad &amp; Tobago · Jamaica</span></li>
+        <li><span class="t-year">2029</span><span class="t-place">Haiti</span></li>
+        <li><span class="t-year">2030</span><span class="t-place">Replication Toolkit</span></li>
+      </ol>
+
+      <p class="footnote">Published before we've hit them. Our media unit documents the work as it
+        happens — including the parts that don't go to plan.</p>
     </div>
   </section>
 
-  <!-- ── Contact ──────────────────────────────────────────────── -->
-  <section id="contact" aria-labelledby="contact-heading">
-    <div class="container">
-      <div class="section-intro reveal">
-        <p class="kicker">Partner with us</p>
-        <h2 id="contact-heading">Fund it, research it, build it with us</h2>
-        <p>Funders, corporate partners, research institutions, and fellow civil society organisations — we'd like to hear from you.</p>
-      </div>
+  <!-- ══ 04 · PARTNER WITH US ═════════════════════════════════ -->
+  <section class="slide" id="contact" aria-label="Slide 4 of 4: Partner with us" hidden>
+    <div class="slide-inner s-contact">
+      <p class="eyebrow"><span class="num">04</span> Partner with us</p>
+      <h2 class="headline">Fund it, research it, build it with us.</h2>
+
       <div class="contact-grid">
-        <div class="contact-form-card neu reveal">
+        <div class="contact-form-wrap">
           <noscript>
-            <p class="nojs-note">The contact form needs JavaScript. You can reach us just as well by email:
-            <a href="mailto:cyclegyinitiative@gmail.com">cyclegyinitiative@gmail.com</a>.</p>
+            <p class="nojs-note">The form needs JavaScript — email us at
+              <a href="mailto:cyclegyinitiative@gmail.com">cyclegyinitiative@gmail.com</a>.</p>
           </noscript>
           <form id="contact-form" method="post" novalidate>
-            <div class="field">
-              <label for="cf-name">Name <span class="req" aria-hidden="true">*</span></label>
-              <input type="text" id="cf-name" name="name" autocomplete="name" required maxlength="120">
+            <div class="field-row">
+              <div class="field">
+                <label for="cf-name">Name</label>
+                <input type="text" id="cf-name" name="name" autocomplete="name" required maxlength="120">
+              </div>
+              <div class="field">
+                <label for="cf-email">Email</label>
+                <input type="email" id="cf-email" name="email" autocomplete="email" required maxlength="254">
+              </div>
             </div>
             <div class="field">
-              <label for="cf-email">Email <span class="req" aria-hidden="true">*</span></label>
-              <input type="email" id="cf-email" name="email" autocomplete="email" required maxlength="254">
-            </div>
-            <div class="field">
-              <label for="cf-message">Message <span class="req" aria-hidden="true">*</span></label>
-              <textarea id="cf-message" name="message" required maxlength="5000"></textarea>
+              <label for="cf-message">Message</label>
+              <textarea id="cf-message" name="message" rows="2" required maxlength="5000"></textarea>
             </div>
             <div class="hp-field" aria-hidden="true">
-              <label for="cf-website">Leave this field empty</label>
+              <label for="cf-website">Leave empty</label>
               <input type="text" id="cf-website" name="website" tabindex="-1" autocomplete="off">
             </div>
             <div class="consent-row">
               <input type="checkbox" id="cf-consent" name="consent" required>
-              <label for="cf-consent">I consent to CYCLE storing the details above so the team can respond to my enquiry, as described in the <a href="privacy.html">privacy notice</a>. <span class="req" aria-hidden="true">*</span></label>
+              <label for="cf-consent">Store my details so CYCLE can reply — see the
+                <a href="privacy.html">privacy notice</a>.</label>
             </div>
             <button type="submit" class="btn btn-primary" id="cf-submit">Send message</button>
             <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
           </form>
         </div>
+
         <div class="contact-aside">
-          <div class="contact-item neu-sm reveal">
-            <p class="label">Email</p>
-            <p><a href="mailto:cyclegyinitiative@gmail.com">cyclegyinitiative@gmail.com</a></p>
+          <div class="c-item">
+            <span class="c-lbl">Email</span>
+            <a href="mailto:cyclegyinitiative@gmail.com">cyclegyinitiative@gmail.com</a>
           </div>
-          <div class="contact-item neu-sm reveal">
-            <p class="label">Address</p>
-            <p>Plot 90 Ideal Road, Waiakabra,<br>East Bank Demerara, Guyana</p>
+          <div class="c-item">
+            <span class="c-lbl">Find us</span>
+            <p>Plot 90 Ideal Road, Waiakabra<br>East Bank Demerara, Guyana</p>
           </div>
-          <div class="contact-item neu-sm reveal">
-            <p class="label">Media</p>
-            <p>Caribbean Diversity Hub (CDH) — YouTube</p>
+          <div class="c-item">
+            <span class="c-lbl">We're looking for</span>
+            <p>Funders · Corporate partners · Research institutions · Civil society</p>
           </div>
-          <div class="contact-item neu-sm reveal">
-            <p class="label">Privacy</p>
-            <p>This site sets no cookies and runs no trackers. Form data is stored only with your consent. <a href="privacy.html">Read the privacy notice</a>.</p>
-          </div>
+          <p class="sign-off">Together, we regenerate.</p>
         </div>
       </div>
     </div>
@@ -317,16 +188,24 @@
 
 </main>
 
-<footer class="site-footer">
-  <div class="container footer-inner">
-    <div class="footer-brand">
-      <img src="assets/img/logo.png" alt="" width="34" height="34">
-      <span>CYCLE · Caribbean Youth Conservation Leaders Ensemble</span>
-    </div>
-    <p class="footer-tag">Together, we regenerate.</p>
-    <p class="footer-meta">© <span id="year">2026</span> CYCLE · <a href="privacy.html">Privacy</a> · No cookies, no trackers</p>
-  </div>
+<button class="nav nav-prev" id="navPrev" type="button" aria-label="Previous slide">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+</button>
+<button class="nav nav-next" id="navNext" type="button" aria-label="Next slide">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</button>
+
+<footer class="chrome-bottom">
+  <nav class="dots" id="dots" aria-label="Slides">
+    <button type="button" class="dot is-on" data-go="0"><span>Who we are</span></button>
+    <button type="button" class="dot" data-go="1"><span>Our model</span></button>
+    <button type="button" class="dot" data-go="2"><span>Impact</span></button>
+    <button type="button" class="dot" data-go="3"><span>Partner</span></button>
+  </nav>
+  <p class="credit">Photo: Ivan Mlinaric, CC BY 2.0 · <a href="privacy.html">Privacy</a></p>
 </footer>
+
+<p class="sr-live" id="srLive" role="status" aria-live="polite"></p>
 
 <script src="app.js" defer></script>
 </body>

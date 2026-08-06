@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="only light">
+<meta name="color-scheme" content="only dark">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; base-uri 'none'; form-action 'self'">
 <title>Privacy Notice — CYCLE</title>
 <meta name="description" content="Privacy notice for the CYCLE website — what data CYCLE collects, why, where it is stored, and your rights.">
@@ -14,23 +14,23 @@
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="legal-page">
 
 <a class="skip-link" href="#main">Skip to main content</a>
 
-<header class="site-header">
-  <div class="container header-inner">
-    <a class="brand" href="index.html" aria-label="CYCLE — home">
-      <span class="brand-mark"><img src="assets/img/logo.png" alt="" width="38" height="38"></span>
-      <span>
-        <span class="brand-name">CYCLE</span>
-        <span class="brand-sub">Caribbean Youth Conservation Leaders Ensemble</span>
-      </span>
-    </a>
-    <nav class="site-nav site-nav--static" aria-label="Main navigation">
-      <a href="index.html">Home</a>
-    </nav>
-  </div>
+<div class="stage" aria-hidden="true">
+  <div class="pan" id="pan"></div>
+  <div class="scrim"></div>
+</div>
+
+<header class="chrome-top">
+  <a class="brand" href="index.html">
+    <span class="brand-mark"><img src="assets/img/logo.png" alt="" width="34" height="34"></span>
+    <span class="brand-text">
+      <span class="brand-name">CYCLE</span>
+      <span class="brand-sub">Caribbean Youth Conservation Leaders Ensemble</span>
+    </span>
+  </a>
 </header>
 
 <main id="main" class="legal">
@@ -40,7 +40,7 @@
   <p>This notice explains what personal data is processed when you use <strong>the CYCLE website</strong>, why, where it is stored, and the rights you have over it. It is written to meet the requirements of the EU/UK General Data Protection Regulation (GDPR) and to reflect good practice everywhere else.</p>
 
   <h2>1. Who is responsible (data controller)</h2>
-  <div class="card neu-sm">
+  <div class="card">
     <p><strong>CYCLE — Caribbean Youth Conservation Leaders Ensemble</strong><br>
     Plot 90 Ideal Road, Waiakabra, East Bank Demerara, Guyana<br>
     Email: <a href="mailto:cyclegyinitiative@gmail.com">cyclegyinitiative@gmail.com</a></p>
@@ -91,14 +91,10 @@
   <h2>9. Changes to this notice</h2>
   <p>If our data practices change, we will update this page and its “last updated” date. Since we collect so little, changes should be rare.</p>
 
-  <p style="margin-top:48px"><a class="btn btn-ghost" href="index.html">← Back to the site</a></p>
+  <p style="margin-top:48px"><a class="back" href="index.html">← Back to the deck</a></p>
 </main>
 
-<footer class="site-footer">
-  <div class="container footer-inner">
-    <p class="footer-meta">© 2026 CYCLE · <a href="index.html">Home</a> · No cookies, no trackers</p>
-  </div>
-</footer>
+<footer class="legal-foot"><p>© 2026 CYCLE · No cookies, no trackers · Photo: Ivan Mlinaric, CC BY 2.0</p></footer>
 
 </body>
 </html>
