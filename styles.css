@@ -274,6 +274,16 @@ body:has(#contact.is-active) .scrim {
 .cy-ring { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cy-swooshes { filter: drop-shadow(2px 3px 4px rgba(0, 0, 0, .38)); }
 
+/* The rotating layer: swooshes + nodes spin, the core stays still.
+   JS (WAAPI) drives the rotation so it can decelerate to a stop with
+   step 01 back at the top-left; .cy-nt counter-rotates in sync so the
+   numbers stay upright. */
+.cy-spin { position: absolute; inset: 0; }
+.cy-nt {
+  display: grid; place-items: center;
+  width: 100%; height: 100%; border-radius: 50%;
+}
+
 .cy-node {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -356,6 +366,22 @@ body:has(#contact.is-active) .scrim {
 .cy-desc p { font-size: var(--fs-body); color: var(--ink-dim); line-height: 1.45; }
 /* Without JS the toggles can't run — show every description */
 html:not(.js) .cy-desc[hidden] { display: block; }
+
+/* Desktop + mouse: ribbons start hidden; hovering (or focusing) a
+   number reveals its title bar. Compact/touch layouts keep them
+   always visible. visibility (not display) so the reserved space
+   never shifts and the fit maths stays stable. */
+@media (hover: hover) and (min-width: 901px) and (min-height: 601px) {
+  html.js .cy-l .rib {
+    visibility: hidden; opacity: 0;
+    transform: translateY(6px);
+    transition: opacity .28s ease, transform .28s ease, visibility 0s .28s;
+  }
+  html.js .cy-l.is-shown .rib {
+    visibility: visible; opacity: 1; transform: none;
+    transition: opacity .28s ease, transform .28s ease, visibility 0s;
+  }
+}
 
 /* ── 03 · stats + timeline ─────────────────────────────────────── */
 .stats {

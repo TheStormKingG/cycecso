@@ -78,6 +78,7 @@
 
     var label = slides[index].getAttribute('aria-label') || ('Slide ' + (index + 1));
     srLive.textContent = label;
+    if (typeof cycleSpinFor === 'function') cycleSpinFor(ids[index]);
 
     if (!opts.silent) {
       var hash = '#' + ids[index];
@@ -162,8 +163,19 @@
   fitAll();
   show(start < 0 ? 0 : start, { replace: true });
 
-  /* ── Cycle diagram: click a node or ribbon to expand its step ── */
+  /* ── Cycle diagram ──────────────────────────────────────────── */
   var cyBtns = Array.prototype.slice.call(document.querySelectorAll('[data-cy]'));
+  var cyLis = Array.prototype.slice.call(document.querySelectorAll('.cy-l'));
+
+  function cyReveal(i) {
+    cyLis.forEach(function (li) {
+      var rib = li.querySelector('.rib');
+      var mine = rib && rib.dataset.cy === i;
+      var descOpen = !li.querySelector('.cy-desc').hidden;
+      li.classList.toggle('is-shown', mine || descOpen);
+    });
+  }
+
   function cySet(i, open) {
     var desc = document.getElementById('cyd-' + i);
     if (desc) desc.hidden = !open;
@@ -173,14 +185,84 @@
       b.classList.toggle('is-open', open);
     });
   }
+
   cyBtns.forEach(function (b) {
     b.addEventListener('click', function () {
       var i = b.dataset.cy;
       var open = b.getAttribute('aria-expanded') !== 'true';
       ['1', '2', '3', '4'].forEach(function (k) { cySet(k, k === i ? open : false); });
+      cyReveal(i);
       fit(slides[index]);
     });
+    /* Hovering or focusing a number reveals that step's title bar */
+    if (b.classList.contains('cy-node')) {
+      b.addEventListener('pointerenter', function () { cyReveal(b.dataset.cy); });
+      b.addEventListener('focus', function () { cyReveal(b.dataset.cy); });
+    }
   });
+
+  /* ── Slow clockwise idle spin; hovering eases it to a stop with
+        step 01 back at the top-left (WAAPI, numbers counter-rotate) ── */
+  var fig = document.querySelector('.cycle-fig');
+  var spinEl = document.getElementById('cy-spin');
+  var nts = Array.prototype.slice.call(document.querySelectorAll('.cy-nt'));
+  var SPIN_MS = 42000;
+  var spinAnims = [];
+  var canSpin = spinEl && 'animate' in spinEl && !reduced.matches &&
+    window.matchMedia('(hover: hover)').matches &&
+    window.matchMedia('(min-width: 901px) and (min-height: 601px)').matches;
+
+  function angleOf(el) {
+    var tr = getComputedStyle(el).transform;
+    if (!tr || tr === 'none') return 0;
+    var m = tr.match(/matrix\(([-\d.e]+),\s*([-\d.e]+)/);
+    if (!m) return 0;
+    var deg = Math.atan2(parseFloat(m[2]), parseFloat(m[1])) * 180 / Math.PI;
+    return (deg % 360 + 360) % 360;
+  }
+  function cancelSpin() {
+    spinAnims.forEach(function (a) { a.cancel(); });
+    spinAnims = [];
+  }
+  function startSpin(fromDeg) {
+    if (!canSpin) return;
+    cancelSpin();
+    var opts = { duration: SPIN_MS, iterations: Infinity };
+    spinAnims = [spinEl.animate(
+      [{ transform: 'rotate(' + fromDeg + 'deg)' }, { transform: 'rotate(' + (fromDeg + 360) + 'deg)' }], opts
+    )].concat(nts.map(function (n) {
+      return n.animate(
+        [{ transform: 'rotate(' + (-fromDeg) + 'deg)' }, { transform: 'rotate(' + (-fromDeg - 360) + 'deg)' }], opts);
+    }));
+  }
+  function easeToStop() {
+    if (!canSpin || !spinAnims.length) return;
+    var deg = angleOf(spinEl);
+    cancelSpin();
+    if (deg < 1 || deg > 359) return;
+    var opts = {
+      duration: 700 + (360 - deg) / 360 * 2200,
+      easing: 'cubic-bezier(.25, .5, .25, 1)',
+      fill: 'forwards'
+    };
+    spinAnims = [spinEl.animate(
+      [{ transform: 'rotate(' + deg + 'deg)' }, { transform: 'rotate(360deg)' }], opts
+    )].concat(nts.map(function (n) {
+      return n.animate(
+        [{ transform: 'rotate(' + (-deg) + 'deg)' }, { transform: 'rotate(-360deg)' }], opts);
+    }));
+    spinAnims[0].onfinish = function () { cancelSpin(); }; /* settle at the base pose */
+  }
+  if (canSpin && fig) {
+    fig.addEventListener('pointerenter', easeToStop);
+    fig.addEventListener('pointerleave', function () { startSpin(angleOf(spinEl)); });
+  }
+  function cycleSpinFor(slideId) {
+    if (!canSpin) return;
+    if (slideId === 'model') { if (!spinAnims.length) startSpin(angleOf(spinEl)); }
+    else cancelSpin();
+  }
+  cycleSpinFor(ids[index]); /* boot ran show() before this section existed */
 
   /* ── Contact form → Supabase (consent-gated, RLS-enforced) ──── */
   var form = document.getElementById('contact-form');
