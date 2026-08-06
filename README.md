@@ -1,0 +1,31 @@
+# cycecso.com
+
+Website of **CYCLE — Caribbean Youth Conservation Leaders Ensemble**, a youth-led
+civil society organisation based in Guyana.
+
+Static site (no build step) deployed on **GitHub Pages**.
+
+## Stack
+
+- Hand-written HTML/CSS/JS — nature-tinted neumorphic design, minimalist
+- Self-hosted fonts (Montserrat + EB Garamond, OFL) — no third-party requests, GDPR-safe
+- **Supabase** backs the contact form (`cycle_messages` table, project ref `ilpnumlkhpjgadgdotwo`)
+  - Row Level Security: anonymous visitors may only INSERT rows with `consent = true`; no read access
+  - The key embedded in `app.js` is the *publishable* key — safe to expose by design
+- No cookies, no analytics, no trackers → no cookie banner required
+
+## Deploy
+
+Push to `main` → GitHub Pages serves the root of the branch.
+
+## Custom domain (when ready)
+
+1. At the DNS provider for `cycecso.com`, add:
+   - `A` records for the apex: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
+   - `CNAME` record `www` → `thestormkingg.github.io`
+2. In the repo: Settings → Pages → Custom domain → `cycecso.com` → Save (creates the `CNAME` file), then tick **Enforce HTTPS** once the certificate is issued.
+
+## Reading contact messages
+
+Supabase Dashboard → project **CYCLE** → Table Editor → `cycle_messages`.
+The DB password is stored locally in `.secrets/supabase.env` (never committed).

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found — CYCLE</title>
+<meta name="robots" content="noindex">
+<style>
+  /* Self-contained: GH Pages serves this at any missing path, so no external assets. */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: #E4ECE5; color: #33463B;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px; text-align: center;
+  }
+  .card {
+    background: #E4ECE5; border-radius: 22px; padding: 56px 48px; max-width: 460px;
+    box-shadow: 12px 12px 28px #B9C8BC, -12px -12px 28px #FBFFFA;
+  }
+  .kicker { font-size: 12px; font-weight: 700; letter-spacing: .18em; color: #2D6A4F; margin-bottom: 14px; }
+  h1 { color: #16281E; font-size: 1.7rem; line-height: 1.2; margin-bottom: 14px; }
+  p { margin-bottom: 32px; line-height: 1.6; }
+  a {
+    display: inline-block; background: #2D6A4F; color: #fff; text-decoration: none;
+    font-weight: 700; font-size: 15px; padding: 15px 30px; border-radius: 999px;
+    box-shadow: 6px 6px 14px #B9C8BC, -6px -6px 14px #FBFFFA;
+  }
+  a:hover { background: #163D28; }
+  a:focus-visible { outline: 3px solid #2D6A4F; outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main class="card">
+  <p class="kicker">404</p>
+  <h1>This trail doesn't exist</h1>
+  <p>The page you're looking for has moved or never grew here.</p>
+  <a id="home-link" href="/">Back to the garden</a>
+</main>
+<script>
+  /* On the interim project-pages URL the site root is /cycecso.com/ */
+  var seg = location.pathname.split('/')[1];
+  if (location.hostname.endsWith('github.io') && seg) {
+    document.getElementById('home-link').href = '/' + seg + '/';
+  }
+</script>
+</body>
+</html>
