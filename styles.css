@@ -39,9 +39,9 @@
 
   /* Fluid type keyed to vmin: one scale that behaves in both
      orientations. The JS shrink-to-fit handles the extremes. */
-  --fs-eyebrow: clamp(11px, 1.55vmin, 15px);
-  --fs-h1:      clamp(34px, 7.4vmin, 82px);
-  --fs-h2:      clamp(26px, 5.3vmin, 56px);
+  --fs-eyebrow: clamp(14px, 2.3vmin, 22.5px);
+  --fs-h1:      clamp(42px, 11.1vmin, 123px);
+  --fs-h2:      clamp(32px, 8vmin, 84px);
   /* EB Garamond's x-height is small: the lede runs ~15% larger than
      the equivalent Montserrat role so the two read as one scale */
   --fs-lede:    clamp(17.5px, 3.1vmin, 29px);
@@ -701,7 +701,7 @@ html:not(.js) #contact-form { display: none; }
    readable sizes by tightening the layout instead of letting the
    shrink-to-fit scale the whole slide down. */
 @media (max-width: 600px) {
-  .s-model .headline { font-size: clamp(21px, 6.4vw, 27px); }
+  .s-model .headline { font-size: clamp(31.5px, 9.6vw, 40.5px); }
   .s-model .lede { font-size: 14px; }
   .cycle-fig { width: 150px; }
   .cy-core img { width: 40px; }
@@ -727,8 +727,8 @@ html:not(.js) #contact-form { display: none; }
 @media (max-height: 520px) {
   :root {
     --chrome-t: 42px; --chrome-b: 36px;
-    --fs-h1: clamp(21px, 5.6vmin, 34px);
-    --fs-h2: clamp(17px, 4.2vmin, 26px);
+    --fs-h1: clamp(31.5px, 8.4vmin, 51px);
+    --fs-h2: clamp(25.5px, 6.3vmin, 39px);
     --fs-lede: clamp(13px, 2.3vmin, 16.5px);
     --fs-body: clamp(10.5px, 1.6vmin, 13px);
     --fs-stat: clamp(21px, 5.2vmin, 34px);
