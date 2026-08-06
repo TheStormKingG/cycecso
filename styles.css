@@ -42,8 +42,11 @@
   --fs-eyebrow: clamp(11px, 1.55vmin, 15px);
   --fs-h1:      clamp(34px, 7.4vmin, 82px);
   --fs-h2:      clamp(26px, 5.3vmin, 56px);
-  --fs-lede:    clamp(15.5px, 2.6vmin, 24px);
+  /* EB Garamond's x-height is small: the lede runs ~15% larger than
+     the equivalent Montserrat role so the two read as one scale */
+  --fs-lede:    clamp(17.5px, 3.1vmin, 29px);
   --fs-body:    clamp(13.5px, 2vmin, 18px);
+  --fs-small:   clamp(12.5px, 1.8vmin, 15.5px);
   --fs-stat:    clamp(30px, 6.8vmin, 66px);
   --fs-chip:    clamp(11px, 1.6vmin, 14.5px);
 
@@ -322,7 +325,7 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 .tm:nth-child(5n)   .tm-ava { border-color: var(--c4); }
 
 .tm-name {
-  font-size: clamp(13.5px, 2vmin, 17px); font-weight: 700; color: var(--ink);
+  font-size: var(--fs-body); font-weight: 700; color: var(--ink);
   line-height: 1.25; margin-bottom: 3px;
 }
 .tm-role {
@@ -331,7 +334,7 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
   white-space: nowrap;
 }
 .tm-bio {
-  font-size: clamp(11.5px, 1.65vmin, 14.5px); color: var(--ink-dim); line-height: 1.42;
+  font-size: var(--fs-small); color: var(--ink-dim); line-height: 1.42;
   display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
 }
 
@@ -726,7 +729,7 @@ html:not(.js) #contact-form { display: none; }
     --chrome-t: 42px; --chrome-b: 36px;
     --fs-h1: clamp(21px, 5.6vmin, 34px);
     --fs-h2: clamp(17px, 4.2vmin, 26px);
-    --fs-lede: clamp(11.5px, 2vmin, 15px);
+    --fs-lede: clamp(13px, 2.3vmin, 16.5px);
     --fs-body: clamp(10.5px, 1.6vmin, 13px);
     --fs-stat: clamp(21px, 5.2vmin, 34px);
   }
