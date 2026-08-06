@@ -1,0 +1,6 @@
+.secrets
+.github
+.gitignore
+README.md
+supabase
+assets/fonts/source.css

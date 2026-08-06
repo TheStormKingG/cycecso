@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://thestormkingg.github.io/cycecso/sitemap.xml
+Sitemap: https://cycecso.vercel.app/sitemap.xml

@@ -1,8 +1,9 @@
 name: Deploy to GitHub Pages
 
+# Push trigger disabled while GitHub Pages activation is blocked account-wide
+# (see README / GitHub Support ticket). Vercel auto-deploys pushes meanwhile.
+# Re-enable the push trigger once Pages works: run `gh workflow run deploy-pages.yml` to test.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
