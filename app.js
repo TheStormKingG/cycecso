@@ -167,6 +167,35 @@
   var cyBtns = Array.prototype.slice.call(document.querySelectorAll('[data-cy]'));
   var cyLis = Array.prototype.slice.call(document.querySelectorAll('.cy-l'));
 
+  var deskPop = window.matchMedia('(min-width: 901px) and (min-height: 601px)');
+
+  /* Pin label i as a popover next to its number's current position.
+     Coordinates are converted back into the (possibly --fit-scaled)
+     local space of .cycle-area so the maths hold at any zoom. */
+  function cyPlace(i) {
+    if (!deskPop.matches) return;
+    var li = document.querySelector('.rib[data-cy="' + i + '"]');
+    li = li && li.closest('.cy-l');
+    var node = document.querySelector('.cy-node[data-cy="' + i + '"]');
+    var area = document.querySelector('.cycle-area');
+    if (!li || !node || !area) return;
+    var aR = area.getBoundingClientRect();
+    var nR = node.getBoundingClientRect();
+    var s = area.offsetWidth ? (aR.width / area.offsetWidth) : 1;
+    var nx = (nR.left + nR.width / 2 - aR.left) / s;
+    var ny = (nR.top + nR.height / 2 - aR.top) / s;
+    var half = (nR.width / 2) / s;
+    var w = li.offsetWidth || 300;
+    var leftSide = nx < area.offsetWidth / 2;
+    li.classList.toggle('pop-left', leftSide);
+    li.style.left = Math.round(leftSide ? nx - half - 18 - w : nx + half + 18) + 'px';
+    var top = ny - 22;
+    /* keep an opened description from running past the diagram area */
+    var over = (top + li.offsetHeight) - (area.offsetHeight + 60);
+    if (over > 0) top -= over;
+    li.style.top = Math.round(Math.max(-10, top)) + 'px';
+  }
+
   function cyReveal(i) {
     cyLis.forEach(function (li) {
       var rib = li.querySelector('.rib');
@@ -174,6 +203,7 @@
       var descOpen = !li.querySelector('.cy-desc').hidden;
       li.classList.toggle('is-shown', mine || descOpen);
     });
+    cyPlace(i);
   }
 
   function cySet(i, open) {
@@ -192,6 +222,7 @@
       var open = b.getAttribute('aria-expanded') !== 'true';
       ['1', '2', '3', '4'].forEach(function (k) { cySet(k, k === i ? open : false); });
       cyReveal(i);
+      cyPlace(i); /* re-anchor with the description now open */
       fit(slides[index]);
     });
     /* Hovering or focusing a number reveals that step's title bar */
@@ -250,6 +281,11 @@
       return n.animate(
         [{ transform: 'rotate(' + (-deg) + 'deg)' }, { transform: 'rotate(' + (-deg - glide) + 'deg)' }], opts);
     }));
+    /* once settled, re-anchor whichever label is showing */
+    spinAnims[0].onfinish = function () {
+      var shown = document.querySelector('.cy-l.is-shown .rib');
+      if (shown) cyPlace(shown.dataset.cy);
+    };
   }
   if (canSpin && fig) {
     fig.addEventListener('pointerenter', easeToStop);
