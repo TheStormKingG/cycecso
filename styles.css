@@ -294,11 +294,13 @@ body:has(#contact.is-active) .scrim {
   margin-bottom: clamp(6px, 1.2vmin, 12px);
 }
 
+/* Exactly three rows tall: one faded, one highlighted, one faded. */
 .team-vp {
   height: calc(3 * var(--tm-h) + 2 * var(--tm-gap));
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(transparent, #000 10%, #000 90%, transparent);
-  mask-image: linear-gradient(transparent, #000 10%, #000 90%, transparent);
+  /* gentle edge fade only: the outer rows stay whole, never clipped */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.55), #000 14%, #000 86%, rgba(0,0,0,.55));
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,.55), #000 14%, #000 86%, rgba(0,0,0,.55));
 }
 .team-list {
   list-style: none;

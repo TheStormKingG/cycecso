@@ -311,16 +311,24 @@
     var all = Array.prototype.slice.call(list.children);
     var ti = 0, timer = null;
 
+    /* offsetHeight, NOT getBoundingClientRect(): the slide carries a
+       --fit scale transform, so the rect is in scaled pixels while the
+       translate we write is in layout pixels. Mixing them made every
+       step under-shoot and the rows drifted out of alignment. */
     function rowH() {
       var gap = parseFloat(getComputedStyle(list).rowGap) || 0;
-      return base[0].getBoundingClientRect().height + gap;
+      return base[0].offsetHeight + gap;
     }
     function paint(instant) {
       list.style.transition = instant ? 'none' : 'transform .65s cubic-bezier(.25, .7, .25, 1)';
       list.style.transform = 'translateY(' + (-ti * rowH()) + 'px)';
+      /* the viewport is exactly 3 rows tall, so ti+1 is the centre one */
       all.forEach(function (el, k) { el.classList.toggle('tm-mid', k === ti + 1); });
     }
     function step(dir) {
+      /* settle any in-flight move first: without this, rapid input
+         retargets one transition and sweeps many rows at once */
+      list.getAnimations().forEach(function (a) { try { a.finish(); } catch (e) {} });
       if (dir > 0) {
         if (ti >= N) { ti = 0; paint(true); void list.offsetHeight; }
         ti++;
