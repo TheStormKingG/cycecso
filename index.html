@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="only light">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src https://ilpnumlkhpjgadgdotwo.supabase.co; base-uri 'none'; form-action 'self'">
 <title>CYCLE — Caribbean Youth Conservation Leaders Ensemble</title>
 <meta name="description" content="CYCLE is a youth-led civil society organisation in Guyana working at the intersection of regenerative agriculture, biodiversity conservation, preventive healthcare, women's economic empowerment, and youth development. Together, we regenerate.">
 <link rel="canonical" href="https://cycecso.com/">
@@ -13,11 +15,9 @@
 <meta property="og:image" content="https://cycecso.com/assets/img/cover.jpg">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-<link rel="preload" href="assets/fonts/Montserrat-800.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/Montserrat-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/Montserrat.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="styles.css">
-<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
@@ -32,7 +32,7 @@
         <span class="brand-sub">Caribbean Youth Conservation Leaders Ensemble</span>
       </span>
     </a>
-    <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+    <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
     </button>
     <nav class="site-nav" id="site-nav" aria-label="Main navigation">
@@ -85,7 +85,7 @@
         <div class="reveal">
           <div class="mission-card neu">
             <p class="label">Our mission</p>
-            <blockquote>To empower women, youth, and smallholder farmers to adopt regenerative agricultural systems that increase food production, improve nutrition, and enhance economic resilience.</blockquote>
+            <blockquote>To empower women, youth, and smallholder farmers to adopt regenerative agricultural systems that increase food production, improve nutrition, and enhance economic resilience through integrated climate-smart agriculture, biodiversity conservation, and nutrition education.</blockquote>
           </div>
           <div class="vision-card neu-inset">
             <p class="label">Our vision</p>
@@ -175,7 +175,7 @@
           <span class="neu-ring" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 9 12 4 2 9l10 5 10-5Z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/></svg>
           </span>
-          <h3>Youth Empowerment &amp; Education</h3>
+          <h3>Youth Empowerment &amp; Environmental Education</h3>
           <p>Farm-based learning, school outreach, mentorship, and digital e-learning that build environmental literacy and leadership skills across the region.</p>
         </div>
         <div class="pillar-card neu reveal">
@@ -264,7 +264,11 @@
       </div>
       <div class="contact-grid">
         <div class="contact-form-card neu reveal">
-          <form id="contact-form" novalidate>
+          <noscript>
+            <p class="nojs-note">The contact form needs JavaScript. You can reach us just as well by email:
+            <a href="mailto:cyclegyinitiative@gmail.com">cyclegyinitiative@gmail.com</a>.</p>
+          </noscript>
+          <form id="contact-form" method="post" novalidate>
             <div class="field">
               <label for="cf-name">Name <span class="req" aria-hidden="true">*</span></label>
               <input type="text" id="cf-name" name="name" autocomplete="name" required maxlength="120">

@@ -5,6 +5,11 @@
 (function () {
   'use strict';
 
+  /* Stamped here (not inline in <head>) so hide-and-reveal is atomic:
+     if this file fails to load, no content is ever hidden and the
+     form stays hidden (native submit would leak PII into the URL). */
+  document.documentElement.classList.add('js');
+
   var SUPABASE_URL = 'https://ilpnumlkhpjgadgdotwo.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_Im5gVgF8p3CuN2S_4IdbxA_tPe23YMQ'; // publishable key — safe to expose
 
@@ -22,7 +27,6 @@
   toggle.addEventListener('click', function () {
     var open = nav.classList.toggle('open');
     toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
   });
   nav.addEventListener('click', function (e) {
     if (e.target.closest('a')) {
@@ -51,6 +55,11 @@
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     revealEls.forEach(function (el) { io.observe(el); });
+    /* Safety net: anything receiving keyboard focus is revealed immediately */
+    document.addEventListener('focusin', function (e) {
+      var wrap = e.target.closest('.reveal');
+      if (wrap) wrap.classList.add('in');
+    });
   } else {
     revealEls.forEach(function (el) { el.classList.add('in'); });
   }
@@ -69,6 +78,17 @@
   function setStatus(kind, msg) {
     statusEl.className = 'form-status' + (kind ? ' ' + kind : '');
     statusEl.textContent = msg;
+  }
+
+  function markInvalid(field) {
+    field.setAttribute('aria-invalid', 'true');
+    field.setAttribute('aria-describedby', 'form-status');
+    field.addEventListener('input', function clear() {
+      field.removeAttribute('aria-invalid');
+      field.removeAttribute('aria-describedby');
+      field.removeEventListener('input', clear);
+    });
+    field.focus();
   }
 
   form.addEventListener('submit', function (e) {
@@ -90,12 +110,12 @@
     if (!name || !email || !message) {
       setStatus('err', 'Please fill in your name, email, and message.');
       var firstEmpty = [form.name, form.email, form.message].find(function (f) { return !f.value.trim(); });
-      if (firstEmpty) firstEmpty.focus();
+      if (firstEmpty) markInvalid(firstEmpty);
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setStatus('err', 'That email address doesn’t look right — please check it.');
-      form.email.focus();
+      markInvalid(form.email);
       return;
     }
     if (!consent) {

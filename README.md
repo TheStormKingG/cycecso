@@ -12,6 +12,10 @@ Static site (no build step) deployed on **GitHub Pages**.
 - **Supabase** backs the contact form (`cycle_messages` table, project ref `ilpnumlkhpjgadgdotwo`)
   - Row Level Security: anonymous visitors may only INSERT rows with `consent = true`; no read access
   - The key embedded in `app.js` is the *publishable* key — safe to expose by design
+  - Server-side enforcement (see [supabase/schema.sql](supabase/schema.sql), the auditable source of truth):
+    field-length CHECKs, email-format CHECK, and a rate-limit trigger
+    (max 5 inserts/minute, 100/day globally) — a direct POST that bypasses the
+    client-side validation and honeypot still hits all of these
 - No cookies, no analytics, no trackers → no cookie banner required
 
 ## Deploy
