@@ -97,6 +97,22 @@ em { font-style: normal; color: var(--accent); }
 /* ── The panning panorama ──────────────────────────────────────── */
 .stage { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
 
+/* Barely-there Ken Burns: the forest breathes, starting slightly
+   zoomed in and easing out over 75s, then drifting back. Separate
+   layer so it composes with the pan's own translate. */
+.zoom {
+  position: absolute; inset: 0;
+  animation: stage-breathe 150s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes stage-breathe {
+  from { transform: scale(1.05); }
+  to   { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zoom { animation: none; }
+}
+
 .pan {
   position: absolute; top: 0; left: 0;
   width: 400%; height: 100%;
