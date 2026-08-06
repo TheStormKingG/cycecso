@@ -275,7 +275,7 @@ body:has(#contact.is-active) .scrim {
 
 /* ── 01 · team carousel ────────────────────────────────────────── */
 :root {
-  --tm-h:   clamp(118px, 21vh, 150px);
+  --tm-h:   clamp(128px, 21vh, 152px);
   --tm-gap: clamp(8px, 1.4vmin, 14px);
 }
 
@@ -308,8 +308,8 @@ body:has(#contact.is-active) .scrim {
 }
 
 .tm {
-  height: var(--tm-h); flex-shrink: 0;
-  display: flex; gap: clamp(10px, 1.6vmin, 16px); align-items: flex-start;
+  height: var(--tm-h); flex-shrink: 0; overflow: hidden;
+  display: flex; gap: clamp(12px, 2vmin, 20px); align-items: center;
   padding: clamp(8px, 1.3vmin, 12px) clamp(10px, 1.5vmin, 15px);
   border-radius: var(--radius-sm);
   opacity: .30; filter: saturate(.75);
@@ -325,10 +325,10 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 
 .tm-ava {
   flex-shrink: 0;
-  width: clamp(40px, 6.4vmin, 56px); aspect-ratio: 1; border-radius: 50%;
+  width: clamp(96px, 13.5vmin, 122px); aspect-ratio: 1; border-radius: 50%;
   display: grid; place-items: center;
   background: rgba(255, 255, 255, .10);
-  border: 2px solid var(--accent);
+  border: 3px solid var(--accent);
   color: rgba(242, 250, 243, .8);
   overflow: hidden;
 }
@@ -351,8 +351,30 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 }
 .tm-bio {
   font-size: var(--fs-small); color: var(--ink-dim); line-height: 1.42;
-  display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
+
+/* Step buttons: up above, down below, centred on the carousel */
+.team { position: relative; }
+.team-btn {
+  position: absolute; left: 50%; translate: -50% 0; z-index: 8;
+  width: clamp(34px, 4.6vmin, 42px); aspect-ratio: 1;
+  display: grid; place-items: center;
+  border: none; border-radius: 50%; cursor: pointer;
+  background: var(--surf-2); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  box-shadow: var(--neu-sm);
+  color: var(--ink);
+  transition: background .18s ease, transform .18s ease, color .18s ease;
+}
+.team-btn svg {
+  width: 46%; height: 46%; fill: none;
+  stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+}
+.team-btn:hover { color: var(--accent); transform: translateX(0) scale(1.08); }
+.team-btn:active { transform: scale(.94); box-shadow: inset 2px 2px 6px rgba(0, 0, 0, .4); }
+.team-up { top: clamp(28px, 4.4vmin, 40px); }
+.team-down { bottom: calc(clamp(34px, 4.6vmin, 42px) / -2); }
+html:not(.js) .team-btn { display: none; }
 
 /* ── 02 · the cycle infographic ────────────────────────────────── */
 .cycle-area {
@@ -686,17 +708,18 @@ html:not(.js) #contact-form { display: none; }
   .rib-x { margin-left: auto; }
 
   .about-cols { grid-template-columns: 1fr; gap: clamp(12px, 2.4vmin, 22px); }
-  :root { --tm-h: clamp(104px, 17vh, 128px); }
-  .tm-bio { -webkit-line-clamp: 4; }
+  :root { --tm-h: clamp(108px, 17vh, 134px); }
+  .tm-ava { width: clamp(56px, 15vmin, 96px); }
+  .tm-bio { -webkit-line-clamp: 3; }
 }
 /* Short but wide (landscape phones): keep the two columns side by side
    and shrink the carousel rows instead of stacking everything */
 @media (max-height: 600px) and (min-width: 700px) {
   .about-cols { grid-template-columns: 1fr 1.1fr; }
-  :root { --tm-h: 92px; }
+  :root { --tm-h: 100px; }
   .tm-bio { -webkit-line-clamp: 3; font-size: 11px; }
   .tm-name { font-size: 12.5px; }
-  .tm-ava { width: 34px; }
+  .tm-ava { width: 62px; border-width: 2px; }
   .team-h { margin-bottom: 4px; }
 }
 

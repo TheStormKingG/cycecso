@@ -339,12 +339,28 @@
     }
     function pause() { clearInterval(timer); timer = null; }
 
-    vp.addEventListener('pointerenter', pause);
-    vp.addEventListener('pointerleave', play);
-    /* wheel scrubs the carousel instead of changing slides */
+    /* pause covers the whole widget so moving onto the buttons
+       doesn't restart the auto-advance mid-interaction */
+    var widget = vp.closest('.team') || vp;
+    widget.addEventListener('pointerenter', pause);
+    widget.addEventListener('pointerleave', play);
+
+    var upBtn = document.getElementById('teamUp');
+    var downBtn = document.getElementById('teamDown');
+    if (upBtn) upBtn.addEventListener('click', function () { pause(); step(-1); });
+    if (downBtn) downBtn.addEventListener('click', function () { pause(); step(1); });
+
+    /* wheel scrubs the carousel, exactly ONE row per gesture: the
+       first qualifying event steps, the rest of the burst (trackpad
+       inertia) is swallowed until 280ms of quiet */
+    var wheelTs = 0, wheelArmed = true;
     vp.addEventListener('wheel', function (e) {
       e.stopPropagation(); e.preventDefault();
-      if (Math.abs(e.deltaY) < 12) return;
+      var now = performance.now();
+      if (now - wheelTs > 280) wheelArmed = true;
+      wheelTs = now;
+      if (!wheelArmed || Math.abs(e.deltaY) < 8) return;
+      wheelArmed = false;
       pause(); step(e.deltaY > 0 ? 1 : -1);
     }, { passive: false });
     vp.addEventListener('touchstart', function (e) { e.stopPropagation(); }, { passive: true });
