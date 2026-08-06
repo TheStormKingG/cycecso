@@ -69,46 +69,60 @@
         loop — each turn feeding the next.</p>
 
       <div class="cycle-area">
-        <div class="cycle-fig" aria-hidden="true">
-          <svg viewBox="0 0 200 200" class="cy-ring">
-            <defs>
-              <marker id="cy-ah" viewBox="0 0 10 10" refX="6.5" refY="5"
-                      markerWidth="4.6" markerHeight="4.6" orient="auto">
-                <path d="M0 0 L10 5 L0 10 z" fill="#8FE3B4"/>
-              </marker>
-            </defs>
-            <g fill="none" stroke="#8FE3B4" stroke-width="5" stroke-linecap="round" opacity=".85">
-              <path d="M 68.2 37.6 A 70 70 0 0 1 131.8 37.6" marker-end="url(#cy-ah)"/>
-              <path d="M 68.2 37.6 A 70 70 0 0 1 131.8 37.6" marker-end="url(#cy-ah)" transform="rotate(90 100 100)"/>
-              <path d="M 68.2 37.6 A 70 70 0 0 1 131.8 37.6" marker-end="url(#cy-ah)" transform="rotate(180 100 100)"/>
-              <path d="M 68.2 37.6 A 70 70 0 0 1 131.8 37.6" marker-end="url(#cy-ah)" transform="rotate(270 100 100)"/>
+        <div class="cycle-fig">
+          <svg viewBox="0 0 100 100" class="cy-ring" aria-hidden="true">
+            <g class="cy-swooshes">
+              <path fill="#D9A62B" d="M 31.30 17.88 L 33.09 16.99 L 34.92 16.20 L 36.78 15.51 L 38.68 14.93 L 40.60 14.46 L 42.53 14.09 L 44.48 13.83 L 46.43 13.68 L 48.38 13.64 L 50.33 13.70 L 52.27 13.87 L 54.18 14.15 L 56.08 14.53 L 56.70 10.99 L 60.74 17.80 L 54.76 22.02 L 55.38 18.47 L 53.68 18.32 L 51.98 18.26 L 50.29 18.30 L 48.60 18.43 L 46.93 18.65 L 45.28 18.97 L 43.66 19.37 L 42.07 19.86 L 40.51 20.44 L 38.99 21.09 L 37.51 21.83 L 36.08 22.65 L 34.70 23.54 Z"/>
+              <path fill="#D13030" d="M 80.44 29.23 L 81.40 31.00 L 82.25 32.81 L 82.99 34.66 L 83.63 36.54 L 84.17 38.45 L 84.59 40.38 L 84.91 42.32 L 85.12 44.27 L 85.22 46.23 L 85.21 48.18 L 85.09 50.12 L 84.87 52.05 L 88.45 52.36 L 82.02 56.98 L 77.30 51.39 L 80.88 51.70 L 80.88 49.99 L 80.77 48.28 L 80.58 46.59 L 80.29 44.92 L 79.92 43.28 L 79.45 41.66 L 78.89 40.07 L 78.26 38.53 L 77.53 37.03 L 76.73 35.57 L 75.86 34.17 L 74.91 32.82 Z"/>
+              <path fill="#2E6FBF" d="M 72.35 77.60 L 70.71 78.71 L 69.02 79.73 L 67.27 80.65 L 65.49 81.47 L 63.66 82.19 L 61.81 82.81 L 59.92 83.33 L 58.02 83.74 L 56.10 84.04 L 54.17 84.24 L 52.24 84.34 L 50.31 84.32 L 48.39 84.21 L 46.48 83.99 L 44.59 83.66 L 42.72 83.24 L 41.97 86.76 L 38.17 79.81 L 44.30 75.80 L 43.55 79.32 L 45.23 79.55 L 46.91 79.68 L 48.59 79.72 L 50.27 79.67 L 51.93 79.53 L 53.59 79.30 L 55.22 78.98 L 56.83 78.57 L 58.41 78.08 L 59.95 77.50 L 61.46 76.84 L 62.93 76.10 L 64.35 75.28 L 65.71 74.39 L 67.03 73.43 L 68.29 72.40 Z"/>
+              <path fill="#2FA8D1" d="M 18.88 67.70 L 18.01 65.96 L 17.23 64.18 L 16.55 62.37 L 15.97 60.53 L 15.49 58.66 L 15.11 56.78 L 14.84 54.88 L 14.67 52.98 L 14.60 51.08 L 14.63 49.18 L 14.76 47.29 L 15.00 45.41 L 15.33 43.55 L 15.76 41.72 L 12.24 40.97 L 19.19 37.17 L 23.20 43.30 L 19.68 42.55 L 19.47 44.20 L 19.35 45.86 L 19.31 47.51 L 19.37 49.15 L 19.52 50.79 L 19.75 52.41 L 20.07 54.01 L 20.47 55.59 L 20.95 57.13 L 21.52 58.65 L 22.16 60.13 L 22.88 61.56 L 23.68 62.95 L 24.54 64.30 Z"/>
             </g>
           </svg>
-          <span class="cy-node cy-n1">01</span>
-          <span class="cy-node cy-n2">02</span>
-          <span class="cy-node cy-n3">03</span>
-          <span class="cy-node cy-n4">04</span>
-          <span class="cy-core">
+          <button type="button" class="cy-node cy-n1" data-cy="1" aria-expanded="false"
+                  aria-controls="cyd-1" aria-label="Step 1, Research and Publish — toggle details">01</button>
+          <button type="button" class="cy-node cy-n2" data-cy="2" aria-expanded="false"
+                  aria-controls="cyd-2" aria-label="Step 2, Empower Agripreneurs — toggle details">02</button>
+          <button type="button" class="cy-node cy-n3" data-cy="3" aria-expanded="false"
+                  aria-controls="cyd-3" aria-label="Step 3, Showcase and Market — toggle details">03</button>
+          <button type="button" class="cy-node cy-n4" data-cy="4" aria-expanded="false"
+                  aria-controls="cyd-4" aria-label="Step 4, Shape Policy — toggle details">04</button>
+          <span class="cy-core" aria-hidden="true">
             <img src="assets/img/logo.png" alt="" width="72" height="72">
-            <span class="cy-word">CYCLE</span>
+            <span class="cy-word"><b>C</b><b>Y</b><b>C</b><b>L</b><b>E</b></span>
           </span>
         </div>
         <ol class="cy-labels">
           <li class="cy-l cy-l1">
-            <h3><span class="cy-chip cy-c1">01</span>Research &amp; Publish</h3>
-            <p>Field science at Pakuri and Moco Moco, published openly.</p>
+            <button type="button" class="rib rib-1" data-cy="1" aria-expanded="false" aria-controls="cyd-1">
+              <span class="rib-num">01</span><span class="rib-t">Research &amp; Publish</span><span class="rib-x" aria-hidden="true"></span>
+            </button>
+            <div class="cy-desc" id="cyd-1" hidden>
+              <p>Field science at Pakuri and Moco Moco on how biodiversity, farming and community health connect — published openly.</p>
+            </div>
           </li>
           <li class="cy-l cy-l2">
-            <h3><span class="cy-chip cy-c2">02</span>Empower Agripreneurs</h3>
-            <p>Training and enterprise support for women, Indigenous and youth farmers.</p>
+            <button type="button" class="rib rib-2" data-cy="2" aria-expanded="false" aria-controls="cyd-2">
+              <span class="rib-num">02</span><span class="rib-t">Empower Agripreneurs</span><span class="rib-x" aria-hidden="true"></span>
+            </button>
+            <div class="cy-desc" id="cyd-2" hidden>
+              <p>Evidence becomes training, mentorship and enterprise support for women, Indigenous and youth farmers.</p>
+            </div>
           </li>
           <li class="cy-l cy-l3">
-            <h3><span class="cy-chip cy-c3">03</span>Showcase &amp; Market</h3>
-            <p>Their farms and produce taken public, at home and abroad.</p>
+            <button type="button" class="rib rib-3" data-cy="3" aria-expanded="false" aria-controls="cyd-3">
+              <span class="rib-num">03</span><span class="rib-t">Showcase &amp; Market</span><span class="rib-x" aria-hidden="true"></span>
+            </button>
+            <div class="cy-desc" id="cyd-3" hidden>
+              <p>Their farms taken public — marketing the produce while raising national awareness of what grows in Guyana's soil.</p>
+            </div>
           </li>
           <li class="cy-l cy-l4">
-            <h3><span class="cy-chip cy-c4">04</span>Shape Policy</h3>
-            <p>Evidence into climate-resilient agriculture policy, Caribbean-wide.</p>
+            <button type="button" class="rib rib-4" data-cy="4" aria-expanded="false" aria-controls="cyd-4">
+              <span class="rib-num">04</span><span class="rib-t">Shape Policy</span><span class="rib-x" aria-hidden="true"></span>
+            </button>
+            <div class="cy-desc" id="cyd-4" hidden>
+              <p>Findings land in policy papers for climate-resilient agriculture, in Guyana and across the Caribbean.</p>
+            </div>
           </li>
         </ol>
       </div>

@@ -47,11 +47,12 @@
   --fs-stat:    clamp(30px, 6.8vmin, 66px);
   --fs-chip:    clamp(11px, 1.6vmin, 14.5px);
 
-  /* Step colours for the cycle diagram — one green family, four steps */
-  --c1: #C9F2DB;
-  --c2: #8FE3B4;
-  --c3: #57C48F;
-  --c4: #2FA06C;
+  /* Step colours for the cycle diagram — sampled from the CYCLE logo */
+  --c1: #D9A62B;   /* gold   */
+  --c2: #D13030;   /* red    */
+  --c3: #2E6FBF;   /* blue   */
+  --c4: #2FA8D1;   /* cyan   */
+  --c-green: #2FA06C;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -271,69 +272,90 @@ body:has(#contact.is-active) .scrim {
   aspect-ratio: 1;
 }
 .cy-ring { position: absolute; inset: 0; width: 100%; height: 100%; }
-.cy-ring g { filter: drop-shadow(3px 4px 6px rgba(0, 0, 0, .35)); }
+.cy-swooshes { filter: drop-shadow(2px 3px 4px rgba(0, 0, 0, .38)); }
 
 .cy-node {
   position: absolute;
-  width: 19%; aspect-ratio: 1;
   transform: translate(-50%, -50%);
-  border-radius: 50%;
+  aspect-ratio: 1; border-radius: 50%;
   display: grid; place-items: center;
-  color: var(--deep);
-  font-weight: 800; font-size: clamp(14px, 2.6vmin, 24px);
-  letter-spacing: .02em;
-  box-shadow: 4px 5px 12px rgba(0, 0, 0, .45), inset -2px -3px 6px rgba(0, 0, 0, .18),
-              inset 2px 3px 6px rgba(255, 255, 255, .35);
+  border: 3px solid rgba(255, 255, 255, .92);
+  font-family: inherit; font-weight: 800;
+  letter-spacing: .02em; cursor: pointer;
+  box-shadow: 4px 5px 13px rgba(0, 0, 0, .5), inset -2px -3px 6px rgba(0, 0, 0, .2),
+              inset 2px 3px 6px rgba(255, 255, 255, .3);
+  transition: transform .18s ease, box-shadow .18s ease;
 }
-.cy-n1 { left: 25.25%; top: 25.25%; background: var(--c1); }
-.cy-n2 { left: 74.75%; top: 25.25%; background: var(--c2); }
-.cy-n3 { left: 74.75%; top: 74.75%; background: var(--c3); }
-.cy-n4 { left: 25.25%; top: 74.75%; background: var(--c4); }
+.cy-node:hover { transform: translate(-50%, -50%) scale(1.07); }
+.cy-node:active { transform: translate(-50%, -50%) scale(.96); }
+.cy-node.is-open { box-shadow: 0 0 0 4px rgba(255, 255, 255, .35), 4px 5px 13px rgba(0, 0, 0, .5); }
+
+/* staggered positions + sizes, mirroring the reference's rhythm */
+.cy-n1 { left: 24.7%; top: 27.8%; width: 17.5%; background: var(--c1); color: var(--deep); font-size: clamp(13px, 2.5vmin, 23px); }
+.cy-n2 { left: 70.3%; top: 23%;   width: 20.5%; background: var(--c2); color: #fff;        font-size: clamp(15px, 2.9vmin, 27px); }
+.cy-n3 { left: 77.7%; top: 67%;   width: 20.5%; background: var(--c3); color: #fff;        font-size: clamp(15px, 2.9vmin, 27px); }
+.cy-n4 { left: 28.8%; top: 74.3%; width: 18.5%; background: var(--c4); color: var(--deep); font-size: clamp(14px, 2.7vmin, 25px); }
 
 .cy-core {
   position: absolute; left: 50%; top: 50%;
   transform: translate(-50%, -50%);
-  display: grid; place-items: center; gap: 5px;
-  text-align: center;
+  display: grid; place-items: center; gap: 6px;
+  text-align: center; pointer-events: none;
 }
 .cy-core img {
-  width: clamp(52px, 11vmin, 96px); height: auto;
+  width: clamp(46px, 9.6vmin, 84px); height: auto;
   background: rgba(255, 255, 255, .95); border-radius: 50%;
   padding: 6%;
   box-shadow: 5px 6px 14px rgba(0, 0, 0, .45);
 }
 .cy-word {
-  font-weight: 800; letter-spacing: .3em; text-indent: .3em;
-  font-size: clamp(12px, 1.9vmin, 17px); color: var(--ink);
+  font-weight: 800; letter-spacing: .26em; text-indent: .26em;
+  font-size: clamp(14px, 2.5vmin, 23px);
 }
+.cy-word b:nth-child(1) { color: var(--c2); }
+.cy-word b:nth-child(2) { color: var(--c1); }
+.cy-word b:nth-child(3) { color: #4ECf95; }
+.cy-word b:nth-child(4) { color: #6FA8E8; }
+.cy-word b:nth-child(5) { color: var(--c4); }
 
 .cy-labels { display: contents; list-style: none; }
-.cy-l { max-width: 34ch; }
+.cy-l { max-width: 36ch; }
 .cy-l1 { grid-column: 1; grid-row: 1; justify-self: end; align-self: end;   text-align: right; }
 .cy-l4 { grid-column: 1; grid-row: 2; justify-self: end; align-self: start; text-align: right; }
 .cy-l2 { grid-column: 3; grid-row: 1; justify-self: start; align-self: end; }
 .cy-l3 { grid-column: 3; grid-row: 2; justify-self: start; align-self: start; }
 
-.cy-l h3 {
-  display: flex; align-items: center; gap: 9px;
-  font-size: clamp(15px, 2.4vmin, 21px); font-weight: 700; line-height: 1.15;
-  margin-bottom: 5px;
+/* Ribbon buttons — the reference's coloured subtitle bars, clickable */
+.rib {
+  display: inline-flex; align-items: center; gap: 10px;
+  border: none; cursor: pointer; font-family: inherit;
+  padding: clamp(7px, 1.3vmin, 11px) clamp(12px, 1.9vmin, 18px);
+  border-radius: 5px;
+  font-size: clamp(14px, 2.2vmin, 19px); font-weight: 700; line-height: 1.1;
+  box-shadow: 3px 4px 10px rgba(0, 0, 0, .45);
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
 }
-.cy-l1 h3, .cy-l4 h3 { flex-direction: row-reverse; }
-.cy-l p { font-size: var(--fs-body); color: var(--ink-dim); line-height: 1.45; }
+.rib:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.rib:active { transform: translateY(0); }
+.rib-1 { background: var(--c1); color: var(--deep); }
+.rib-2 { background: var(--c2); color: #fff; }
+.rib-3 { background: var(--c3); color: #fff; }
+.rib-4 { background: var(--c4); color: var(--deep); }
+.rib-num { font-size: .82em; opacity: .82; font-weight: 800; }
+.rib-x {
+  width: 8px; height: 8px; flex-shrink: 0;
+  border-right: 2.4px solid currentColor; border-bottom: 2.4px solid currentColor;
+  transform: rotate(45deg) translate(-1px, -1px);
+  transition: transform .2s ease;
+  opacity: .85;
+}
+.rib.is-open .rib-x { transform: rotate(225deg) translate(-1px, -1px); }
+.cy-l1 .rib, .cy-l4 .rib { flex-direction: row-reverse; }
 
-.cy-chip {
-  flex-shrink: 0;
-  display: grid; place-items: center;
-  min-width: clamp(30px, 4.4vmin, 42px); height: clamp(19px, 2.9vmin, 26px);
-  padding: 0 7px; border-radius: 6px;
-  color: var(--deep); font-size: clamp(11px, 1.7vmin, 15px); font-weight: 800;
-  box-shadow: 2px 3px 7px rgba(0, 0, 0, .4);
-}
-.cy-c1 { background: var(--c1); }
-.cy-c2 { background: var(--c2); }
-.cy-c3 { background: var(--c3); }
-.cy-c4 { background: var(--c4); }
+.cy-desc { padding-top: clamp(6px, 1.2vmin, 10px); }
+.cy-desc p { font-size: var(--fs-body); color: var(--ink-dim); line-height: 1.45; }
+/* Without JS the toggles can't run — show every description */
+html:not(.js) .cy-desc[hidden] { display: block; }
 
 /* ── 03 · stats + timeline ─────────────────────────────────────── */
 .stats {
@@ -526,7 +548,9 @@ html:not(.js) #contact-form { display: none; }
   .cy-l, .cy-l1, .cy-l4 { max-width: none; text-align: left; }
   /* desktop quadrant placements must not leak into the stacked grid */
   .cy-l1, .cy-l2, .cy-l3, .cy-l4 { grid-area: auto; justify-self: stretch; align-self: auto; }
-  .cy-l1 h3, .cy-l4 h3 { flex-direction: row; }
+  .cy-l1 .rib, .cy-l4 .rib { flex-direction: row; }
+  .rib { width: 100%; }
+  .rib-x { margin-left: auto; }
 }
 
 @media (max-width: 1000px) {
@@ -548,14 +572,14 @@ html:not(.js) #contact-form { display: none; }
 @media (max-width: 600px) {
   .s-model .headline { font-size: clamp(21px, 6.4vw, 27px); }
   .s-model .lede { font-size: 14px; }
-  .cycle-fig { width: 138px; }
-  .cy-core img { width: 44px; }
-  .cy-word { font-size: 10px; }
-  .cy-node { font-size: 13px; }
+  .cycle-fig { width: 150px; }
+  .cy-core img { width: 40px; }
+  .cy-word { font-size: 11px; }
+  .cy-n1, .cy-n2, .cy-n3, .cy-n4 { font-size: 12px; border-width: 2px; }
   .cy-labels { gap: 6px; }
-  .cy-l h3 { font-size: 15px; margin-bottom: 2px; gap: 7px; }
-  .cy-l p { font-size: 12.5px; line-height: 1.32; }
-  .cy-chip { min-width: 27px; height: 18px; font-size: 10.5px; }
+  .rib { font-size: 14px; padding: 7px 12px; }
+  .cy-desc { padding-top: 4px; }
+  .cy-desc p { font-size: 12.5px; line-height: 1.32; }
   .chip-row-sm { margin-top: 8px; }
   .chip-row-sm .chip { font-size: 10px; padding: 4px 9px; }
 }
@@ -580,7 +604,6 @@ html:not(.js) #contact-form { display: none; }
   }
   .brand-sub, .credit { display: none; }
   .lede { line-height: 1.42; }
-  .cy-l p { display: none; }         /* landscape phones: titles carry it */
   .cy-labels { grid-template-columns: repeat(2, 1fr); }
   .stat { padding: 9px 6px; }
   .timeline { margin-top: 9px; padding-top: 8px; }

@@ -162,6 +162,26 @@
   fitAll();
   show(start < 0 ? 0 : start, { replace: true });
 
+  /* ── Cycle diagram: click a node or ribbon to expand its step ── */
+  var cyBtns = Array.prototype.slice.call(document.querySelectorAll('[data-cy]'));
+  function cySet(i, open) {
+    var desc = document.getElementById('cyd-' + i);
+    if (desc) desc.hidden = !open;
+    cyBtns.forEach(function (b) {
+      if (b.dataset.cy !== i) return;
+      b.setAttribute('aria-expanded', String(open));
+      b.classList.toggle('is-open', open);
+    });
+  }
+  cyBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var i = b.dataset.cy;
+      var open = b.getAttribute('aria-expanded') !== 'true';
+      ['1', '2', '3', '4'].forEach(function (k) { cySet(k, k === i ? open : false); });
+      fit(slides[index]);
+    });
+  });
+
   /* ── Contact form → Supabase (consent-gated, RLS-enforced) ──── */
   var form = document.getElementById('contact-form');
   if (!form) return;
