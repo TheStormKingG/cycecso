@@ -254,6 +254,86 @@ body:has(#contact.is-active) .scrim {
 .chip-row-sm { margin-top: clamp(10px, 2.2vmin, 22px); }
 .chip-row-sm .chip { text-transform: none; letter-spacing: .02em; font-weight: 600; }
 
+/* ── 01 · team carousel ────────────────────────────────────────── */
+:root {
+  --tm-h:   clamp(118px, 21vh, 150px);
+  --tm-gap: clamp(8px, 1.4vmin, 14px);
+}
+
+.about-cols {
+  display: grid; grid-template-columns: .92fr 1.08fr;
+  gap: clamp(22px, 3.4vmin, 52px);
+  align-items: center;
+  margin-top: clamp(10px, 2.2vmin, 24px);
+}
+.about-cols .lede { margin-top: 0; }
+
+.team-h {
+  font-size: var(--fs-eyebrow); font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mut);
+  margin-bottom: clamp(6px, 1.2vmin, 12px);
+}
+
+.team-vp {
+  height: calc(3 * var(--tm-h) + 2 * var(--tm-gap));
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(transparent, #000 10%, #000 90%, transparent);
+}
+.team-list {
+  list-style: none;
+  display: flex; flex-direction: column;
+  gap: var(--tm-gap);
+  will-change: transform;
+}
+
+.tm {
+  height: var(--tm-h); flex-shrink: 0;
+  display: flex; gap: clamp(10px, 1.6vmin, 16px); align-items: flex-start;
+  padding: clamp(8px, 1.3vmin, 12px) clamp(10px, 1.5vmin, 15px);
+  border-radius: var(--radius-sm);
+  opacity: .30; filter: saturate(.75);
+  transition: opacity .5s ease, filter .5s ease, background .5s ease;
+}
+.tm-mid {
+  opacity: 1; filter: none;
+  background: var(--surf); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  box-shadow: var(--neu-sm);
+}
+html:not(.js) .tm { opacity: 1; filter: none; height: auto; }
+html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+
+.tm-ava {
+  flex-shrink: 0;
+  width: clamp(40px, 6.4vmin, 56px); aspect-ratio: 1; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, .10);
+  border: 2px solid var(--accent);
+  color: rgba(242, 250, 243, .8);
+  overflow: hidden;
+}
+.tm-ava svg { width: 72%; height: 72%; }
+/* placeholder tint rotates through the logo palette */
+.tm:nth-child(5n+1) .tm-ava { border-color: var(--c1); }
+.tm:nth-child(5n+2) .tm-ava { border-color: var(--c2); }
+.tm:nth-child(5n+3) .tm-ava { border-color: var(--c-green); }
+.tm:nth-child(5n+4) .tm-ava { border-color: var(--c3); }
+.tm:nth-child(5n)   .tm-ava { border-color: var(--c4); }
+
+.tm-name {
+  font-size: clamp(13.5px, 2vmin, 17px); font-weight: 700; color: var(--ink);
+  line-height: 1.25; margin-bottom: 3px;
+}
+.tm-role {
+  font-weight: 600; color: var(--accent);
+  font-size: .82em; letter-spacing: .04em;
+  white-space: nowrap;
+}
+.tm-bio {
+  font-size: clamp(11.5px, 1.65vmin, 14.5px); color: var(--ink-dim); line-height: 1.42;
+  display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+}
+
 /* ── 02 · the cycle infographic ────────────────────────────────── */
 .cycle-area {
   display: grid;
@@ -577,6 +657,20 @@ html:not(.js) #contact-form { display: none; }
   .cy-l1 .rib, .cy-l4 .rib { flex-direction: row; }
   .rib { width: 100%; }
   .rib-x { margin-left: auto; }
+
+  .about-cols { grid-template-columns: 1fr; gap: clamp(12px, 2.4vmin, 22px); }
+  :root { --tm-h: clamp(104px, 17vh, 128px); }
+  .tm-bio { -webkit-line-clamp: 4; }
+}
+/* Short but wide (landscape phones): keep the two columns side by side
+   and shrink the carousel rows instead of stacking everything */
+@media (max-height: 600px) and (min-width: 700px) {
+  .about-cols { grid-template-columns: 1fr 1.1fr; }
+  :root { --tm-h: 92px; }
+  .tm-bio { -webkit-line-clamp: 3; font-size: 11px; }
+  .tm-name { font-size: 12.5px; }
+  .tm-ava { width: 34px; }
+  .team-h { margin-bottom: 4px; }
 }
 
 @media (max-width: 1000px) {

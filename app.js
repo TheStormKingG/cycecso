@@ -239,19 +239,17 @@
     if (!canSpin || !spinAnims.length) return;
     var deg = angleOf(spinEl);
     cancelSpin();
-    if (deg < 1 || deg > 359) return;
-    var opts = {
-      duration: 700 + (360 - deg) / 360 * 2200,
-      easing: 'cubic-bezier(.25, .5, .25, 1)',
-      fill: 'forwards'
-    };
+    /* Glide a few more degrees and settle right there — no snapping
+       back to a canonical pose. fill:'forwards' holds the resting
+       angle until the pointer leaves and the idle spin resumes. */
+    var glide = 9;
+    var opts = { duration: 850, easing: 'cubic-bezier(.15, .6, .25, 1)', fill: 'forwards' };
     spinAnims = [spinEl.animate(
-      [{ transform: 'rotate(' + deg + 'deg)' }, { transform: 'rotate(360deg)' }], opts
+      [{ transform: 'rotate(' + deg + 'deg)' }, { transform: 'rotate(' + (deg + glide) + 'deg)' }], opts
     )].concat(nts.map(function (n) {
       return n.animate(
-        [{ transform: 'rotate(' + (-deg) + 'deg)' }, { transform: 'rotate(-360deg)' }], opts);
+        [{ transform: 'rotate(' + (-deg) + 'deg)' }, { transform: 'rotate(' + (-deg - glide) + 'deg)' }], opts);
     }));
-    spinAnims[0].onfinish = function () { cancelSpin(); }; /* settle at the base pose */
   }
   if (canSpin && fig) {
     fig.addEventListener('pointerenter', easeToStop);
@@ -263,6 +261,62 @@
     else cancelSpin();
   }
   cycleSpinFor(ids[index]); /* boot ran show() before this section existed */
+
+  /* ── Team carousel: vertical, 3 visible, middle highlighted ──── */
+  (function () {
+    var vp = document.querySelector('.team-vp');
+    var list = document.querySelector('.team-list');
+    if (!vp || !list) return;
+    var base = Array.prototype.slice.call(list.children);
+    var N = base.length;
+    if (N < 4) return;
+    /* clone the first 3 so the wrap-around is seamless */
+    base.slice(0, 3).forEach(function (it) { list.appendChild(it.cloneNode(true)); });
+    var all = Array.prototype.slice.call(list.children);
+    var ti = 0, timer = null;
+
+    function rowH() {
+      var gap = parseFloat(getComputedStyle(list).rowGap) || 0;
+      return base[0].getBoundingClientRect().height + gap;
+    }
+    function paint(instant) {
+      list.style.transition = instant ? 'none' : 'transform .65s cubic-bezier(.25, .7, .25, 1)';
+      list.style.transform = 'translateY(' + (-ti * rowH()) + 'px)';
+      all.forEach(function (el, k) { el.classList.toggle('tm-mid', k === ti + 1); });
+    }
+    function step(dir) {
+      if (dir > 0) {
+        if (ti >= N) { ti = 0; paint(true); void list.offsetHeight; }
+        ti++;
+      } else {
+        if (ti <= 0) { ti = N; paint(true); void list.offsetHeight; }
+        ti--;
+      }
+      paint(false);
+    }
+    list.addEventListener('transitionend', function () {
+      if (ti === N) { ti = 0; paint(true); }
+    });
+    function play() {
+      if (timer || reduced.matches) return;
+      timer = setInterval(function () { step(1); }, 3800);
+    }
+    function pause() { clearInterval(timer); timer = null; }
+
+    vp.addEventListener('pointerenter', pause);
+    vp.addEventListener('pointerleave', play);
+    /* wheel scrubs the carousel instead of changing slides */
+    vp.addEventListener('wheel', function (e) {
+      e.stopPropagation(); e.preventDefault();
+      if (Math.abs(e.deltaY) < 12) return;
+      pause(); step(e.deltaY > 0 ? 1 : -1);
+    }, { passive: false });
+    vp.addEventListener('touchstart', function (e) { e.stopPropagation(); }, { passive: true });
+
+    window.addEventListener('resize', function () { paint(true); });
+    paint(true);
+    play();
+  })();
 
   /* ── Contact form → Supabase (consent-gated, RLS-enforced) ──── */
   var form = document.getElementById('contact-form');
