@@ -79,6 +79,9 @@
     var label = slides[index].getAttribute('aria-label') || ('Slide ' + (index + 1));
     srLive.textContent = label;
     if (typeof cycleSpinFor === 'function') cycleSpinFor(ids[index]);
+    /* returning to the About slide (nav, dots, keys, back button, or
+       the very first load) always retriggers the team auto-scroll */
+    if (ids[index] === 'about' && typeof window.__teamResume === 'function') window.__teamResume();
 
     if (!opts.silent) {
       var hash = '#' + ids[index];
@@ -186,7 +189,12 @@
     var ny = (nR.top + nR.height / 2 - aR.top) / s;
     var half = (nR.width / 2) / s;
     var w = li.offsetWidth || 300;
-    var leftSide = nx < area.offsetWidth / 2;
+    /* Which side has more room for THIS node — not which half of the
+       area it's in. The diagram now sits flush right, so every node
+       (even the ring's own left-side ones) can end up past the area's
+       midpoint; comparing actual free space on each side keeps every
+       label opening into real space instead of off the right edge. */
+    var leftSide = nx > (area.offsetWidth - nx);
     li.classList.toggle('pop-left', leftSide);
     li.style.left = Math.round(leftSide ? nx - half - 18 - w : nx + half + 18) + 'px';
     var top = ny - 22;
@@ -327,84 +335,167 @@
   }
   cycleSpinFor(ids[index]); /* boot ran show() before this section existed */
 
-  /* ── Team carousel: vertical, 3 visible, middle highlighted ──── */
+  /* ── Team carousel: continuous auto-scroll, 3 visible, whichever
+        member sits nearest the centre is the highlighted one ──────── */
   (function () {
     var vp = document.querySelector('.team-vp');
     var list = document.querySelector('.team-list');
-    if (!vp || !list) return;
+    var widget = vp && vp.closest('.team');
+    if (!vp || !list || !widget) return;
     var base = Array.prototype.slice.call(list.children);
     var N = base.length;
     if (N < 4) return;
-    /* clone the first 3 so the wrap-around is seamless */
-    base.slice(0, 3).forEach(function (it) { list.appendChild(it.cloneNode(true)); });
-    var all = Array.prototype.slice.call(list.children);
-    var ti = 0, timer = null;
 
-    /* offsetHeight, NOT getBoundingClientRect(): the slide carries a
-       --fit scale transform, so the rect is in scaled pixels while the
-       translate we write is in layout pixels. Mixing them made every
-       step under-shoot and the rows drifted out of alignment. */
-    function rowH() {
+    /* Duplicate the whole set once: a continuous loop needs a second
+       copy to scroll into as the first copy scrolls out, then wraps. */
+    base.forEach(function (it) { list.appendChild(it.cloneNode(true)); });
+    var all = Array.prototype.slice.call(list.children);
+
+    var SPEED = 15;           // px/s of layout height — slow, ambient
+    var TICK_MS = 40;          // ~25fps: smooth for a 15px/s creep, cheap
+    var pos = 0;               // scrolled distance, px, wraps at setH
+    var setH = 0;              // layout height of ONE full set (N rows)
+    var playTimer = null;      // set <=> currently auto-scrolling
+    var lastT = null;
+    var stepTimer = null;      // in-flight button-step animation
+    var touchDragging = false, touchY = 0, touchPos0 = 0;
+
+    /* offsetHeight, not getBoundingClientRect(): the slide carries a
+       --fit scale transform, so the rect is in scaled px while the
+       translate we write is in layout px. Mixing them drifts the rows. */
+    function rowPitch() {
       var gap = parseFloat(getComputedStyle(list).rowGap) || 0;
       return base[0].offsetHeight + gap;
     }
-    function paint(instant) {
-      list.style.transition = instant ? 'none' : 'transform .65s cubic-bezier(.25, .7, .25, 1)';
-      list.style.transform = 'translateY(' + (-ti * rowH()) + 'px)';
-      /* the viewport is exactly 3 rows tall, so ti+1 is the centre one */
-      all.forEach(function (el, k) { el.classList.toggle('tm-mid', k === ti + 1); });
+    function measure() { setH = rowPitch() * N; }
+    function wrap() {
+      if (setH <= 0) return;
+      if (pos >= setH) pos -= setH;
+      if (pos < 0) pos += setH;
     }
-    function step(dir) {
-      /* settle any in-flight move first: without this, rapid input
-         retargets one transition and sweeps many rows at once */
-      list.getAnimations().forEach(function (a) { try { a.finish(); } catch (e) {} });
-      if (dir > 0) {
-        if (ti >= N) { ti = 0; paint(true); void list.offsetHeight; }
-        ti++;
-      } else {
-        if (ti <= 0) { ti = N; paint(true); void list.offsetHeight; }
-        ti--;
-      }
-      paint(false);
-    }
-    list.addEventListener('transitionend', function () {
-      if (ti === N) { ti = 0; paint(true); }
-    });
-    function play() {
-      if (timer || reduced.matches) return;
-      timer = setInterval(function () { step(1); }, 3800);
-    }
-    function pause() { clearInterval(timer); timer = null; }
 
-    /* pause covers the whole widget so moving onto the buttons
-       doesn't restart the auto-advance mid-interaction */
-    var widget = vp.closest('.team') || vp;
-    widget.addEventListener('pointerenter', pause);
-    widget.addEventListener('pointerleave', play);
+    var lastMid = 0;
+    function updateMid() {
+      var now = performance.now();
+      if (now - lastMid < 100) return; /* cheap throttle, not every frame */
+      lastMid = now;
+      var vpR = vp.getBoundingClientRect();
+      var centerY = vpR.top + vpR.height / 2;
+      var closest = null, closestD = Infinity;
+      all.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.bottom < vpR.top - 4 || r.top > vpR.bottom + 4) return;
+        var d = Math.abs((r.top + r.height / 2) - centerY);
+        if (d < closestD) { closestD = d; closest = el; }
+      });
+      all.forEach(function (el) { el.classList.toggle('tm-mid', el === closest); });
+    }
+
+    function render() {
+      list.style.transform = 'translateY(' + (-pos) + 'px)';
+      updateMid();
+    }
+
+    /* setInterval, not requestAnimationFrame: this keeps the driving
+       clock frame-rate independent (delta-timed via performance.now())
+       and, unlike rAF, reliably fires in every embedding context this
+       page runs in. Frame-independent math means the interval period
+       is purely a smoothness/cost knob, not a correctness one. */
+    function tickOnce() {
+      var t = performance.now();
+      if (lastT == null) lastT = t;
+      pos += SPEED * ((t - lastT) / 1000);
+      lastT = t;
+      wrap();
+      render();
+    }
+    function play() {
+      if (playTimer || reduced.matches) return; /* reduced: stays parked */
+      lastT = null;
+      playTimer = setInterval(tickOnce, TICK_MS);
+    }
+    function pause() {
+      clearInterval(playTimer);
+      playTimer = null;
+    }
+
+    function cancelStepAnim() {
+      if (stepTimer) { clearInterval(stepTimer); stepTimer = null; }
+    }
+    /* Buttons: pause, then glide exactly one row (eased, not a jump) */
+    function stepManual(dir) {
+      pause();
+      cancelStepAnim();
+      var from = pos, delta = dir * rowPitch(), dur = 420, start = performance.now();
+      function ease(p) { return 1 - Math.pow(1 - p, 3); }
+      stepTimer = setInterval(function () {
+        var p = Math.min(1, (performance.now() - start) / dur);
+        pos = from + delta * ease(p);
+        wrap(); render();
+        if (p >= 1) cancelStepAnim();
+      }, TICK_MS);
+    }
+
+    /* Hover pause/resume — real mouse devices only, so touch never
+       fires a synthetic hover that fights the tap-to-pause below. */
+    if (window.matchMedia('(hover: hover)').matches) {
+      widget.addEventListener('mouseenter', pause);
+      widget.addEventListener('mouseleave', play);
+    }
 
     var upBtn = document.getElementById('teamUp');
     var downBtn = document.getElementById('teamDown');
-    if (upBtn) upBtn.addEventListener('click', function () { pause(); step(-1); });
-    if (downBtn) downBtn.addEventListener('click', function () { pause(); step(1); });
+    if (upBtn) upBtn.addEventListener('click', function () { stepManual(-1); });
+    if (downBtn) downBtn.addEventListener('click', function () { stepManual(1); });
 
-    /* wheel scrubs the carousel, exactly ONE row per gesture: the
-       first qualifying event steps, the rest of the burst (trackpad
-       inertia) is swallowed until 280ms of quiet */
+    /* Wheel/trackpad: pauses, then browses one row per gesture (a
+       burst of trackpad inertia counts as one gesture, not several) */
     var wheelTs = 0, wheelArmed = true;
     vp.addEventListener('wheel', function (e) {
       e.stopPropagation(); e.preventDefault();
+      pause();
       var now = performance.now();
       if (now - wheelTs > 280) wheelArmed = true;
       wheelTs = now;
       if (!wheelArmed || Math.abs(e.deltaY) < 8) return;
       wheelArmed = false;
-      pause(); step(e.deltaY > 0 ? 1 : -1);
+      stepManual(e.deltaY > 0 ? 1 : -1);
     }, { passive: false });
-    vp.addEventListener('touchstart', function (e) { e.stopPropagation(); }, { passive: true });
 
-    window.addEventListener('resize', function () { paint(true); });
-    paint(true);
+    /* Touch: tapping/dragging inside pauses and drags freely; lifting
+       the finger does NOT resume — only a tap outside the widget does */
+    vp.addEventListener('touchstart', function (e) {
+      e.stopPropagation();
+      pause();
+      cancelStepAnim();
+      touchDragging = true;
+      touchY = e.touches[0].clientY;
+      touchPos0 = pos;
+    }, { passive: true });
+    vp.addEventListener('touchmove', function (e) {
+      if (!touchDragging) return;
+      e.stopPropagation();
+      pos = touchPos0 - (e.touches[0].clientY - touchY);
+      wrap(); render();
+    }, { passive: true });
+    vp.addEventListener('touchend', function (e) { e.stopPropagation(); touchDragging = false; }, { passive: true });
+
+    /* Tapping ANYWHERE else — another slide element, a nav arrow, a
+       different part of the page — retriggers auto-scroll. Capture
+       phase so it sees the touch before the target's own handlers
+       (e.g. vp's stopPropagation) can matter. */
+    document.addEventListener('touchstart', function (e) {
+      if (!widget.contains(e.target)) play();
+    }, { passive: true, capture: true });
+
+    window.addEventListener('resize', function () { measure(); wrap(); render(); });
+    measure();
+    render();
     play();
+
+    /* Switching to another slide and back (or a fresh load) also
+       retriggers it — wired from show() via this global. */
+    window.__teamResume = play;
   })();
 
   /* ── Contact form → Supabase (consent-gated, RLS-enforced) ──── */

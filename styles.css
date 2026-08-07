@@ -288,13 +288,14 @@ body:has(#contact.is-active) .scrim {
 
 /* ── 01 · team carousel ────────────────────────────────────────── */
 :root {
-  --tm-h:   clamp(128px, 21vh, 152px);
+  /* +15% over the base row to hold the larger member text */
+  --tm-h:   clamp(148px, 24vh, 175px);
   --tm-gap: clamp(8px, 1.4vmin, 14px);
 }
 
 .about-cols {
-  /* carousel takes the right ~30%, keeping clear air after the lede */
-  display: grid; grid-template-columns: 1.42fr .58fr;
+  /* carousel column widened 30% (.58fr -> .75fr of the same 2fr total) */
+  display: grid; grid-template-columns: 1.25fr .75fr;
   gap: clamp(28px, 4.5vmin, 72px);
   align-items: center;
   margin-top: clamp(10px, 2.2vmin, 24px);
@@ -304,12 +305,15 @@ body:has(#contact.is-active) .scrim {
    it carries its own step in the scale. The multiplier tapers on
    compact screens, where the columns stack and a full 1.75x would
    push the slide past the shrink-to-fit floor into the chrome. */
-.s-about .lede { font-size: calc(var(--fs-lede) * 1.75); line-height: 1.42; }
+.s-about .lede,
+.s-model .lede { font-size: calc(var(--fs-lede) * 1.75); line-height: 1.42; }
 @media (max-width: 900px), (max-height: 600px) {
-  .s-about .lede { font-size: calc(var(--fs-lede) * 1.28); }
+  .s-about .lede,
+  .s-model .lede { font-size: calc(var(--fs-lede) * 1.28); }
 }
 @media (max-width: 420px), (max-height: 430px) {
-  .s-about .lede { font-size: calc(var(--fs-lede) * 1.1); }
+  .s-about .lede,
+  .s-model .lede { font-size: calc(var(--fs-lede) * 1.1); }
 }
 
 .team-h {
@@ -367,7 +371,8 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 .tm:nth-child(5n)   .tm-ava { border-color: var(--c4); }
 
 .tm-name {
-  font-size: var(--fs-body); font-weight: 700; color: var(--ink);
+  /* +15% over the shared body token, scoped to the carousel only */
+  font-size: calc(var(--fs-body) * 1.15); font-weight: 700; color: var(--ink);
   line-height: 1.25; margin-bottom: 3px;
 }
 .tm-role {
@@ -376,7 +381,7 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
   white-space: nowrap;
 }
 .tm-bio {
-  font-size: var(--fs-small); color: var(--ink-dim); line-height: 1.42;
+  font-size: calc(var(--fs-small) * 1.15); color: var(--ink-dim); line-height: 1.42;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 
@@ -403,9 +408,11 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 html:not(.js) .team-btn { display: none; }
 
 /* ── 02 · the cycle infographic ────────────────────────────────── */
+/* Diagram sits right; the space it leaves on the left is where the
+   step labels open, clear of the headline and lede above. */
 .cycle-area {
   position: relative;
-  display: flex; justify-content: center;
+  display: flex; justify-content: flex-end;
   margin-top: clamp(10px, 2.2vmin, 24px);
 }
 
@@ -734,7 +741,7 @@ html:not(.js) #contact-form { display: none; }
   .rib-x { margin-left: auto; }
 
   .about-cols { grid-template-columns: 1fr; gap: clamp(12px, 2.4vmin, 22px); }
-  :root { --tm-h: clamp(108px, 17vh, 134px); }
+  :root { --tm-h: clamp(124px, 20vh, 154px); }
   .tm-ava { width: clamp(56px, 15vmin, 96px); }
   .tm-bio { -webkit-line-clamp: 3; }
 }
@@ -742,9 +749,9 @@ html:not(.js) #contact-form { display: none; }
    and shrink the carousel rows instead of stacking everything */
 @media (max-height: 600px) and (min-width: 700px) {
   .about-cols { grid-template-columns: 1fr 1.1fr; }
-  :root { --tm-h: 100px; }
-  .tm-bio { -webkit-line-clamp: 3; font-size: 11px; }
-  .tm-name { font-size: 12.5px; }
+  :root { --tm-h: 115px; }
+  .tm-bio { -webkit-line-clamp: 3; font-size: 12.5px; }
+  .tm-name { font-size: 14.5px; }
   .tm-ava { width: 62px; border-width: 2px; }
   .team-h { margin-bottom: 4px; }
 }
