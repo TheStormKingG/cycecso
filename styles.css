@@ -244,6 +244,15 @@ body:has(#contact.is-active) .scrim {
 }
 .slide:not(#about) .headline { font-size: var(--fs-h2); max-width: 22ch; }
 
+/* Break the contact headline where the sense divides, not where
+   text-wrap:balance would put it. Only once there's room for the
+   first clause on one line; narrower screens wrap naturally. */
+.headline .lb { display: none; }
+@media (min-width: 901px) {
+  .headline .lb { display: inline; }
+  .s-contact .headline { text-wrap: wrap; max-width: 26ch; }
+}
+
 .lede {
   font-family: 'EB Garamond', Georgia, serif;
   font-size: var(--fs-lede); line-height: 1.55; color: var(--ink-dim);
