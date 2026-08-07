@@ -98,16 +98,16 @@ em { font-style: normal; color: var(--accent); }
 .stage { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
 
 /* Ken Burns: the forest breathes, starting zoomed in and easing out
-   over 36s, then drifting back. Separate layer so it composes with
+   over 26s, then drifting back. Separate layer so it composes with
    the pan's own translate. Slow enough to stay ambient, wide enough
    that the scene reads as alive rather than still. */
 .zoom {
   position: absolute; inset: 0;
-  animation: stage-breathe 36s ease-in-out infinite alternate;
+  animation: stage-breathe 26s ease-in-out infinite alternate;
   will-change: transform;
 }
 @keyframes stage-breathe {
-  from { transform: scale(1.16); }
+  from { transform: scale(1.21); }
   to   { transform: scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -144,9 +144,12 @@ html:not(.js) .pan { opacity: 1; }
 body:has(#model.is-active) .scrim,
 body:has(#impact.is-active) .scrim,
 body:has(#contact.is-active) .scrim {
+  /* lighter than it looks: two stacked gradients multiply, so .84/.12
+     still composites to ~86% dark behind text while leaving enough
+     forest visible for the Ken Burns drift to register */
   background:
-    linear-gradient(100deg, rgba(7, 24, 15, .90) 0%, rgba(7, 24, 15, .84) 50%, rgba(7, 24, 15, .78) 100%),
-    linear-gradient(to bottom, rgba(7, 24, 15, .55) 0%, rgba(7, 24, 15, .22) 40%, rgba(7, 24, 15, .58) 100%);
+    linear-gradient(100deg, rgba(7, 24, 15, .84) 0%, rgba(7, 24, 15, .72) 50%, rgba(7, 24, 15, .60) 100%),
+    linear-gradient(to bottom, rgba(7, 24, 15, .46) 0%, rgba(7, 24, 15, .10) 40%, rgba(7, 24, 15, .48) 100%);
 }
 .scrim { transition: background .6s ease; }
 
