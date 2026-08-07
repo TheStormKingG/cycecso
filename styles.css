@@ -757,6 +757,11 @@ html:not(.js) .cy-desc[hidden] { display: block; }
      Insetting the whole form keeps the fields aligned with each other
      rather than singling the textarea out. */
   #contact-form { margin-inline: 12px; }
+  /* The aside gets the same inset as the form above it: it now leads
+     with the social icons, which are tappable and sat 4px off the back
+     arrow. Insetting also lines the contact details up with the form
+     fields instead of starting 12px to their left. */
+  .contact-aside { margin-inline: 12px; }
 }
 /* Two across from tablet width down, not just phone width. Four
    columns below ~900px leaves each card narrower than its own number:
@@ -956,6 +961,33 @@ html:not(.js) #contact-form { display: none; }
 .c-item p, .c-item a { font-size: var(--fs-body); color: var(--ink-dim); line-height: 1.45; }
 .c-item a { color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(143, 227, 180, .45); }
 .c-item a:hover { color: var(--accent); }
+
+/* Social links. Desktop: a horizontal row sitting under the sign-off,
+   which is simply where they fall as the aside's last child. */
+.socials {
+  display: flex; flex-wrap: wrap; list-style: none;
+  gap: clamp(9px, 1.5vmin, 14px);
+  margin-top: clamp(2px, 1vmin, 8px);
+}
+.socials a {
+  display: grid; place-items: center;
+  width: clamp(34px, 4.6vmin, 44px); aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--surf);
+  border: 1px solid rgba(255, 255, 255, .55);
+  color: var(--ink);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+}
+.socials svg { width: 52%; height: 52%; fill: currentColor; }
+/* Mouse pointers only, so a tap can't leave one stuck hovered. */
+@media (hover: hover) and (pointer: fine) {
+  .socials a { transition: background .22s ease, color .22s ease, border-color .22s ease, transform .22s cubic-bezier(.22, 1, .36, 1); }
+  .socials a:hover { background: var(--accent); border-color: var(--accent); color: var(--deep); transform: translateY(-2px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .socials a { transition: none; }
+  .socials a:hover { transform: none; }
+}
 .sign-off {
   font-family: 'EB Garamond', Georgia, serif; font-style: italic;
   /* 3x the old clamp(14px, 2.5vmin, 22px) — this line is the deck's
@@ -1217,6 +1249,37 @@ html:not(.js) #contact-form { display: none; }
 }
 @media (max-height: 400px) {
   .footnote { display: none; }
+}
+
+/* Phones: the social links become a vertical column to the LEFT of the
+   contact details, instead of a row under them. Placed last in the
+   stylesheet on purpose — the aside's column count is set in three
+   earlier breakpoints (2 columns under 1000px, 1 under 560px), and
+   this has to win over all of them. The icons span every row so they
+   sit alongside the whole block rather than in one cell of it. */
+@media (max-width: 700px) {
+  .contact-aside {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: clamp(12px, 3.4vw, 22px);
+    align-items: start;
+  }
+  .contact-aside > .c-item,
+  .contact-aside > .sign-off { grid-column: 2; }
+  .socials {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-self: start;
+    margin-top: 0;
+    gap: clamp(8px, 2vw, 12px);
+  }
+  /* Sized for thumbs, allowing for the shrink. These sit inside
+     .slide-body, which the fit system scales down (~0.78 on a 390px
+     phone), so a CSS size is not the size a finger actually gets: at
+     the desktop sizing they rendered 26px square. Set large enough
+     that the RENDERED target stays around 40px. */
+  .socials a { width: clamp(52px, 15vw, 62px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
