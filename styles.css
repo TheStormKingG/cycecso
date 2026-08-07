@@ -218,15 +218,29 @@ body:has(#contact.is-active) .scrim {
      box, so scrollHeight under-reports and the fit maths lets content
      spill into the chrome. */
   display: flow-root;
-  /* scale about the top-LEFT corner (not centre): a slide that only
-     needs to shrink vertically (most of them, most of the time) would
-     otherwise still drift its LEFT edge inward under a centre-anchored
-     scale, since a narrower box centred on the same point necessarily
-     sits further from that point's edges. Anchoring left keeps every
-     slide's content starting at the same rail position regardless of
-     how much any one of them needs to shrink. JS still translates
-     vertically to re-centre (--fit-y assumes a top-anchored scale). */
-  transform: translateY(var(--fit-y, 0px)) scale(var(--fit, 1));
+  /* position:relative isn't for positioning here — it just makes this
+     the reliable offsetParent for .slide-body, so JS can read "how much
+     vertical space did the eyebrow+headline consume" as a plain
+     offsetTop instead of hand-summing heights and margins. */
+  position: relative;
+}
+
+/* Wraps everything after the eyebrow+headline (built at runtime, see
+   app.js) so it can shrink independently of them. Previously --fit
+   scaled the ENTIRE slide-inner as one block from its top-left corner,
+   which meant the eyebrow+headline rendered at a different size AND a
+   different vertical starting point on every slide, purely because of
+   how much THAT slide's body content happened to need to shrink —
+   About's oversized lede+carousel forced far more shrink than
+   Contact's compact form, so the "page header" looked inconsistent
+   slide to slide despite sharing identical CSS. Scaling only the body
+   keeps the header at its natural, CSS-intended size and position on
+   every slide, and the body still shrinks (from its own top-left, same
+   reasoning as the old slide-inner scale) to whatever room is left
+   below it. */
+.slide-body {
+  display: flow-root;
+  transform: scale(var(--body-fit, 1));
   transform-origin: top left;
 }
 .slide.is-active .slide-inner > * { animation: rise .5s cubic-bezier(.2, .7, .3, 1) backwards; }
@@ -307,8 +321,33 @@ body:has(#contact.is-active) .scrim {
 }
 
 .about-cols {
-  /* carousel column widened 30% (.58fr -> .75fr of the same 2fr total) */
-  display: grid; grid-template-columns: 1.25fr .75fr;
+  /* carousel column widened 30% (.58fr -> .75fr of the same 2fr total).
+     Only .team's track is protected with minmax(0, ...) — a bare fr
+     track grows to fit its content's intrinsic size when that content
+     is wider than the track (same issue .slide's own
+     grid-template-columns had with .team's old 90vw breakout). fit()'s
+     own About-only correction gives .team an explicit width every run
+     that's deliberately wider than its fair share (to reach the
+     desktop rail), and without this protection specifically on
+     .team's track, that width inflates the track itself, shifts
+     .lede's column boundary, and changes the very box fit() had just
+     measured — a feedback loop confirmed live (--body-fit oscillating
+     between two values across consecutive fit() runs instead of
+     settling on one).
+     .lede's own track is deliberately left an UNPROTECTED bare
+     1.25fr: fit()'s correction ALSO gives lede an explicit width
+     that's wider than its shrunk-down current size (restoring it to
+     its own natural, --body-fit:1 width) — protecting this track too
+     causes lede to overflow past a track that can't grow to meet it,
+     directly into .team's column (confirmed live: lede's corrected
+     right edge landing 134px past .team's un-shifted left edge).
+     Letting lede's track grow to absorb that correction is what
+     .team's *left edge* correction (in app.js) actually depends on —
+     it measures .team's rendered position AFTER lede's own correction
+     has already been applied and reflowed. This asymmetry (one track
+     protected, one not) isn't inconsistent: each is protected against
+     exactly the failure its OWN correction could otherwise cause. */
+  display: grid; grid-template-columns: 1.25fr minmax(0, .75fr);
   gap: clamp(28px, 4.5vmin, 72px);
   align-items: center;
   margin-top: clamp(10px, 2.2vmin, 24px);
@@ -783,7 +822,10 @@ html:not(.js) #contact-form { display: none; }
   .rib { width: 100%; }
   .rib-x { margin-left: auto; }
 
-  .about-cols { grid-template-columns: 1fr; gap: clamp(12px, 2.4vmin, 22px); }
+  /* Stacked mobile: lede and the carousel are now rows, not columns —
+     the old gap read as barely any breathing room between the lede's
+     last line and "THE ENSEMBLE" label right below it. */
+  .about-cols { grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 5.5vmin, 40px); }
   :root { --tm-h: clamp(124px, 20vh, 154px); }
   .tm-ava { width: clamp(56px, 15vmin, 96px); }
   .tm-bio { -webkit-line-clamp: 3; }
@@ -810,7 +852,9 @@ html:not(.js) #contact-form { display: none; }
   /* landscape phones keep the two-column layout, so the carousel
      stays inside its own grid column instead of breaking full-bleed */
   .team { width: auto; margin-left: 0; transform: none; }
-  .about-cols { grid-template-columns: 1fr 1.1fr; }
+  /* Same asymmetry as the base rule: only .team's (second) track is
+     protected. See the base .about-cols rule for why. */
+  .about-cols { grid-template-columns: 1fr minmax(0, 1.1fr); }
   :root { --tm-h: 115px; }
   .tm-bio { -webkit-line-clamp: 3; font-size: 12.5px; }
   .tm-name { font-size: 14.5px; }
@@ -833,9 +877,36 @@ html:not(.js) #contact-form { display: none; }
 }
 /* Narrow phones: the model slide is the densest — hold its type at
    readable sizes by tightening the layout instead of letting the
-   shrink-to-fit scale the whole slide down. */
+   shrink-to-fit scale the whole slide down.
+
+   Model, Impact and Contact's headlines are each scaled with their
+   OWN vw-based clamp() at this breakpoint: at the shared --fs-h2 size,
+   narrow phones don't have room to wrap "The value is in the turn.",
+   "The numbers we're willing to be held to." or "Fund it, research
+   it, build it with us." into the same number of lines desktop uses
+   (1, 2 and 2, via text-wrap:balance). --fs-h2 itself can't fix this:
+   its own floor (32px) is flat all the way from 400px width down to
+   0, so it doesn't shrink any further exactly where these three text
+   strings need it most — a narrow phone (~360px) needs meaningfully
+   smaller type than a wide one (~600px) to hold the same line count,
+   and a multiple of a value that's ALREADY flat across that range
+   stays flat too. Each clamp()'s three numbers were picked by
+   measuring, at both ends of this breakpoint's width range, the
+   largest size that still wraps to the target line count, then
+   solving a straight line between those two points (with a couple of
+   px of safety margin) — not derived from --fs-h2 at all.
+   Selector specificity note: plain `.s-model .headline` (0,2,0) LOSES
+   to the base `.slide:not(#about) .headline` rule (1,2,0 — :not()'s
+   argument #about contributes ID-level specificity) regardless of
+   media-query nesting or source order, so it would have silently done
+   nothing — same as the original single-property version of this
+   override apparently always had. `.slide#model` etc. ties that
+   rule's specificity exactly (1,2,0); being later in the stylesheet,
+   the tie resolves in this rule's favor. */
 @media (max-width: 600px) {
-  .s-model .headline { font-size: clamp(31.5px, 9.6vw, 40.5px); }
+  .slide#model .headline { font-size: clamp(20px, 6vw, 26px); }
+  .slide#impact .headline { font-size: clamp(20px, 6.5vw, 27px); }
+  .slide#contact .headline { font-size: clamp(24px, 7.5vw, 32px); }
   .s-model .lede { font-size: 14px; }
   /* +25% over the original mobile size (matches the compact rule above) */
   .cycle-fig { width: 188px; }

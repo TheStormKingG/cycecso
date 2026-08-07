@@ -30,37 +30,66 @@
   probe.onerror = function () { pan.classList.add('is-ready'); };
   probe.src = getComputedStyle(pan).backgroundImage.replace(/^.*url\(["']?/, '').replace(/["']?\).*$/, '');
 
+  /* ── Wrap each slide's post-headline content in .slide-body ──── */
+  /* Runs once, before the first fit(): gives every slide's eyebrow
+     and headline a stable, unscaled "page header" and lets fit()
+     shrink only what comes after — see the .slide-body comment in
+     styles.css for why. */
+  slides.forEach(function (s) {
+    var inner = s.querySelector('.slide-inner');
+    var headline = inner && inner.querySelector('.headline');
+    if (!inner || !headline) return;
+    var body = document.createElement('div');
+    body.className = 'slide-body';
+    var node = headline.nextElementSibling;
+    var toMove = [];
+    while (node) { toMove.push(node); node = node.nextElementSibling; }
+    headline.parentNode.insertBefore(body, headline.nextSibling);
+    toMove.forEach(function (n) { body.appendChild(n); });
+  });
+  /* Force a synchronous style flush before anything below adds the
+     .is-active class that starts the entrance "rise" animation.
+     Without it, the DOM move above and that class change can land in
+     the same style-recalc batch, and the animation can fail to
+     register its "backwards"-fill starting state as a real transition
+     — it was observed getting stuck permanently mid-animation
+     (translateY(14px), never settling to 0) on whichever slide the
+     page booted directly into via URL hash. */
+  void document.body.offsetHeight;
+
   /* ── Shrink-to-fit: guarantees a slide never needs scrolling ─── */
   function fit(slide) {
     var inner = slide.querySelector('.slide-inner');
-    if (!inner) return;
-    inner.style.setProperty('--fit', '1');
-    /* --fit scales the whole slide from its top-left corner, so any
-       slide that needs to shrink drifts its OWN right/bottom edges
-       inward while the top-left stays put — content that should reach
-       a consistent right-hand rail (About's headline/lede/team) ends
-       up short by however much this slide had to shrink, unlike
-       slides that never need to shrink at all. Clear any width
-       correction from a prior run before measuring below, so a stale
-       inflated width can't itself throw off this measurement. */
+    var body = slide.querySelector('.slide-body');
+    if (!inner || !body) return;
+    body.style.setProperty('--body-fit', '1');
+    /* Clear any width correction from a prior run before measuring
+       below, so a stale inflated width can't itself throw off the
+       measurement. */
     var aboutEls = slide.id === 'about'
-      ? [slide.querySelector('.headline'), slide.querySelector('.lede'), slide.querySelector('.team')].filter(Boolean)
+      ? [slide.querySelector('.lede'), slide.querySelector('.team')].filter(Boolean)
       : null;
-    if (aboutEls) aboutEls.forEach(function (el) { el.style.width = ''; el.style.maxWidth = ''; });
+    if (aboutEls) aboutEls.forEach(function (el) { el.style.width = ''; });
     var cs = getComputedStyle(slide);
     var availH = slide.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
     var availW = slide.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    var h = inner.scrollHeight;
-    var w = inner.scrollWidth;
+    /* .slide-inner itself is never scaled now — only .slide-body is —
+       so body.offsetTop (its offsetParent is slide-inner, made
+       reliable by slide-inner's position:relative) is exactly how much
+       vertical space the eyebrow+headline "page header" naturally
+       consumes, with no manual height-summing needed. That header
+       always renders at its plain CSS size, so it looks identical on
+       every slide regardless of how much any one slide's BODY needs
+       to shrink to fit. */
+    var headerH = body.offsetTop;
+    var h = body.scrollHeight;
+    var w = body.scrollWidth;
     if (h <= 0 || w <= 0) return;
-    var scale = Math.min(1, availH / h, availW / w);
+    var scale = Math.min(1, (availH - headerH) / h, availW / w);
     /* Never shrink so far the text becomes unreadable — below this the
        responsive rules have already stripped the slide down. */
     scale = Math.max(scale, 0.55);
-    inner.style.setProperty('--fit', String(Math.round(scale * 1000) / 1000));
-    /* Re-centre the scaled box inside the available height. */
-    var offset = Math.max(0, (availH - h * scale) / 2);
-    inner.style.setProperty('--fit-y', Math.round(offset) + 'px');
+    body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
 
     /* Verify, don't just trust: re-read the ACTUAL rendered box. A late
        web-font swap (fallback metrics at measurement time, real metrics
@@ -69,7 +98,7 @@
        that gap is exactly what let real devices overflow while every
        simulated check here passed. If reality still overflows, no-scroll
        wins over the 0.55 readability floor and we shrink further. */
-    var r = inner.getBoundingClientRect();
+    var r = body.getBoundingClientRect();
     var slideR = slide.getBoundingClientRect();
     var overW = r.right - (slideR.right - parseFloat(cs.paddingRight));
     var overH = r.bottom - (slideR.bottom - parseFloat(cs.paddingBottom));
@@ -79,22 +108,18 @@
         overH > 1 ? (r.height - overH) / r.height : 1
       );
       scale = Math.max(0.01, scale * factor);
-      inner.style.setProperty('--fit', String(Math.round(scale * 1000) / 1000));
-      offset = Math.max(0, (availH - h * scale) / 2);
-      inner.style.setProperty('--fit-y', Math.round(offset) + 'px');
+      body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
     }
 
-    /* Undo the shrink's effect on WIDTH only, for these specific
-       elements. Two different targets, because headline/lede and
-       .team need different things:
-       - headline, lede: just restore each one's own natural
-         (--fit:1) width — the width it would already have here if
-         this slide didn't need to shrink. Their left edge sits at
-         slide-inner's own top-left origin (offset 0), so it never
-         drifts with scale, and natural/scale lands back exactly on
-         it. Restoring MORE than natural width would be wrong on the
-         desktop 2-column layout specifically: lede would stretch
-         into .team's own column.
+    /* Undo the shrink's effect on WIDTH only, for lede/.team inside
+       About's body. Two different targets:
+       - lede: just restore its own natural (--body-fit:1) width — the
+         width it would already have here if the body didn't need to
+         shrink. Its left edge sits at .slide-body's own top-left
+         origin (offset 0), so it never drifts with scale, and
+         natural/scale lands back exactly on it. Restoring MORE than
+         natural width would be wrong on the desktop 2-column layout
+         specifically: lede would stretch into .team's own column.
        - .team: its left edge is NOT at that origin (mobile: a
          negative breakout margin; desktop: right of the lede column
          + grid gap), so it drifts inward as scale drops same as any
@@ -107,31 +132,21 @@
            "right border the same distance from the right screen edge
            as the left border is from the left").
          - side-by-side desktop layout: slide-inner's own natural
-           (--fit:1) right edge — the same rail every other slide's
-           rightmost content reaches when IT doesn't need to shrink.
+           right edge — the same rail every other slide's rightmost
+           content reaches when IT doesn't need to shrink. slide-inner
+           is never scaled any more, so this is just its own rect.
        Pure width math: doesn't touch height, so it can't reintroduce
-       the vertical overflow --fit exists to prevent. */
+       the vertical overflow --body-fit exists to prevent. */
     if (aboutEls && scale > 0) {
       var stacked = window.matchMedia('(max-width: 900px), (max-height: 600px)').matches;
       var vw = document.documentElement.clientWidth;
-      var siLeft = inner.getBoundingClientRect().left;
-      var siRight = siLeft + inner.offsetWidth;
-      var headlineEl = slide.querySelector('.headline');
+      var siRect = inner.getBoundingClientRect();
       var teamEl = slide.querySelector('.team');
-      /* Only the stacked-mobile headline needs its max-width freed: there
-         it's max-width:100% of the (shrunk) container, the same
-         fit-relative cap as the width problem this whole block fixes.
-         The desktop headline's max-width:17ch is an intentional, fit-
-         unrelated design constraint (keep the hero heading short) and
-         must stay in force — clearing it unconditionally was a bug: it
-         let headline's "natural" measurement below balloon out to the
-         full slide-inner width instead of its real capped width. */
-      if (headlineEl) headlineEl.style.maxWidth = stacked ? 'none' : '';
       aboutEls.forEach(function (el) {
         var targetRenderedWidth;
         if (el === teamEl) {
           var left = el.getBoundingClientRect().left;
-          targetRenderedWidth = (stacked ? vw - left : siRight) - left;
+          targetRenderedWidth = (stacked ? vw - left : siRect.right) - left;
         } else {
           targetRenderedWidth = el.offsetWidth;
         }
@@ -198,6 +213,22 @@
       }
     }
     fit(slides[index]);
+
+    /* Safety net for the entrance "rise" animation: it's occasionally
+       been observed stuck at time 0 forever (confirmed via
+       getAnimations() — playState "running" but currentTime never
+       advancing past 0), which freezes the element mid-animation
+       (translateY(14px), never settling to 0) instead of just skipping
+       the animation outright. Forcing it to completion once it should
+       long be over fixes that regardless of why the clock stalled —
+       same defensive spirit as fit()'s own verify-and-correct pass. */
+    var thisIndex = index;
+    setTimeout(function () {
+      if (index !== thisIndex) return;
+      slides[thisIndex].querySelectorAll('.slide-inner > *').forEach(function (el) {
+        el.getAnimations().forEach(function (a) { a.finish(); });
+      });
+    }, 800);
   }
 
   function go(delta) { show(index + delta); }
@@ -272,6 +303,28 @@
   var start = ids.indexOf((location.hash || '').replace('#', ''));
   fitAll();
   show(start < 0 ? 0 : start, { replace: true });
+  /* One or more authoritative passes shortly after boot: the very
+     first fitAll() has been observed measuring About's body ~170px
+     taller than its true steady-state height (confirmed by resetting
+     and re-measuring later: the "natural" scrollHeight itself was
+     already back to the smaller, correct figure by then) — a one-time
+     boot discrepancy, not the width-correction feedback loop (that's
+     ruled out separately: the reset-and-remeasure check is stable run
+     to run once settled). Calling fitAll() directly again didn't
+     reproduce the fix; dispatching an actual resize event did (the
+     difference is the team carousel's own resize handler also
+     running) — but how LONG after boot it needed to fire varied run to
+     run (300ms wasn't always enough; ~2s reliably was), which points
+     at this environment's own degraded timer behavior (see the team
+     carousel's setInterval-over-rAF workaround) rather than a fixed,
+     learnable delay. Multiple checkpoints instead of one guessed
+     number, so this self-corrects whatever the real settle time turns
+     out to be on an actual device rather than assuming it matches
+     what was observed here. Harmless either way: once converged, a
+     resize event just re-triggers the same stable computation. */
+  [300, 900, 2000].forEach(function (ms) {
+    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, ms);
+  });
 
   /* ── Cycle diagram ──────────────────────────────────────────── */
   var cyBtns = Array.prototype.slice.call(document.querySelectorAll('[data-cy]'));
