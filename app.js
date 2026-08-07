@@ -674,6 +674,8 @@
     var name = form.name.value.trim();
     var email = form.email.value.trim();
     var message = form.message.value.trim();
+    /* RadioNodeList.value is the checked radio's value, or '' if none. */
+    var lookingFor = form.looking_for ? (form.looking_for.value || '') : '';
 
     if (!name || !email || !message) {
       setStatus('err', 'Please fill in your name, email, and message.');
@@ -695,6 +697,16 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending…';
 
+    /* Carried inside `message` rather than as its own key. PostgREST
+       rejects an insert naming a column the table doesn't have, so
+       posting a `looking_for` field would 400 and break the form
+       outright unless the column is added first. Folding it into the
+       message keeps the answer without touching the schema. The clamp
+       matches the textarea's own maxlength so the prefix can't push a
+       long message past whatever limit the column has. */
+    var composed = lookingFor ? ('Looking for: ' + lookingFor + '\n\n' + message) : message;
+    if (composed.length > 5000) composed = composed.slice(0, 5000);
+
     fetch(SUPABASE_URL + '/rest/v1/cycle_messages', {
       method: 'POST',
       headers: {
@@ -702,7 +714,7 @@
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       },
-      body: JSON.stringify({ name: name, email: email, message: message, consent: true })
+      body: JSON.stringify({ name: name, email: email, message: composed, consent: true })
     }).then(function (res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       form.reset();

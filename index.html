@@ -18,7 +18,7 @@
 <link rel="preload" href="assets/fonts/Montserrat.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="assets/img/pano.jpg" media="(min-width: 801px)">
 <link rel="stylesheet" href="assets/fonts/fonts.css">
-<link rel="stylesheet" href="styles.css?v=23">
+<link rel="stylesheet" href="styles.css?v=26">
 </head>
 <body>
 
@@ -294,6 +294,15 @@
               <a href="mailto:cyclegyinitiative@gmail.com">cyclegyinitiative@gmail.com</a>.</p>
           </noscript>
           <form id="contact-form" method="post" novalidate>
+            <fieldset class="field looking-for">
+              <legend>We're looking for</legend>
+              <div class="lf-opts">
+                <label class="lf-opt"><input type="radio" name="looking_for" value="Funders"><span>Funders</span></label>
+                <label class="lf-opt"><input type="radio" name="looking_for" value="Corporate Partners"><span>Corporate Partners</span></label>
+                <label class="lf-opt"><input type="radio" name="looking_for" value="Volunteers"><span>Volunteers</span></label>
+                <label class="lf-opt"><input type="radio" name="looking_for" value="Members"><span>Members</span></label>
+              </div>
+            </fieldset>
             <div class="field-row">
               <div class="field">
                 <label for="cf-name">Name</label>
@@ -331,10 +340,6 @@
             <span class="c-lbl">Find us</span>
             <p>Plot 90 Ideal Road, Waiakabra<br>East Bank Demerara, Guyana</p>
           </div>
-          <div class="c-item">
-            <span class="c-lbl">We're looking for</span>
-            <p>Funders · Corporate partners · Research institutions · Civil society</p>
-          </div>
           <p class="sign-off">Together, we regenerate.</p>
         </div>
       </div>
@@ -362,6 +367,6 @@
 
 <p class="sr-live" id="srLive" role="status" aria-live="polite"></p>
 
-<script src="app.js?v=25" defer></script>
+<script src="app.js?v=26" defer></script>
 </body>
 </html>

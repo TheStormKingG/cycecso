@@ -752,6 +752,56 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   letter-spacing: .09em; text-transform: uppercase; color: var(--ink-mut);
   margin-bottom: 4px;
 }
+
+/* "We're looking for" — a real fieldset/legend so the four options are
+   announced as one named group, and real radios so only one can be
+   chosen. border:0 because a fieldset carries a browser default one. */
+.looking-for { border: 0; }
+.looking-for legend {
+  padding: 0;
+  font-size: var(--fs-chip); font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--ink-mut);
+  margin-bottom: 5px;
+}
+.lf-opts { display: flex; flex-wrap: wrap; gap: 8px clamp(12px, 1.8vw, 22px); }
+/* Scoped under .looking-for so it outranks `.field label`, which would
+   otherwise force these into the uppercase, letter-spaced, full-width
+   treatment meant for field NAMES — these are options to read. */
+.looking-for .lf-opt {
+  display: flex; align-items: center; gap: 8px;
+  font-size: var(--fs-body); color: var(--ink-dim);
+  line-height: 1.3; cursor: pointer;
+  letter-spacing: normal; text-transform: none; font-weight: 400;
+  margin-bottom: 0;
+}
+/* Drawn as a square tickbox to sit with the consent box below it,
+   while remaining a radio input so choosing one clears the others. */
+.looking-for .lf-opt input[type="radio"] {
+  appearance: none; -webkit-appearance: none;
+  width: 17px; height: 17px; flex-shrink: 0; margin: 0;
+  border: 1.5px solid rgba(255, 255, 255, .55);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .06);
+  display: grid; place-content: center;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+.looking-for .lf-opt input[type="radio"]::after {
+  content: ''; width: 10px; height: 10px;
+  background: var(--deep);
+  transform: scale(0); transition: transform .15s ease;
+  clip-path: polygon(14% 46%, 0 60%, 40% 100%, 100% 22%, 86% 8%, 38% 72%);
+}
+.looking-for .lf-opt input[type="radio"]:checked {
+  background: var(--accent); border-color: var(--accent);
+}
+.looking-for .lf-opt input[type="radio"]:checked::after { transform: scale(1); }
+.looking-for .lf-opt input[type="radio"]:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.looking-for .lf-opt:hover input[type="radio"] { border-color: rgba(255, 255, 255, .85); }
+.looking-for .lf-opt:hover span { color: var(--ink); }
+.looking-for .lf-opt input:checked + span { color: var(--ink); font-weight: 600; }
 .field input, .field textarea {
   width: 100%;
   padding: clamp(8px, 1.5vmin, 14px) clamp(10px, 1.4vmin, 16px);
@@ -1022,7 +1072,12 @@ html:not(.js) #contact-form { display: none; }
   }
   .field-row { display: contents; }
   .field { margin-bottom: 0; }
-  .field:has(textarea) { grid-column: 3; grid-row: 1; }
+  /* The options are a fieldset, so in this 3-column layout they would
+     otherwise take a single cell beside the name field. Own full-width
+     row, above everything, which is where they belong. */
+  .looking-for { grid-column: 1 / -1; grid-row: 1; }
+  .looking-for .lf-opts { gap: 4px 14px; }
+  .field:has(textarea) { grid-column: 3; grid-row: 2; }
   .field textarea { min-height: 34px; }
   .consent-row { grid-column: 1 / -1; margin: 2px 0 0; }
   #cf-submit { grid-column: 1 / -1; justify-self: start; min-height: 32px; padding: 6px 18px; }
