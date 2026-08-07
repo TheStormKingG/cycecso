@@ -300,6 +300,17 @@ body:has(#contact.is-active) .scrim {
   margin-top: clamp(10px, 2.2vmin, 24px);
 }
 .about-cols .lede { margin-top: 0; }
+/* Slide 1's intro is the deck's opening statement, not a subtitle:
+   it carries its own step in the scale. The multiplier tapers on
+   compact screens, where the columns stack and a full 1.75x would
+   push the slide past the shrink-to-fit floor into the chrome. */
+.s-about .lede { font-size: calc(var(--fs-lede) * 1.75); line-height: 1.42; }
+@media (max-width: 900px), (max-height: 600px) {
+  .s-about .lede { font-size: calc(var(--fs-lede) * 1.28); }
+}
+@media (max-width: 420px), (max-height: 430px) {
+  .s-about .lede { font-size: calc(var(--fs-lede) * 1.1); }
+}
 
 .team-h {
   font-size: var(--fs-eyebrow); font-weight: 700;
