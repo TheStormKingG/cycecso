@@ -183,6 +183,16 @@ body:has(#contact.is-active) .scrim {
   display: block; font-size: clamp(9.5px, 1.3vh, 12px); font-weight: 600;
   letter-spacing: .1em; text-transform: uppercase; color: var(--ink-mut);
 }
+/* Desktop masthead 20% larger — logo, name and strapline together, so
+   the lockup scales as one rather than drifting apart. Desktop only:
+   the strapline is hidden on phones anyway, and the header's own
+   height reserve (--chrome-t) is tighter there. */
+@media (min-width: 901px) {
+  .brand { gap: 13px; }
+  .brand-mark { width: clamp(45.6px, 6.72vh, 64.8px); }
+  .brand-name { font-size: clamp(19.2px, 2.88vh, 25.2px); }
+  .brand-sub { font-size: clamp(11.4px, 1.56vh, 14.4px); }
+}
 
 .counter {
   font-size: clamp(13px, 1.8vh, 16px); font-weight: 700;
@@ -741,6 +751,12 @@ html:not(.js) .cy-desc[hidden] { display: block; }
    and already clears them, so the inset stops there. */
 @media (max-width: 1200px) {
   .stats { margin-inline: 12px; }
+  /* Same reason as the stats row: the form spans the full content
+     column, and the message field is the one that sits at the arrows'
+     own height — measured 2px under BOTH arrows on a 390px screen.
+     Insetting the whole form keeps the fields aligned with each other
+     rather than singling the textarea out. */
+  #contact-form { margin-inline: 12px; }
 }
 /* Two across from tablet width down, not just phone width. Four
    columns below ~900px leaves each card narrower than its own number:
@@ -897,6 +913,12 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   accent-color: var(--accent); cursor: pointer;
 }
 .consent-row label { font-size: var(--fs-body); color: var(--ink-mut); line-height: 1.4; cursor: pointer; }
+/* Phones: the pointer to the privacy notice gets its own line instead
+   of wrapping mid-sentence, which split "privacy notice" across two
+   lines and left a stray "notice." under the link. */
+@media (max-width: 700px) {
+  .consent-note { display: block; }
+}
 .consent-row a, .nojs-note a { color: var(--accent); font-weight: 600; }
 
 .hp-field { position: absolute; left: -9999px; opacity: 0; height: 0; overflow: hidden; }
