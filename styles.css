@@ -34,7 +34,15 @@
   /* Chrome reserves */
   --chrome-t: clamp(52px, 8vh, 78px);
   --chrome-b: clamp(48px, 7vh, 68px);
-  --rail:     clamp(46px, 7vw, 104px);   /* space for the nav arrows */
+  /* Space for the nav arrows — derived from the arrows themselves, not
+     guessed. An arrow's inner edge is its offset plus its width:
+     clamp(8px,1.6vw,26px) + clamp(40px,5.6vw,60px), i.e. 7.2vw once
+     both are in their fluid range. The old 7vw rail was therefore
+     always a shade NARROWER than the arrows it was meant to clear,
+     which is why content kept landing 2px underneath them. +16px is
+     the visible gap; the 58px floor covers small screens, where the
+     arrows stop shrinking and sit at a fixed 48px inner edge. */
+  --rail:     clamp(58px, calc(7.2vw + 16px), 104px);
   --gut:      clamp(18px, 3.4vw, 56px);
 
   /* Fluid type keyed to vmin: one scale that behaves in both
@@ -741,28 +749,12 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   font-size: var(--fs-chip); font-weight: 700;
   letter-spacing: .08em; text-transform: uppercase; color: var(--ink-mut);
 }
-/* Hold the cards clear of the prev/next arrows, which float over the
-   slide at its left and right edges. The stats row is the one block
-   that reaches full width AT the arrows' own height, so at anything
-   narrower than the 1180px content cap the outer cards ran 2px UNDER
-   each arrow (measured: card edges 46/344 against arrow edges 48/342
-   on a 390px screen; the same -2px on tablets, on a 900px window and
-   on landscape phones). Above the cap the content column is centred
-   and already clears them, so the inset stops there. */
-@media (max-width: 1200px) {
-  .stats { margin-inline: 12px; }
-  /* Same reason as the stats row: the form spans the full content
-     column, and the message field is the one that sits at the arrows'
-     own height — measured 2px under BOTH arrows on a 390px screen.
-     Insetting the whole form keeps the fields aligned with each other
-     rather than singling the textarea out. */
-  #contact-form { margin-inline: 12px; }
-  /* The aside gets the same inset as the form above it: it now leads
-     with the social icons, which are tappable and sat 4px off the back
-     arrow. Insetting also lines the contact details up with the form
-     fields instead of starting 12px to their left. */
-  .contact-aside { margin-inline: 12px; }
-}
+/* The stats row, the contact form and the contact aside each used to
+   carry their own 12px inset here to clear the nav arrows. All three
+   are gone: --rail now clears the arrows for the whole slide, so the
+   inset would only push these blocks 12px right of the heading above
+   them — which is exactly the misalignment it caused. Clearance
+   belongs to the slide, not to individual blocks inside it. */
 /* Two across from tablet width down, not just phone width. Four
    columns below ~900px leaves each card narrower than its own number:
    at 768px the tracks are free to shrink (see minmax above) and
@@ -882,14 +874,14 @@ html:not(.js) .cy-desc[hidden] { display: block; }
      needs air under the first, not just between neighbours. */
   .looking-for .lf-opts { gap: 9px 14px; flex-wrap: wrap; }
   /* These no longer chase a single line on phones. At 390px the row
-     has 298px: the three choices at +9% with gaps worth the name need
-     327px, and even at +9% with the old 3px gaps they need 296px — so
-     any real spacing costs the single line. Two comfortable rows beat
-     one cramped one, so they wrap, and the sizing is free to follow
-     the viewport rather than a line budget. Still fluid so the labels
-     never crowd the rails on the narrowest phones. */
+     has 274px, and the three choices at +9% with gaps worth the name
+     need 327px — so any real spacing costs the single line. Two
+     comfortable rows beat one cramped one, so they wrap, and the
+     sizing is free to follow the viewport rather than a line budget.
+     The 177px subtrahend is the two rails plus the radios and their
+     gaps; it moves whenever --rail does. */
   .looking-for .lf-opt {
-    font-size: clamp(9.8px, calc((100vw - 153px) / 22.5), 15.6px);
+    font-size: clamp(9.8px, calc((100vw - 177px) / 22.5), 15.6px);
     gap: 6px;
   }
   .looking-for .lf-opt input[type="radio"] { width: 15px; height: 15px; border-radius: 3px; }
