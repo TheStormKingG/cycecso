@@ -35,6 +35,18 @@
     var inner = slide.querySelector('.slide-inner');
     if (!inner) return;
     inner.style.setProperty('--fit', '1');
+    /* --fit scales the whole slide from its top-left corner, so any
+       slide that needs to shrink drifts its OWN right/bottom edges
+       inward while the top-left stays put — content that should reach
+       a consistent right-hand rail (About's headline/lede/team) ends
+       up short by however much this slide had to shrink, unlike
+       slides that never need to shrink at all. Clear any width
+       correction from a prior run before measuring below, so a stale
+       inflated width can't itself throw off this measurement. */
+    var aboutEls = slide.id === 'about'
+      ? [slide.querySelector('.headline'), slide.querySelector('.lede'), slide.querySelector('.team')].filter(Boolean)
+      : null;
+    if (aboutEls) aboutEls.forEach(function (el) { el.style.width = ''; el.style.maxWidth = ''; });
     var cs = getComputedStyle(slide);
     var availH = slide.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
     var availW = slide.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
@@ -70,6 +82,61 @@
       inner.style.setProperty('--fit', String(Math.round(scale * 1000) / 1000));
       offset = Math.max(0, (availH - h * scale) / 2);
       inner.style.setProperty('--fit-y', Math.round(offset) + 'px');
+    }
+
+    /* Undo the shrink's effect on WIDTH only, for these specific
+       elements. Two different targets, because headline/lede and
+       .team need different things:
+       - headline, lede: just restore each one's own natural
+         (--fit:1) width — the width it would already have here if
+         this slide didn't need to shrink. Their left edge sits at
+         slide-inner's own top-left origin (offset 0), so it never
+         drifts with scale, and natural/scale lands back exactly on
+         it. Restoring MORE than natural width would be wrong on the
+         desktop 2-column layout specifically: lede would stretch
+         into .team's own column.
+       - .team: its left edge is NOT at that origin (mobile: a
+         negative breakout margin; desktop: right of the lede column
+         + grid gap), so it drifts inward as scale drops same as any
+         right edge would, and "natural/scale" alone undershoots by
+         however much that left edge itself drifted. Keep its current
+         (already-shrunk) left edge fixed and solve width from there
+         instead, against two different right-hand targets:
+         - stacked mobile layout: the viewport's own right edge,
+           mirroring .team's current left inset (matches the request:
+           "right border the same distance from the right screen edge
+           as the left border is from the left").
+         - side-by-side desktop layout: slide-inner's own natural
+           (--fit:1) right edge — the same rail every other slide's
+           rightmost content reaches when IT doesn't need to shrink.
+       Pure width math: doesn't touch height, so it can't reintroduce
+       the vertical overflow --fit exists to prevent. */
+    if (aboutEls && scale > 0) {
+      var stacked = window.matchMedia('(max-width: 900px), (max-height: 600px)').matches;
+      var vw = document.documentElement.clientWidth;
+      var siLeft = inner.getBoundingClientRect().left;
+      var siRight = siLeft + inner.offsetWidth;
+      var headlineEl = slide.querySelector('.headline');
+      var teamEl = slide.querySelector('.team');
+      /* Only the stacked-mobile headline needs its max-width freed: there
+         it's max-width:100% of the (shrunk) container, the same
+         fit-relative cap as the width problem this whole block fixes.
+         The desktop headline's max-width:17ch is an intentional, fit-
+         unrelated design constraint (keep the hero heading short) and
+         must stay in force — clearing it unconditionally was a bug: it
+         let headline's "natural" measurement below balloon out to the
+         full slide-inner width instead of its real capped width. */
+      if (headlineEl) headlineEl.style.maxWidth = stacked ? 'none' : '';
+      aboutEls.forEach(function (el) {
+        var targetRenderedWidth;
+        if (el === teamEl) {
+          var left = el.getBoundingClientRect().left;
+          targetRenderedWidth = (stacked ? vw - left : siRight) - left;
+        } else {
+          targetRenderedWidth = el.offsetWidth;
+        }
+        if (targetRenderedWidth > 0) el.style.width = (targetRenderedWidth / scale) + 'px';
+      });
     }
   }
 
