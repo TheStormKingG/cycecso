@@ -196,6 +196,12 @@
     li.style.top = Math.round(Math.max(-10, top)) + 'px';
   }
 
+  /* which step is expanded right now, or null */
+  function cyOpenKey() {
+    var d = document.querySelector('.cy-desc:not([hidden])');
+    return d ? d.id.replace('cyd-', '') : null;
+  }
+
   function cyReveal(i) {
     cyLis.forEach(function (li) {
       var rib = li.querySelector('.rib');
@@ -204,6 +210,17 @@
       li.classList.toggle('is-shown', mine || descOpen);
     });
     cyPlace(i);
+  }
+
+  /* pointer left the diagram: clear the labels, keeping only a step
+     that is still expanded */
+  function cyRest() {
+    var open = cyOpenKey();
+    cyLis.forEach(function (li) {
+      var rib = li.querySelector('.rib');
+      li.classList.toggle('is-shown', !!open && rib.dataset.cy === open);
+    });
+    if (open) cyPlace(open);
   }
 
   function cySet(i, open) {
@@ -223,7 +240,11 @@
       ['1', '2', '3', '4'].forEach(function (k) { cySet(k, k === i ? open : false); });
       cyReveal(i);
       cyPlace(i); /* re-anchor with the description now open */
-      fit(slides[index]);
+      /* an expanded step holds the ring still even after the pointer leaves */
+      if (open) easeToStop();
+      /* popovers are absolutely positioned, so they can't change the
+         slide's flow height; only the stacked layout needs a re-fit */
+      if (!deskPop.matches) fit(slides[index]);
     });
     /* Hovering or focusing a number reveals that step's title bar */
     if (b.classList.contains('cy-node')) {
@@ -287,9 +308,17 @@
       if (shown) cyPlace(shown.dataset.cy);
     };
   }
-  if (canSpin && fig) {
-    fig.addEventListener('pointerenter', easeToStop);
-    fig.addEventListener('pointerleave', function () { startSpin(angleOf(spinEl)); });
+  /* Hover is tracked on the whole diagram area, not just the ring:
+     moving out to read a label must not restart the spin, or the
+     label would be left pointing at a number that has moved on. */
+  var cyArea = document.querySelector('.cycle-area');
+  if (cyArea) {
+    cyArea.addEventListener('pointerenter', function () { easeToStop(); });
+    cyArea.addEventListener('pointerleave', function () {
+      cyRest();
+      /* an expanded step keeps it paused; otherwise pick the spin back up */
+      if (!cyOpenKey()) startSpin(angleOf(spinEl));
+    });
   }
   function cycleSpinFor(slideId) {
     if (!canSpin) return;

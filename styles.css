@@ -501,19 +501,19 @@ html:not(.js) .team-btn { display: none; }
 /* Without JS the toggles can't run — show every description */
 html:not(.js) .cy-desc[hidden] { display: block; }
 
-/* Desktop + mouse: ribbons start hidden; hovering (or focusing) a
-   number reveals its title bar. Compact/touch layouts keep them
-   always visible. visibility (not display) so the reserved space
-   never shifts and the fit maths stays stable. */
+/* Desktop + mouse: the diagram stands alone. Labels appear only while
+   the pointer is on the diagram (or a step is expanded) and fade out
+   again on leave. Hides the whole .cy-l so an open description can
+   never outlive its ribbon. Compact/touch layouts keep them visible. */
 @media (hover: hover) and (min-width: 901px) and (min-height: 601px) {
-  html.js .cy-l .rib {
+  html.js .cy-l {
     visibility: hidden; opacity: 0;
     transform: translateY(6px);
-    transition: opacity .28s ease, transform .28s ease, visibility 0s .28s;
+    transition: opacity .3s ease, transform .3s ease, visibility 0s .3s;
   }
-  html.js .cy-l.is-shown .rib {
+  html.js .cy-l.is-shown {
     visibility: visible; opacity: 1; transform: none;
-    transition: opacity .28s ease, transform .28s ease, visibility 0s;
+    transition: opacity .3s ease, transform .3s ease, visibility 0s;
   }
 }
 
