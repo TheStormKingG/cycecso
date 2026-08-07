@@ -41,7 +41,7 @@
      orientations. The JS shrink-to-fit handles the extremes. */
   --fs-eyebrow: clamp(14px, 2.3vmin, 22.5px);
   /* one headline size for every slide — there is no h2 step any more */
-  --fs-h1:      clamp(42px, 11.1vmin, 123px);
+  --fs-h1:      clamp(37px, 9.77vmin, 108px);
   /* EB Garamond's x-height is small: the lede runs ~15% larger than
      the equivalent Montserrat role so the two read as one scale */
   --fs-lede:    clamp(17.5px, 3.1vmin, 29px);
@@ -307,7 +307,9 @@ body:has(#contact.is-active) .scrim {
 .lede-tight { margin-top: clamp(6px, 1.4vmin, 14px); max-width: 52ch; }
 
 .footnote {
-  font-size: var(--fs-body); color: var(--ink-mut); max-width: 62ch;
+  /* same standfirst size and leading as slides 1 and 2's opening lines */
+  font-size: var(--fs-standfirst); line-height: 1.34;
+  color: var(--ink-mut); max-width: 62ch;
   margin-top: clamp(8px, 2vmin, 20px);
 }
 
@@ -335,54 +337,55 @@ body:has(#contact.is-active) .scrim {
   --tm-h:   clamp(148px, 24vh, 175px);
   --tm-gap: clamp(8px, 1.4vmin, 14px);
 }
+/* Desktop rows are shorter than that base. The carousel is the only
+   thing making slide 1 taller than its slot (measured at 1440x900:
+   593px of carousel against a 523px budget, while the lede beside it
+   needs just 442px), and being over that budget is what forced slide
+   1's body to scale down — which in turn rendered its opening line
+   visibly smaller than the identically-sized opening line on slide 2.
+   Sizing the three rows to fit the slot keeps every slide's body type
+   at its true CSS size instead. Three rows still show: one faded, one
+   highlighted, one faded. */
+@media (min-width: 901px) {
+  :root { --tm-h: clamp(112px, 14.4vh, 130px); }
+  .tm-ava { width: clamp(74px, 9.8vmin, 96px); }
+}
 
 .about-cols {
   /* carousel column widened 30% (.58fr -> .75fr of the same 2fr total).
-     Only .team's track is protected with minmax(0, ...) — a bare fr
-     track grows to fit its content's intrinsic size when that content
-     is wider than the track (same issue .slide's own
-     grid-template-columns had with .team's old 90vw breakout). fit()'s
-     own About-only correction gives .team an explicit width every run
-     that's deliberately wider than its fair share (to reach the
-     desktop rail), and without this protection specifically on
-     .team's track, that width inflates the track itself, shifts
-     .lede's column boundary, and changes the very box fit() had just
-     measured — a feedback loop confirmed live (--body-fit oscillating
-     between two values across consecutive fit() runs instead of
-     settling on one).
-     .lede's own track is deliberately left an UNPROTECTED bare
-     1.25fr: fit()'s correction ALSO gives lede an explicit width
-     that's wider than its shrunk-down current size (restoring it to
-     its own natural, --body-fit:1 width) — protecting this track too
-     causes lede to overflow past a track that can't grow to meet it,
-     directly into .team's column (confirmed live: lede's corrected
-     right edge landing 134px past .team's un-shifted left edge).
-     Letting lede's track grow to absorb that correction is what
-     .team's *left edge* correction (in app.js) actually depends on —
-     it measures .team's rendered position AFTER lede's own correction
-     has already been applied and reflowed. This asymmetry (one track
-     protected, one not) isn't inconsistent: each is protected against
-     exactly the failure its OWN correction could otherwise cause. */
-  display: grid; grid-template-columns: 1.25fr minmax(0, .75fr);
+     minmax(0, Nfr) on both tracks: a bare fr track grows to fit its
+     content's intrinsic size when that content is wider than the track,
+     and .team's full-bleed breakout is exactly that. (These two tracks
+     used to be deliberately asymmetric to accommodate per-element
+     inline width corrections in fit(); those are gone — the body is
+     widened as a whole now — so both can be protected again.) */
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr);
   gap: clamp(28px, 4.5vmin, 72px);
   align-items: center;
   margin-top: clamp(10px, 2.2vmin, 24px);
 }
 .about-cols .lede { margin-top: 0; text-align: justify; text-justify: inter-word; }
-/* Slide 1's intro is the deck's opening statement, not a subtitle:
-   it carries its own step in the scale. The multiplier tapers on
-   compact screens, where the columns stack and a full 1.75x would
-   push the slide past the shrink-to-fit floor into the chrome. */
-.s-about .lede,
-.s-model .lede { font-size: calc(var(--fs-lede) * 1.75); line-height: 1.42; }
+/* The deck's standfirst size: the opening statement on slides 1 and 2
+   and the closing note on slide 3 all share it, so the same role reads
+   at the same size wherever it appears. One token rather than three
+   rules, so they can't drift apart. Multipliers taper on compact
+   screens, where the columns stack and the full step would push the
+   slide past the shrink-to-fit floor into the chrome. */
+:root { --fs-standfirst: calc(var(--fs-lede) * 1.5925); }
 @media (max-width: 900px), (max-height: 600px) {
-  .s-about .lede,
-  .s-model .lede { font-size: calc(var(--fs-lede) * 1.28); }
+  :root { --fs-standfirst: calc(var(--fs-lede) * 1.165); }
 }
 @media (max-width: 420px), (max-height: 430px) {
-  .s-about .lede,
-  .s-model .lede { font-size: calc(var(--fs-lede) * 1.1); }
+  :root { --fs-standfirst: var(--fs-lede); }
 }
+/* 1.34, not the 1.42 the smaller lede uses: leading should tighten as
+   type grows, and at this size 1.42 both read loose and made slide 1's
+   opening line the tallest thing on that slide (505px against a 523px
+   budget once the carousel was sized down), which would have forced
+   the whole body to scale — the exact thing that made this line render
+   smaller than slide 2's identical one. */
+.s-about .lede,
+.s-model .lede { font-size: var(--fs-standfirst); line-height: 1.34; }
 
 .team-h {
   font-size: var(--fs-eyebrow); font-weight: 700;
@@ -868,9 +871,7 @@ html:not(.js) #contact-form { display: none; }
   /* landscape phones keep the two-column layout, so the carousel
      stays inside its own grid column instead of breaking full-bleed */
   .team { width: auto; margin-left: 0; transform: none; }
-  /* Same asymmetry as the base rule: only .team's (second) track is
-     protected. See the base .about-cols rule for why. */
-  .about-cols { grid-template-columns: 1fr minmax(0, 1.1fr); }
+  .about-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
   :root { --tm-h: 115px; }
   .tm-bio { -webkit-line-clamp: 3; font-size: 12.5px; }
   .tm-name { font-size: 14.5px; }
@@ -902,7 +903,9 @@ html:not(.js) #contact-form { display: none; }
    size. Uniform size wins; line counts now fall where the text
    naturally wraps. */
 @media (max-width: 600px) {
-  .s-model .lede { font-size: 14px; }
+  /* the flat 14px override that used to pin .s-model .lede here is
+     gone too: it made slide 2's opening line a different size from
+     slide 1's, which share the standfirst role and now share its token */
   /* +25% over the original mobile size (matches the compact rule above) */
   .cycle-fig { width: 188px; }
   .cy-core img { width: 40px; }
@@ -933,14 +936,14 @@ html:not(.js) #contact-form { display: none; }
    Placed BEFORE the 520px tier so that stricter tier still wins on the
    shortest screens. */
 @media (max-height: 620px) {
-  :root { --fs-h1: clamp(30px, 8.2vmin, 66px); }
+  :root { --fs-h1: clamp(26px, 7.2vmin, 58px); }
 }
 /* Short viewports (landscape phones). Everything stays on screen — these
    rules buy the space by tightening layout, not by dropping content. */
 @media (max-height: 520px) {
   :root {
     --chrome-t: 42px; --chrome-b: 36px;
-    --fs-h1: clamp(31.5px, 8.4vmin, 51px);
+    --fs-h1: clamp(28px, 7.4vmin, 45px);
     --fs-lede: clamp(13px, 2.3vmin, 16.5px);
     --fs-body: clamp(10.5px, 1.6vmin, 13px);
     --fs-stat: clamp(21px, 5.2vmin, 34px);

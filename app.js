@@ -62,97 +62,78 @@
     var inner = slide.querySelector('.slide-inner');
     var body = slide.querySelector('.slide-body');
     if (!inner || !body) return;
+    body.style.width = '';
     body.style.setProperty('--body-fit', '1');
-    /* Clear any width correction from a prior run before measuring
-       below, so a stale inflated width can't itself throw off the
-       measurement. */
-    var aboutEls = slide.id === 'about'
-      ? [slide.querySelector('.lede'), slide.querySelector('.team')].filter(Boolean)
-      : null;
-    if (aboutEls) aboutEls.forEach(function (el) { el.style.width = ''; });
     var cs = getComputedStyle(slide);
     var availH = slide.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-    var availW = slide.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    /* .slide-inner itself is never scaled now — only .slide-body is —
-       so body.offsetTop (its offsetParent is slide-inner, made
-       reliable by slide-inner's position:relative) is exactly how much
-       vertical space the eyebrow+headline "page header" naturally
-       consumes, with no manual height-summing needed. That header
-       always renders at its plain CSS size, so it looks identical on
-       every slide regardless of how much any one slide's BODY needs
-       to shrink to fit. */
+    /* .slide-inner itself is never scaled — only .slide-body is — so
+       body.offsetTop (its offsetParent is slide-inner, made reliable
+       by slide-inner's position:relative) is exactly how much vertical
+       space the eyebrow+headline "page header" naturally consumes,
+       with no manual height-summing needed. That header always renders
+       at its plain CSS size, so it looks identical on every slide
+       regardless of how much any one slide's BODY needs to shrink. */
     var headerH = body.offsetTop;
-    var h = body.scrollHeight;
-    var w = body.scrollWidth;
-    if (h <= 0 || w <= 0) return;
-    var scale = Math.min(1, (availH - headerH) / h, availW / w);
-    /* Never shrink so far the text becomes unreadable — below this the
-       responsive rules have already stripped the slide down. */
-    scale = Math.max(scale, 0.55);
-    body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
+    var availBodyH = availH - headerH;
+    /* The width the body should END UP occupying: slide-inner's own
+       content width, i.e. exactly what it would fill if it never
+       needed to shrink at all. */
+    var targetW = inner.clientWidth;
+    if (availBodyH <= 0 || targetW <= 0) return;
 
-    /* Undo the shrink's effect on WIDTH only, for lede/.team inside
-       About's body. Two different targets:
-       - lede: just restore its own natural (--body-fit:1) width — the
-         width it would already have here if the body didn't need to
-         shrink. Its left edge sits at .slide-body's own top-left
-         origin (offset 0), so it never drifts with scale, and
-         natural/scale lands back exactly on it. Restoring MORE than
-         natural width would be wrong on the desktop 2-column layout
-         specifically: lede would stretch into .team's own column.
-       - .team: its left edge is NOT at that origin (mobile: a
-         negative breakout margin; desktop: right of the lede column
-         + grid gap), so it drifts inward as scale drops same as any
-         right edge would, and "natural/scale" alone undershoots by
-         however much that left edge itself drifted. Keep its current
-         (already-shrunk) left edge fixed and solve width from there
-         instead, against two different right-hand targets:
-         - stacked mobile layout: the viewport's own right edge,
-           mirroring .team's current left inset (matches the request:
-           "right border the same distance from the right screen edge
-           as the left border is from the left").
-         - side-by-side desktop layout: slide-inner's own natural
-           right edge — the same rail every other slide's rightmost
-           content reaches when IT doesn't need to shrink. slide-inner
-           is never scaled any more, so this is just its own rect.
-       Pure width math: doesn't touch height, so it can't reintroduce
-       the vertical overflow --body-fit exists to prevent. */
-    if (aboutEls && scale > 0) {
-      var stacked = window.matchMedia('(max-width: 900px), (max-height: 600px)').matches;
-      var vw = document.documentElement.clientWidth;
-      var siRect = inner.getBoundingClientRect();
-      var teamEl = slide.querySelector('.team');
-      aboutEls.forEach(function (el) {
-        var targetRenderedWidth;
-        if (el === teamEl) {
-          var left = el.getBoundingClientRect().left;
-          targetRenderedWidth = (stacked ? vw - left : siRect.right) - left;
-        } else {
-          targetRenderedWidth = el.offsetWidth;
-        }
-        if (targetRenderedWidth > 0) el.style.width = (targetRenderedWidth / scale) + 'px';
-      });
+    /* Give the body a layout width of targetW/scale so that, once the
+       ambient scale is applied, it renders back at the full targetW.
+       Without this the body keeps its natural width, scales down about
+       its top-left corner, and ends up occupying only `scale` of the
+       available width — every slide that had to shrink was rendering
+       its content crammed into the left of the screen with dead space
+       down the right. Widening first means the shrink now only makes
+       the TYPE smaller, never the column narrower.
+
+       It has to iterate: a wider box re-wraps the text, which changes
+       the height, which changes the scale, which changes the width.
+       It converges quickly (each round moves less than the last), so
+       a few rounds plus a tolerance is enough. */
+    function converge(minScale) {
+      var s = 1;
+      for (var i = 0; i < 5; i++) {
+        body.style.width = (targetW / s) + 'px';
+        var hh = body.scrollHeight;
+        if (hh <= 0) break;
+        var next = Math.max(Math.min(1, availBodyH / hh), minScale);
+        if (Math.abs(next - s) < 0.004) { s = next; break; }
+        s = next;
+      }
+      body.style.width = (targetW / s) + 'px';
+      return s;
     }
 
-    /* Final no-overflow guarantee, measured AFTER the width
-       corrections above. Those corrections re-wrap content, so the
-       body's real height can differ from the height `scale` was
-       computed against — measured at 1024x768 as 645px natural
-       becoming 700px corrected, which pushed the About slide's
-       content down under the bottom nav bar. Also covers genuine late
-       reflow (a web-font finishing its swap after the first measure).
+    /* First pass respects the readability floor: never shrink so far
+       the text becomes unreadable, since below this the responsive
+       rules have already stripped the slide down. */
+    var scale = converge(0.55);
+    /* If the slide genuinely cannot fit at that floor, the floor
+       yields — never scrolling is the harder guarantee. Re-converging
+       (rather than just clamping the scale) matters because the width
+       is derived from the scale: clamping alone would leave the body
+       sized for the old, larger scale and render it narrower than the
+       rail, which showed up as a visibly off-centre slide on landscape
+       phones (59px inset on the left, 137px on the right). */
+    if (body.scrollHeight * scale > availBodyH + 1) scale = converge(0.01);
+    body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
+
+    /* Last-resort clamp, measured against the final layout: covers a
+       convergence that ran out of rounds and genuine late reflow (a
+       web-font finishing its swap after the measurements above).
        Layout metrics only, never getBoundingClientRect: a rect
        reflects this element's own transform, and while the entrance
-       animation is running that transform is the animation's, not
-       ours (see the .slide-body animation note in styles.css) — the
-       rect would describe an unscaled box and this check would shrink
-       an already-correct slide. Only ever shrinks, and no-scroll wins
-       over the 0.55 readability floor. */
-    var h2 = body.scrollHeight;
-    var w2 = body.scrollWidth;
-    var hardScale = Math.min(1, (availH - headerH) / h2, availW / w2);
-    if (hardScale < scale) {
-      scale = Math.max(0.01, hardScale);
+       animation is running that transform is the animation's, not ours
+       (see the .slide-body animation note in styles.css) — the rect
+       would describe an unscaled box and this check would shrink an
+       already-correct slide. */
+    var finalH = body.scrollHeight;
+    if (finalH > 0 && finalH * scale > availBodyH + 1) {
+      scale = Math.max(0.01, availBodyH / finalH);
       body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
     }
   }
