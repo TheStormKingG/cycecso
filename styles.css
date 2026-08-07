@@ -1095,7 +1095,24 @@ html:not(.js) #contact-form { display: none; }
 @media (max-width: 700px) {
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .brand-sub { display: none; }
+  /* Strapline stays, under "CYCLE", rather than being dropped on
+     phones. It has to hold one line: left to wrap it orphans
+     "ENSEMBLE" onto a second line and crowds the eyebrow below.
+     Sized against its own column rather than the viewport — the
+     column is what's left after the logo and the slide counter, which
+     no vw figure can express. .brand and .brand-text take the leftover
+     space explicitly so that column has a width of its own to measure,
+     instead of one derived from the text sitting in it. Tracking
+     pulled in from .1em to buy a little more room. */
+  .brand { flex: 1 1 auto; min-width: 0; }
+  .brand-text { flex: 1 1 auto; min-width: 0; container-type: inline-size; }
+  .brand-sub {
+    display: block;
+    font-size: min(10px, calc(100cqw / 31));
+    letter-spacing: .02em;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
   .dot span { display: none; }
   .dot { padding: 8px 4px; }
   .headline, .slide:not(#about) .headline { max-width: 100%; }
