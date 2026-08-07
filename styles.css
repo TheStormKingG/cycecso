@@ -1148,6 +1148,21 @@ html:not(.js) #contact-form { display: none; }
   .cy-l p { line-height: 1.35; }
   .contact-aside { grid-template-columns: 1fr; }
   .credit { display: none; }
+  /* Slide indicator centred on the screen. The bottom bar is a
+     space-between flex row, so once the credit above is hidden the
+     dots were left on their own against the left edge. Centred
+     absolutely rather than by switching the row to
+     justify-content:center, so it lands on the true middle of the
+     screen rather than the middle of whatever remains in the row —
+     .chrome-bottom is fixed, so it is the containing block.
+     Deliberately tied to the SAME breakpoint that hides the credit:
+     centring it any wider than this walks the dots straight into the
+     credit text, which they did at 561-700px. */
+  .dots {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+  }
   .chip-row-sm { gap: 5px; }
   .chip-row-sm .chip { padding: 5px 10px; }
 }
