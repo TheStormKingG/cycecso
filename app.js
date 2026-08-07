@@ -49,9 +49,49 @@
     /* Re-centre the scaled box inside the available height. */
     var offset = Math.max(0, (availH - h * scale) / 2);
     inner.style.setProperty('--fit-y', Math.round(offset) + 'px');
+
+    /* Verify, don't just trust: re-read the ACTUAL rendered box. A late
+       web-font swap (fallback metrics at measurement time, real metrics
+       after) or any other post-measurement reflow can make the true
+       size disagree with what scrollWidth/scrollHeight reported above —
+       that gap is exactly what let real devices overflow while every
+       simulated check here passed. If reality still overflows, no-scroll
+       wins over the 0.55 readability floor and we shrink further. */
+    var r = inner.getBoundingClientRect();
+    var slideR = slide.getBoundingClientRect();
+    var overW = r.right - (slideR.right - parseFloat(cs.paddingRight));
+    var overH = r.bottom - (slideR.bottom - parseFloat(cs.paddingBottom));
+    if (overW > 1 || overH > 1) {
+      var factor = Math.min(
+        overW > 1 ? (r.width - overW) / r.width : 1,
+        overH > 1 ? (r.height - overH) / r.height : 1
+      );
+      scale = Math.max(0.01, scale * factor);
+      inner.style.setProperty('--fit', String(Math.round(scale * 1000) / 1000));
+      offset = Math.max(0, (availH - h * scale) / 2);
+      inner.style.setProperty('--fit-y', Math.round(offset) + 'px');
+    }
   }
 
   function fitAll() { slides.forEach(fit); }
+
+  /* Catches the SOURCE of drift, proactively: whenever a slide's own
+     unscaled content size actually changes post-measurement (a font
+     finishing its swap, an image finishing decode, anything), re-fit
+     it. ResizeObserver fires on content-box changes only, never on
+     fit()'s own transform/custom-property writes, so this can't loop. */
+  if ('ResizeObserver' in window) {
+    var ro = new ResizeObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var slide = entry.target.closest('.slide');
+        if (slide) fit(slide);
+      });
+    });
+    slides.forEach(function (s) {
+      var inner = s.querySelector('.slide-inner');
+      if (inner) ro.observe(inner);
+    });
+  }
 
   /* ── Slide state ────────────────────────────────────────────── */
   function show(next, opts) {
@@ -172,38 +212,6 @@
 
   var deskPop = window.matchMedia('(min-width: 901px) and (min-height: 601px)');
 
-  /* Pin label i as a popover next to its number's current position.
-     Coordinates are converted back into the (possibly --fit-scaled)
-     local space of .cycle-area so the maths hold at any zoom. */
-  function cyPlace(i) {
-    if (!deskPop.matches) return;
-    var li = document.querySelector('.rib[data-cy="' + i + '"]');
-    li = li && li.closest('.cy-l');
-    var node = document.querySelector('.cy-node[data-cy="' + i + '"]');
-    var area = document.querySelector('.cycle-area');
-    if (!li || !node || !area) return;
-    var aR = area.getBoundingClientRect();
-    var nR = node.getBoundingClientRect();
-    var s = area.offsetWidth ? (aR.width / area.offsetWidth) : 1;
-    var nx = (nR.left + nR.width / 2 - aR.left) / s;
-    var ny = (nR.top + nR.height / 2 - aR.top) / s;
-    var half = (nR.width / 2) / s;
-    var w = li.offsetWidth || 300;
-    /* Which side has more room for THIS node — not which half of the
-       area it's in. The diagram now sits flush right, so every node
-       (even the ring's own left-side ones) can end up past the area's
-       midpoint; comparing actual free space on each side keeps every
-       label opening into real space instead of off the right edge. */
-    var leftSide = nx > (area.offsetWidth - nx);
-    li.classList.toggle('pop-left', leftSide);
-    li.style.left = Math.round(leftSide ? nx - half - 18 - w : nx + half + 18) + 'px';
-    var top = ny - 22;
-    /* keep an opened description from running past the diagram area */
-    var over = (top + li.offsetHeight) - (area.offsetHeight + 60);
-    if (over > 0) top -= over;
-    li.style.top = Math.round(Math.max(-10, top)) + 'px';
-  }
-
   /* which step is expanded right now, or null */
   function cyOpenKey() {
     var d = document.querySelector('.cy-desc:not([hidden])');
@@ -217,7 +225,6 @@
       var descOpen = !li.querySelector('.cy-desc').hidden;
       li.classList.toggle('is-shown', mine || descOpen);
     });
-    cyPlace(i);
   }
 
   /* pointer left the diagram: clear the labels, keeping only a step
@@ -228,7 +235,6 @@
       var rib = li.querySelector('.rib');
       li.classList.toggle('is-shown', !!open && rib.dataset.cy === open);
     });
-    if (open) cyPlace(open);
   }
 
   function cySet(i, open) {
@@ -247,7 +253,6 @@
       var open = b.getAttribute('aria-expanded') !== 'true';
       ['1', '2', '3', '4'].forEach(function (k) { cySet(k, k === i ? open : false); });
       cyReveal(i);
-      cyPlace(i); /* re-anchor with the description now open */
       /* an expanded step holds the ring still even after the pointer leaves */
       if (open) easeToStop();
       /* popovers are absolutely positioned, so they can't change the
@@ -310,11 +315,6 @@
       return n.animate(
         [{ transform: 'rotate(' + (-deg) + 'deg)' }, { transform: 'rotate(' + (-deg - glide) + 'deg)' }], opts);
     }));
-    /* once settled, re-anchor whichever label is showing */
-    spinAnims[0].onfinish = function () {
-      var shown = document.querySelector('.cy-l.is-shown .rib');
-      if (shown) cyPlace(shown.dataset.cy);
-    };
   }
   /* Hover is tracked on the whole diagram area, not just the ring:
      moving out to read a label must not restart the spin, or the

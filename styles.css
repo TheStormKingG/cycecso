@@ -218,9 +218,16 @@ body:has(#contact.is-active) .scrim {
      box, so scrollHeight under-reports and the fit maths lets content
      spill into the chrome. */
   display: flow-root;
-  /* scale about the top edge, then JS translates it back to optical centre */
+  /* scale about the top-LEFT corner (not centre): a slide that only
+     needs to shrink vertically (most of them, most of the time) would
+     otherwise still drift its LEFT edge inward under a centre-anchored
+     scale, since a narrower box centred on the same point necessarily
+     sits further from that point's edges. Anchoring left keeps every
+     slide's content starting at the same rail position regardless of
+     how much any one of them needs to shrink. JS still translates
+     vertically to re-centre (--fit-y assumes a top-anchored scale). */
   transform: translateY(var(--fit-y, 0px)) scale(var(--fit, 1));
-  transform-origin: top center;
+  transform-origin: top left;
 }
 .slide.is-active .slide-inner > * { animation: rise .5s cubic-bezier(.2, .7, .3, 1) backwards; }
 .slide.is-active .slide-inner > *:nth-child(2) { animation-delay: .06s; }
@@ -416,7 +423,7 @@ html:not(.js) .team-btn { display: none; }
 /* Desktop: lede left, diagram right, same row, 50/50. On mobile this
    collapses back to stacked (see the compact media query below). */
 .model-cols {
-  display: grid; grid-template-columns: 1fr 1fr;
+  display: grid; grid-template-columns: .92fr 1.08fr;
   align-items: center;
   gap: clamp(20px, 3.6vmin, 60px);
   margin-top: clamp(10px, 2.2vmin, 24px);
@@ -429,12 +436,18 @@ html:not(.js) .team-btn { display: none; }
 .cycle-area {
   position: relative;
   display: flex; justify-content: flex-end;
+  /* shared with .cy-l below: .cy-labels is a SIBLING of .cycle-fig
+     here, not nested inside it, so .cy-l's containing block is this
+     element, not the ring. A var keeps the popover's right-edge anchor
+     (cycle-fig's own left edge) in sync with the ring's width instead
+     of hand-duplicating the clamp() and letting the two drift apart. */
+  --cy-fig-w: clamp(253px, 50.6vmin, 462px);
 }
 
 .cycle-fig {
   position: relative;
   /* +10% over the original desktop size */
-  width: clamp(253px, 50.6vmin, 462px);
+  width: var(--cy-fig-w);
   aspect-ratio: 1;
 }
 .cy-ring { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -495,27 +508,40 @@ html:not(.js) .team-btn { display: none; }
 .cy-word b:nth-child(5) { color: var(--c4); }
 
 .cy-labels { display: contents; list-style: none; }
-/* Desktop: each label is a popover pinned by JS right beside its
-   number's CURRENT position on the ring (the ring stops on hover,
-   so the anchor is stable while the label is in use). */
+/* Desktop: one fixed popover slot, vertically centred on the ring, in
+   the open space to its left — whichever step is active shows here.
+   A single steady position (not one computed per node) reads far
+   more predictably than the ring's own numbers moving underneath it.
+   Anchored with right:100% (not left:0): .cy-labels lives INSIDE
+   .cycle-fig, so left:0 would sit at the ring's own left edge and the
+   popover's width would extend rightward into the ring/nodes. right:100%
+   plus a margin instead places it entirely in the free space that
+   .cycle-area (flex, justify-content:flex-end) leaves to .cycle-fig's left. */
 .cy-l {
   position: absolute; z-index: 5;
-  width: min(300px, 26vw);
-  top: 0; left: 0;
+  width: min(165px, 13vw);
+  right: var(--cy-fig-w); top: 50%;
+  margin-right: clamp(10px, 1.6vmin, 18px);
+  text-align: left;
 }
-.cy-l.pop-left { text-align: right; }
-.cy-l.pop-left .rib { flex-direction: row-reverse; }
 
-/* Ribbon buttons — the reference's coloured subtitle bars, clickable */
+/* Ribbon buttons — the reference's coloured subtitle bars, clickable.
+   width:100% (not shrink-to-fit): a button's natural content width
+   ignores its positioned ancestor's narrower box, so at this box's
+   190px slot the "Shape Policy"-length labels would overflow past it
+   into the lede text regardless of .cy-l's own width. Forcing 100%
+   plus letting .rib-t wrap keeps every ribbon inside the fixed slot. */
 .rib {
-  display: inline-flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; max-width: 100%; box-sizing: border-box;
   border: none; cursor: pointer; font-family: inherit;
   padding: clamp(7px, 1.3vmin, 11px) clamp(12px, 1.9vmin, 18px);
   border-radius: 5px;
-  font-size: clamp(14px, 2.2vmin, 19px); font-weight: 700; line-height: 1.1;
+  font-size: clamp(13px, 1.9vmin, 17px); font-weight: 700; line-height: 1.15;
   box-shadow: 3px 4px 10px rgba(0, 0, 0, .45);
   transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
 }
+.rib-t { flex: 1 1 auto; white-space: normal; min-width: 0; }
 .rib:hover { transform: translateY(-2px); filter: brightness(1.08); }
 .rib:active { transform: translateY(0); }
 .rib-1 { background: var(--c1); color: var(--deep); }
@@ -551,11 +577,11 @@ html:not(.js) .cy-desc[hidden] { display: block; }
 @media (hover: hover) and (min-width: 901px) and (min-height: 601px) {
   html.js .cy-l {
     visibility: hidden; opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(calc(-50% + 6px));
     transition: opacity .3s ease, transform .3s ease, visibility 0s .3s;
   }
   html.js .cy-l.is-shown {
-    visibility: visible; opacity: 1; transform: none;
+    visibility: visible; opacity: 1; transform: translateY(-50%);
     transition: opacity .3s ease, transform .3s ease, visibility 0s;
   }
 }
@@ -746,10 +772,9 @@ html:not(.js) #contact-form { display: none; }
   /* +25% over the original mobile size */
   .cycle-fig { width: clamp(213px, 42.5vmin, 325px); }
   /* popovers become a static stacked accordion */
-  .cy-l, .cy-l.pop-left {
+  .cy-l {
     position: static; width: auto; max-width: none; text-align: left;
   }
-  .cy-l.pop-left .rib { flex-direction: row; }
   .cy-labels {
     display: grid; width: 100%;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
@@ -771,7 +796,13 @@ html:not(.js) #contact-form { display: none; }
      incorrectly once that ancestor scale wasn't 1 — off-centre by
      however much the two reference frames disagreed. A single
      margin expression avoids the mismatch entirely. */
-  .team { width: 90vw; margin-inline: calc(50% - 45vw); }
+  /* dvw, not vw: mobile browsers reserve vw against the viewport size
+     with browser chrome (address bar) HIDDEN, which is wider than
+     what's actually visible whenever that chrome is showing — a real
+     device can overflow here even though vw's own arithmetic (0.9 +
+     0.9 = fits) is correct. dvw tracks the chrome-aware, currently
+     visible viewport instead. */
+  .team { width: 90dvw; margin-inline: calc(50% - 45dvw); }
 }
 /* Short but wide (landscape phones): keep the two columns side by side
    and shrink the carousel rows instead of stacking everything */
