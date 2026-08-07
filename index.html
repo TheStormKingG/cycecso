@@ -18,7 +18,7 @@
 <link rel="preload" href="assets/fonts/Montserrat.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="assets/img/pano.jpg" media="(min-width: 801px)">
 <link rel="stylesheet" href="assets/fonts/fonts.css">
-<link rel="stylesheet" href="styles.css?v=49">
+<link rel="stylesheet" href="styles.css?v=50">
 </head>
 <body>
 
@@ -331,15 +331,22 @@
         </div>
 
         <div class="contact-aside">
-          <div class="c-item">
-            <span class="c-lbl">Email</span>
-            <a href="mailto:cyclegyinitiative@gmail.com">cyclegyinitiative@gmail.com</a>
+          <!-- These three are one vertical stack, so on phones they have
+               to occupy ONE grid cell beside the icon column, not three
+               stacked rows. Above 700px the wrapper is display:contents
+               and disappears, leaving the desktop grid exactly as it
+               was. -->
+          <div class="aside-text">
+            <div class="c-item">
+              <span class="c-lbl">Email</span>
+              <a href="mailto:cyclegyinitiative@gmail.com">cyclegyinitiative@gmail.com</a>
+            </div>
+            <div class="c-item">
+              <span class="c-lbl">Find us</span>
+              <p>Plot 90 Ideal Road, Waiakabra<br>East Bank Demerara, Guyana</p>
+            </div>
+            <p class="sign-off">Together, we regenerate.</p>
           </div>
-          <div class="c-item">
-            <span class="c-lbl">Find us</span>
-            <p>Plot 90 Ideal Road, Waiakabra<br>East Bank Demerara, Guyana</p>
-          </div>
-          <p class="sign-off">Together, we regenerate.</p>
           <!-- TODO: the four href="#" below are placeholders — swap in
                CYCLE's real profile URLs. Not guessed here on purpose:
                a wrong handle points supporters at somebody else's
