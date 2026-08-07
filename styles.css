@@ -687,7 +687,23 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   border-radius: var(--radius);
   background: var(--surf); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
   box-shadow: var(--neu);
+  border: 1px solid rgba(255, 255, 255, .6);
   text-align: center;
+}
+/* Mouse-driven pointers only, so a tap on a phone doesn't leave a card
+   stuck in its hovered state. Scaled with a transform rather than by
+   changing size or padding: it composes with the fit scale on
+   .slide-body and never reflows the grid the cards sit in. */
+@media (hover: hover) and (pointer: fine) {
+  .stat {
+    transition: transform .28s cubic-bezier(.22, 1, .36, 1),
+                border-color .28s ease, box-shadow .28s ease;
+  }
+  .stat:hover {
+    transform: scale(1.045);
+    border-color: rgba(255, 255, 255, .95);
+    box-shadow: var(--neu), 0 10px 28px rgba(0, 0, 0, .34);
+  }
 }
 .stat-num {
   display: block;
@@ -1025,6 +1041,8 @@ html:not(.js) #contact-form { display: none; }
   .slide.is-active .slide-inner > *,
   .slide.is-active .slide-body > * { animation: none; }
   .nav-next:not([disabled]) { animation: none; }
+  .stat { transition: none; }
+  .stat:hover { transform: none; }
 }
 
 /* ── No-JS fallback: the deck degrades into a normal scrolling page ─ */

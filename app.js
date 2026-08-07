@@ -446,6 +446,20 @@
       if (!cyOpenKey()) startSpin(angleOf(spinEl));
     });
   }
+  /* Touch: tapping anything outside the diagram hands the spin back.
+     On a mouse that job belongs to pointerleave, which a touch screen
+     never fires — so without this the ring stayed parked for the rest
+     of the visit once a step had been tapped. Capture phase, so it
+     still sees the touch when the target stops propagation (the team
+     carousel does exactly that). Restarting from the ring's CURRENT
+     angle means a tap while it is already spinning is seamless. */
+  document.addEventListener('touchstart', function (e) {
+    if (!canSpin || !spinEl) return;
+    if (cyArea && cyArea.contains(e.target)) return;
+    if (ids[index] !== 'model') return;
+    startSpin(angleOf(spinEl));
+  }, { passive: true, capture: true });
+
   function cycleSpinFor(slideId) {
     if (!canSpin) return;
     if (slideId === 'model') { if (!spinAnims.length) startSpin(angleOf(spinEl)); }
