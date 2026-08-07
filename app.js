@@ -677,6 +677,13 @@
     /* RadioNodeList.value is the checked radio's value, or '' if none. */
     var lookingFor = form.looking_for ? (form.looking_for.value || '') : '';
 
+    /* Checked before the text fields so the error points at the first
+       thing on the form rather than the middle of it. */
+    if (!lookingFor) {
+      setStatus('err', 'Please choose one option under “We’re looking for”.');
+      if (form.looking_for[0]) form.looking_for[0].focus();
+      return;
+    }
     if (!name || !email || !message) {
       setStatus('err', 'Please fill in your name, email, and message.');
       var empty = [form.name, form.email, form.message].filter(function (f) { return !f.value.trim(); })[0];
