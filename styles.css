@@ -857,23 +857,22 @@ html:not(.js) .cy-desc[hidden] { display: block; }
    against ~298px of content width on a 390px screen, so type, boxes and
    both gaps all come down a little rather than any one of them a lot. */
 @media (max-width: 600px) {
-  .looking-for .lf-opts { gap: 3px; flex-wrap: wrap; }
-  /* Sized off the viewport, not a fixed px. The three labels have to
-     fit one line at --body-fit:1 — that is the worst case, since a
-     shrunk slide renders them smaller and only ever helps — and a
-     fixed size that clears 390px still overflows 414px, because the
-     text stays put while the rails eat a constant 92px. With the
-     larger boxes the line budget is font <= (viewport - 149px) /
-     24.14; the divisor below keeps a little slack. The gaps came down
-     to 3px to pay for those boxes, so the text keeps the width it had.
-     Floors at 9px: below ~375px the line wraps to two rather than
-     shrink into illegibility. */
+  /* Row gap as well as column gap: they wrap now, so the second row
+     needs air under the first, not just between neighbours. */
+  .looking-for .lf-opts { gap: 9px 14px; flex-wrap: wrap; }
+  /* These no longer chase a single line on phones. At 390px the row
+     has 298px: the three choices at +9% with gaps worth the name need
+     327px, and even at +9% with the old 3px gaps they need 296px — so
+     any real spacing costs the single line. Two comfortable rows beat
+     one cramped one, so they wrap, and the sizing is free to follow
+     the viewport rather than a line budget. Still fluid so the labels
+     never crowd the rails on the narrowest phones. */
   .looking-for .lf-opt {
-    font-size: clamp(9px, calc((100vw - 153px) / 24.5), 14.3px);
-    gap: 3px;
+    font-size: clamp(9.8px, calc((100vw - 153px) / 22.5), 15.6px);
+    gap: 6px;
   }
-  .looking-for .lf-opt input[type="radio"] { width: 14px; height: 14px; border-radius: 3px; }
-  .looking-for .lf-opt input[type="radio"]::after { width: 9px; height: 9px; }
+  .looking-for .lf-opt input[type="radio"] { width: 15px; height: 15px; border-radius: 3px; }
+  .looking-for .lf-opt input[type="radio"]::after { width: 10px; height: 10px; }
 }
 .field input, .field textarea {
   width: 100%;
