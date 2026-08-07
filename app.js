@@ -223,12 +223,16 @@
        the animation outright. Forcing it to completion once it should
        long be over fixes that regardless of why the clock stalled —
        same defensive spirit as fit()'s own verify-and-correct pass. */
-    var thisIndex = index;
+    var entering = slides[index];
     setTimeout(function () {
-      if (index !== thisIndex) return;
-      slides[thisIndex].querySelectorAll('.slide-inner > *').forEach(function (el) {
+      entering.querySelectorAll('.slide-inner > *, .slide-body > *').forEach(function (el) {
         el.getAnimations().forEach(function (a) { a.finish(); });
       });
+      /* Mark it entered so the CSS above won't replay the entrance on
+         any later return to this slide. Set regardless of where the
+         deck has moved on to in the meantime — the point is that THIS
+         slide has now had its one reveal. */
+      entering.classList.add('has-entered');
     }, 800);
   }
 
@@ -357,8 +361,13 @@
       var open = b.getAttribute('aria-expanded') !== 'true';
       ['1', '2', '3', '4'].forEach(function (k) { cySet(k, k === i ? open : false); });
       cyReveal(i);
-      /* an expanded step holds the ring still even after the pointer leaves */
+      /* an expanded step holds the ring still even after the pointer
+         leaves; closing the last open one hands it back. Without the
+         resume, tapping a step on a touch screen — where there is no
+         pointerleave to pick the spin back up — would park the ring
+         for good. */
       if (open) easeToStop();
+      else if (!cyOpenKey()) startSpin(angleOf(spinEl));
       /* popovers are absolutely positioned, so they can't change the
          slide's flow height; only the stacked layout needs a re-fit */
       if (!deskPop.matches) fit(slides[index]);
@@ -377,9 +386,11 @@
   var nts = Array.prototype.slice.call(document.querySelectorAll('.cy-nt'));
   var SPIN_MS = 42000;
   var spinAnims = [];
-  var canSpin = spinEl && 'animate' in spinEl && !reduced.matches &&
-    window.matchMedia('(hover: hover)').matches &&
-    window.matchMedia('(min-width: 901px) and (min-height: 601px)').matches;
+  /* Spins everywhere, phones included — the hover and desktop-size
+     gates that used to be here meant the ring simply sat still on
+     mobile. Only prefers-reduced-motion still turns it off. */
+  var canSpin = spinEl && 'animate' in spinEl && !reduced.matches;
+  var canHover = window.matchMedia('(hover: hover)').matches;
 
   function angleOf(el) {
     var tr = getComputedStyle(el).transform;
@@ -423,8 +434,11 @@
   /* Hover is tracked on the whole diagram area, not just the ring:
      moving out to read a label must not restart the spin, or the
      label would be left pointing at a number that has moved on. */
+  /* Real pointers only. On a touch screen a tap fires pointerenter with
+     no matching pointerleave, so the ring would ease to a stop on first
+     touch and never start again. */
   var cyArea = document.querySelector('.cycle-area');
-  if (cyArea) {
+  if (cyArea && canHover) {
     cyArea.addEventListener('pointerenter', function () { easeToStop(); });
     cyArea.addEventListener('pointerleave', function () {
       cyRest();
@@ -472,10 +486,16 @@
       return base[0].offsetHeight + gap;
     }
     function measure() { setH = rowPitch() * N; }
+    /* Modulo, not a single add/subtract: one correction only covers an
+       overshoot of less than one full set, so a fast flick or a long
+       drag could leave pos outside the range entirely and the list
+       stranded past its own end — the loop visibly stops instead of
+       coming back round. Modulo brings any magnitude back in range, so
+       scrolling up from the first member lands on the last and vice
+       versa however hard it is thrown. */
     function wrap() {
       if (setH <= 0) return;
-      if (pos >= setH) pos -= setH;
-      if (pos < 0) pos += setH;
+      pos = ((pos % setH) + setH) % setH;
     }
 
     var lastMid = 0;
