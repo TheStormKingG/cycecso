@@ -778,7 +778,11 @@ html:not(.js) .cy-desc[hidden] { display: block; }
    while remaining a radio input so choosing one clears the others. */
 .looking-for .lf-opt input[type="radio"] {
   appearance: none; -webkit-appearance: none;
-  width: 17px; height: 17px; flex-shrink: 0; margin: 0;
+  /* padding:0 is load-bearing — these sit inside a .field, so they
+     inherit the text inputs' clamp() padding. A box can't shrink below
+     its own padding+border, so that quietly overrode the width/height
+     below and rendered them 23x19: oversized, and not even square. */
+  width: 17px; height: 17px; flex-shrink: 0; margin: 0; padding: 0;
   border: 1.5px solid rgba(255, 255, 255, .55);
   border-radius: 4px;
   background: rgba(255, 255, 255, .06);
@@ -802,6 +806,27 @@ html:not(.js) .cy-desc[hidden] { display: block; }
 .looking-for .lf-opt:hover input[type="radio"] { border-color: rgba(255, 255, 255, .85); }
 .looking-for .lf-opt:hover span { color: var(--ink); }
 .looking-for .lf-opt input:checked + span { color: var(--ink); font-weight: 600; }
+/* Phones: tightened just enough to keep all three choices on one line.
+   The three labels plus their boxes need ~366px at the default sizing
+   against ~298px of content width on a 390px screen, so type, boxes and
+   both gaps all come down a little rather than any one of them a lot. */
+@media (max-width: 600px) {
+  .looking-for .lf-opts { gap: 4px; flex-wrap: wrap; }
+  /* Sized off the viewport, not a fixed px. The three labels have to
+     fit one line at --body-fit:1 — that is the worst case, since a
+     shrunk slide renders them smaller and only ever helps — and a
+     fixed size that clears 390px still overflows 414px, because the
+     text stays put while the rails eat a constant 92px. Solving the
+     line budget gives font <= (viewport - 151px) / 24.14; the divisor
+     below keeps a little slack. Floors at 9px: below ~375px the line
+     wraps to two rather than shrink into illegibility. */
+  .looking-for .lf-opt {
+    font-size: clamp(9px, calc((100vw - 155px) / 24.5), 13px);
+    gap: 4px;
+  }
+  .looking-for .lf-opt input[type="radio"] { width: 13px; height: 13px; border-radius: 3px; }
+  .looking-for .lf-opt input[type="radio"]::after { width: 8px; height: 8px; }
+}
 .field input, .field textarea {
   width: 100%;
   padding: clamp(8px, 1.5vmin, 14px) clamp(10px, 1.4vmin, 16px);
@@ -864,8 +889,11 @@ html:not(.js) #contact-form { display: none; }
 .c-item a:hover { color: var(--accent); }
 .sign-off {
   font-family: 'EB Garamond', Georgia, serif; font-style: italic;
-  font-size: clamp(14px, 2.5vmin, 22px); color: var(--accent);
+  /* 3x the old clamp(14px, 2.5vmin, 22px) — this line is the deck's
+     sign-off, not a caption, so it carries display weight. */
+  font-size: clamp(42px, 7.5vmin, 66px); color: var(--accent);
   margin-top: clamp(2px, 1vmin, 9px);
+  line-height: 1.15;
 }
 
 /* ── Navigation arrows ─────────────────────────────────────────── */
@@ -1084,7 +1112,7 @@ html:not(.js) #contact-form { display: none; }
   .form-status { grid-column: 1 / -1; margin-top: 2px; }
   .contact-grid { gap: 10px 18px; }
   .contact-aside { gap: 5px; }
-  .sign-off { font-size: 13px; margin-top: 0; }
+  .sign-off { font-size: 39px; margin-top: 0; }
 }
 @media (max-height: 400px) {
   .footnote { display: none; }
