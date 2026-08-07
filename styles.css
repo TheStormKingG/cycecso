@@ -42,8 +42,11 @@
   --fs-eyebrow: clamp(14px, 2.3vmin, 22.5px);
   /* one headline size for every slide — there is no h2 step any more */
   --fs-h1:      clamp(37px, 9.77vmin, 108px);
-  /* EB Garamond's x-height is small: the lede runs ~15% larger than
-     the equivalent Montserrat role so the two read as one scale */
+  /* This carried a ~15% uplift to compensate for EB Garamond's small
+     x-height. The lede is set in Montserrat now, so that uplift no
+     longer buys anything optically — it is kept only because this
+     value (via --fs-standfirst) is the agreed size of slides 1-3's
+     standfirst text, and changing it would change that. */
   --fs-lede:    clamp(17.5px, 3.1vmin, 29px);
   --fs-body:    clamp(13.5px, 2vmin, 18px);
   --fs-small:   clamp(12.5px, 1.8vmin, 15.5px);
@@ -297,7 +300,10 @@ body:has(#contact.is-active) .scrim {
 }
 
 .lede {
-  font-family: 'EB Garamond', Georgia, serif;
+  /* Montserrat (inherited), not the serif this used to set: the lede
+     shares the standfirst role with slide 3's closing note, which has
+     always inherited the sans, so they now match in face as well as
+     size. EB Garamond is still loaded and used — see .sign-off. */
   font-size: var(--fs-lede); line-height: 1.55; color: var(--ink-dim);
   max-width: 60ch;
   margin-top: clamp(10px, 2.3vmin, 24px);

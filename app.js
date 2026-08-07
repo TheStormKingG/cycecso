@@ -93,33 +93,51 @@
        It has to iterate: a wider box re-wraps the text, which changes
        the height, which changes the scale, which changes the width.
        It converges quickly (each round moves less than the last), so
-       a few rounds plus a tolerance is enough. */
-    function converge(minScale) {
-      var s = 1;
-      for (var i = 0; i < 5; i++) {
-        body.style.width = (targetW / s) + 'px';
-        var hh = body.scrollHeight;
-        if (hh <= 0) break;
-        var next = Math.max(Math.min(1, availBodyH / hh), minScale);
-        if (Math.abs(next - s) < 0.004) { s = next; break; }
-        s = next;
-      }
+       a few rounds plus a tolerance is enough.
+
+       Solved by BISECTION rather than by feeding each result back in
+       as the next guess. That obvious fixed-point loop oscillates
+       whenever the fit is marginal — height responds sharply to width,
+       so a guess that just fails jumps to one that comfortably fits
+       and back again, and the loop then returns whichever end of the
+       swing it happened to stop on. It cost slide 1 a real ~24% of its
+       size (settling at 0.759 while reporting a body that fit inside
+       its slot with room to spare). Rendered height grows monotonically
+       with scale — a bigger scale means a narrower box, more wrapped
+       lines AND less shrink — so "does this scale fit?" flips exactly
+       once across the range, which is all bisection needs. */
+    function heightAt(s) {
       body.style.width = (targetW / s) + 'px';
-      return s;
+      return body.scrollHeight;
+    }
+    function fitsAt(s) {
+      var hh = heightAt(s);
+      return hh > 0 && hh * s <= availBodyH + 1;
+    }
+    function solve(minScale) {
+      if (fitsAt(1)) { heightAt(1); return 1; }
+      if (!fitsAt(minScale)) { heightAt(minScale); return minScale; }
+      var lo = minScale, hi = 1;
+      for (var i = 0; i < 7; i++) {
+        var mid = (lo + hi) / 2;
+        if (fitsAt(mid)) lo = mid; else hi = mid;
+      }
+      heightAt(lo);
+      return lo;
     }
 
     /* First pass respects the readability floor: never shrink so far
        the text becomes unreadable, since below this the responsive
        rules have already stripped the slide down. */
-    var scale = converge(0.55);
+    var scale = solve(0.55);
     /* If the slide genuinely cannot fit at that floor, the floor
-       yields — never scrolling is the harder guarantee. Re-converging
+       yields — never scrolling is the harder guarantee. Re-solving
        (rather than just clamping the scale) matters because the width
        is derived from the scale: clamping alone would leave the body
        sized for the old, larger scale and render it narrower than the
        rail, which showed up as a visibly off-centre slide on landscape
        phones (59px inset on the left, 137px on the right). */
-    if (body.scrollHeight * scale > availBodyH + 1) scale = converge(0.01);
+    if (body.scrollHeight * scale > availBodyH + 1) scale = solve(0.01);
     body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
 
     /* Last-resort clamp, measured against the final layout: covers a
