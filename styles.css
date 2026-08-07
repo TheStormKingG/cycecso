@@ -353,8 +353,7 @@ body:has(#contact.is-active) .scrim {
    at its true CSS size instead. Three rows still show: one faded, one
    highlighted, one faded. */
 @media (min-width: 901px) {
-  :root { --tm-h: clamp(112px, 14.4vh, 130px); }
-  .tm-ava { width: clamp(74px, 9.8vmin, 96px); }
+  :root { --tm-h: clamp(118px, 15vh, 135px); }
 }
 
 .about-cols {
@@ -370,7 +369,11 @@ body:has(#contact.is-active) .scrim {
   align-items: center;
   margin-top: clamp(10px, 2.2vmin, 24px);
 }
-.about-cols .lede { margin-top: 0; text-align: justify; text-justify: inter-word; }
+/* Ranged left, not justified: the other two standfirst texts have
+   always been left-aligned, so justifying this one made the same role
+   look different slide to slide — and in a narrow phone column
+   justification opens visible rivers between words. */
+.about-cols .lede { margin-top: 0; }
 /* The deck's standfirst size: the opening statement on slides 1 and 2
    and the closing note on slide 3 all share it, so the same role reads
    at the same size wherever it appears. One token rather than three
@@ -378,11 +381,17 @@ body:has(#contact.is-active) .scrim {
    screens, where the columns stack and the full step would push the
    slide past the shrink-to-fit floor into the chrome. */
 :root { --fs-standfirst: calc(var(--fs-lede) * 1.5925); }
+/* These two steps are set by what slide 1 can actually hold, not by
+   taste: the three standfirst texts only render at the same size when
+   slide 1 fits its slot without the auto-shrink kicking in, and on a
+   stacked phone layout its opening line sits above a full-width
+   carousel rather than beside it. Sized so slide 1 lands at scale 1
+   and all three therefore render identically. */
 @media (max-width: 900px), (max-height: 600px) {
-  :root { --fs-standfirst: calc(var(--fs-lede) * 1.165); }
+  :root { --fs-standfirst: calc(var(--fs-lede) * 1.02); }
 }
 @media (max-width: 420px), (max-height: 430px) {
-  :root { --fs-standfirst: var(--fs-lede); }
+  :root { --fs-standfirst: calc(var(--fs-lede) * 0.9); }
 }
 /* 1.34, not the 1.42 the smaller lede uses: leading should tighten as
    type grows, and at this size 1.42 both read loose and made slide 1's
@@ -460,6 +469,17 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 .tm-bio {
   font-size: calc(var(--fs-small) * 1.15); color: var(--ink-dim); line-height: 1.42;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* Desktop rows are shorter than the base (see the --tm-h override
+   above), so the avatar and bio are sized to actually fit inside one.
+   This has to sit AFTER the .tm-ava/.tm-bio rules it overrides: an
+   earlier attempt lived up beside the --tm-h override, lost to the
+   later base rule at equal specificity, and silently did nothing —
+   leaving a 122px avatar and a 3-line bio needing 154px of row in a
+   130px row, i.e. both visibly clipped. */
+@media (min-width: 901px) {
+  .tm-ava { width: clamp(74px, 9.8vmin, 96px); }
+  .tm-bio { -webkit-line-clamp: 2; }
 }
 
 /* Step buttons: up above, down below, centred on the carousel */
@@ -851,9 +871,23 @@ html:not(.js) #contact-form { display: none; }
      the old gap read as barely any breathing room between the lede's
      last line and "THE ENSEMBLE" label right below it. */
   .about-cols { grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 5.5vmin, 40px); }
-  :root { --tm-h: clamp(124px, 20vh, 154px); }
-  .tm-ava { width: clamp(56px, 15vmin, 96px); }
-  .tm-bio { -webkit-line-clamp: 3; }
+  /* Stacked layout puts the carousel BELOW a full-width opening line
+     rather than beside it, so it is what pushed slide 1 over its slot
+     (measured at 390x844: 805px of content against a 596px slot, of
+     which the carousel was 506px). Being over the slot is what made
+     slide 1's opening line render smaller than the identical line on
+     slide 2. Rows are sized to their own content instead: a two-line
+     bio needs 99px including padding, so the three rows now cost 316px
+     instead of 478px. Three rows still show, one faded either side. */
+  /* Flat, not a clamp: a row's content is a fixed 99px here (avatar,
+     a name that wraps to two lines on a 360px screen, and a two-line
+     bio), so a viewport-height-based floor just produced rows too
+     short for their own content on smaller phones — 92px rows around
+     99px of content, clipped. Row height answers to the content, not
+     to the viewport. */
+  :root { --tm-h: 100px; }
+  .tm-ava { width: clamp(52px, 13vmin, 72px); }
+  .tm-bio { -webkit-line-clamp: 2; }
   /* Break the carousel out of the slide's own side padding so it
      measures against the true screen width, not the content column.
      Pure margin math (not margin+transform): the slide is itself
