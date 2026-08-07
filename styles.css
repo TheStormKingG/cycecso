@@ -678,7 +678,12 @@ html:not(.js) .cy-desc[hidden] { display: block; }
 /* ── 03 · stats + timeline ─────────────────────────────────────── */
 .stats {
   list-style: none;
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  /* minmax(0, 1fr), not bare 1fr: a bare fr track refuses to shrink
+     below its content's min-content width, so on a tablet the longest
+     label ("BIODIVERSITY SITES") pushed its card 15px past the grid's
+     own right edge and out under the next-slide arrow. Allowing the
+     track to shrink lets the label wrap instead of the card overflow. */
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(8px, 1.2vw, 18px);
   margin-top: clamp(14px, 3.2vmin, 34px);
 }
@@ -689,6 +694,8 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   box-shadow: var(--neu);
   border: 1px solid rgba(255, 255, 255, .6);
   text-align: center;
+  /* lets .stat-num size itself against this card — see its font-size */
+  container-type: inline-size;
 }
 /* Mouse-driven pointers only, so a tap on a phone doesn't leave a card
    stuck in its hovered state. Scaled with a transform rather than by
@@ -708,6 +715,14 @@ html:not(.js) .cy-desc[hidden] { display: block; }
 .stat-num {
   display: block;
   font-size: var(--fs-stat); font-weight: 800; line-height: 1;
+  /* Capped against the card's OWN width, not just the viewport.
+     --fs-stat is keyed to vmin, which says nothing about how wide a
+     card ends up once the grid has divided the row: at 1024px the
+     longest figure wanted 187px inside a 126px card and painted
+     straight over its neighbour. 27cqw is the widest "2,500+" can be
+     and still sit inside its card. The plain declaration above stays
+     as the fallback wherever container units aren't supported. */
+  font-size: min(var(--fs-stat), 27cqw);
   color: var(--accent); font-variant-numeric: tabular-nums;
   letter-spacing: -.02em;
 }
@@ -715,6 +730,26 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   display: block; margin-top: clamp(4px, 1vmin, 10px);
   font-size: var(--fs-chip); font-weight: 700;
   letter-spacing: .08em; text-transform: uppercase; color: var(--ink-mut);
+}
+/* Hold the cards clear of the prev/next arrows, which float over the
+   slide at its left and right edges. The stats row is the one block
+   that reaches full width AT the arrows' own height, so at anything
+   narrower than the 1180px content cap the outer cards ran 2px UNDER
+   each arrow (measured: card edges 46/344 against arrow edges 48/342
+   on a 390px screen; the same -2px on tablets, on a 900px window and
+   on landscape phones). Above the cap the content column is centred
+   and already clears them, so the inset stops there. */
+@media (max-width: 1200px) {
+  .stats { margin-inline: 12px; }
+}
+/* Two across from tablet width down, not just phone width. Four
+   columns below ~900px leaves each card narrower than its own number:
+   at 768px the tracks are free to shrink (see minmax above) and
+   "2,500+" simply ran out of its card into the next one. Two columns
+   give the figures room instead of shrinking the type to suit. */
+@media (max-width: 900px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .timeline {
@@ -1024,8 +1059,8 @@ html:not(.js) #contact-form { display: none; }
   .sign-off { grid-column: 1 / -1; }
 }
 @media (max-width: 700px) {
-  .stats { grid-template-columns: repeat(2, 1fr); }
-  .timeline { grid-template-columns: repeat(2, 1fr); }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .brand-sub { display: none; }
   .dot span { display: none; }
   .dot { padding: 8px 4px; }
