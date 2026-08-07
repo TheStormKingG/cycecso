@@ -1000,23 +1000,24 @@ html:not(.js) #contact-form { display: none; }
     transparent 58%
   );
   transform: translateX(-100%);
-  animation: sheen 5.3s cubic-bezier(.5, 0, .35, 1) infinite;
+  animation: sheen 8s cubic-bezier(.5, 0, .35, 1) infinite;
   pointer-events: none;
 }
 @keyframes sheen {
-  /* Two independent timings live in here, and only one of them is the
-     "speed" of the shine. The band's own crossing is 39% of 5.3s =
-     2.07s; the remaining 57.5% is the pause between sweeps. Slowing
-     the crossing therefore means lengthening the whole cycle, not
-     just stretching the percentages — stretching them alone would
-     have eaten the pause and made the shine recur more often while
-     travelling slower, which is not what "slower" looks like. */
-  0%, 3.5%   { transform: translateX(-100%); }
-  42.5%, 100% { transform: translateX(100%); }
+  /* 8s cycle: 3s parked off the left, 3s crossing, 2s parked off the
+     right. Only the crossing is the shine's "speed"; the two parked
+     stretches are both invisible (the band sits clear of the disc at
+     either end), so what a viewer actually experiences between one
+     sweep and the next is the 2s tail plus the next cycle's 3s head,
+     i.e. 5s of still icon. Splitting the stillness across both ends
+     rather than pooling it at one end costs nothing and keeps these
+     percentages readable against the 3/3/2 the numbers describe. */
+  0%, 37.5%  { transform: translateX(-100%); }
+  75%, 100%  { transform: translateX(100%); }
 }
-.socials li:nth-child(2) a::after { animation-delay: .28s; }
-.socials li:nth-child(3) a::after { animation-delay: .56s; }
-.socials li:nth-child(4) a::after { animation-delay: .84s; }
+.socials li:nth-child(2) a::after { animation-delay: .15s; }
+.socials li:nth-child(3) a::after { animation-delay: .30s; }
+.socials li:nth-child(4) a::after { animation-delay: .45s; }
 /* Mouse pointers only, so a tap can't leave one stuck hovered. */
 @media (hover: hover) and (pointer: fine) {
   .socials a { transition: background .22s ease, color .22s ease, border-color .22s ease, transform .22s cubic-bezier(.22, 1, .36, 1); }
