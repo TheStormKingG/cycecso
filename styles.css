@@ -40,8 +40,8 @@
   /* Fluid type keyed to vmin: one scale that behaves in both
      orientations. The JS shrink-to-fit handles the extremes. */
   --fs-eyebrow: clamp(14px, 2.3vmin, 22.5px);
+  /* one headline size for every slide — there is no h2 step any more */
   --fs-h1:      clamp(42px, 11.1vmin, 123px);
-  --fs-h2:      clamp(32px, 8vmin, 84px);
   /* EB Garamond's x-height is small: the lede runs ~15% larger than
      the equivalent Montserrat role so the two read as one scale */
   --fs-lede:    clamp(17.5px, 3.1vmin, 29px);
@@ -243,11 +243,22 @@ body:has(#contact.is-active) .scrim {
   transform: scale(var(--body-fit, 1));
   transform-origin: top left;
 }
-.slide.is-active .slide-inner > * { animation: rise .5s cubic-bezier(.2, .7, .3, 1) backwards; }
-.slide.is-active .slide-inner > *:nth-child(2) { animation-delay: .06s; }
-.slide.is-active .slide-inner > *:nth-child(3) { animation-delay: .12s; }
-.slide.is-active .slide-inner > *:nth-child(4) { animation-delay: .18s; }
-.slide.is-active .slide-inner > *:nth-child(5) { animation-delay: .24s; }
+/* The entrance animation must never land on .slide-body itself: `rise`
+   animates `transform`, and an animated transform REPLACES the
+   element's own `transform: scale(var(--body-fit))` for as long as it
+   runs. That silently un-scaled the body mid-animation — which is what
+   made fit()'s old getBoundingClientRect check read a full-size box,
+   see phantom overflow, and shrink a correctly-fitted slide to ~0.53
+   of its proper size on every return to it. The body's CHILDREN carry
+   the stagger instead, so the effect is unchanged visually. */
+.slide.is-active .slide-inner > .eyebrow,
+.slide.is-active .slide-inner > .headline,
+.slide.is-active .slide-body > * { animation: rise .5s cubic-bezier(.2, .7, .3, 1) backwards; }
+.slide.is-active .slide-inner > .headline { animation-delay: .06s; }
+.slide.is-active .slide-body > *:nth-child(1) { animation-delay: .12s; }
+.slide.is-active .slide-body > *:nth-child(2) { animation-delay: .18s; }
+.slide.is-active .slide-body > *:nth-child(3) { animation-delay: .24s; }
+.slide.is-active .slide-body > *:nth-child(n+4) { animation-delay: .3s; }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 
 /* ── Shared slide typography ───────────────────────────────────── */
@@ -269,7 +280,12 @@ body:has(#contact.is-active) .scrim {
   text-wrap: balance;
   text-shadow: 0 2px 24px rgba(0, 0, 0, .38);
 }
-.slide:not(#about) .headline { font-size: var(--fs-h2); max-width: 22ch; }
+/* Every slide's headline is the SAME size (--fs-h1) — the other three
+   used to step down to --fs-h2, which read as the deck's "page header"
+   changing size slide to slide. Only max-width differs, and that's a
+   wrapping constraint (these headlines are longer than About's), not a
+   size one. */
+.slide:not(#about) .headline { max-width: 22ch; }
 
 /* Break the contact headline where the sense divides, not where
    text-wrap:balance would put it. Only once there's room for the
@@ -879,34 +895,13 @@ html:not(.js) #contact-form { display: none; }
    readable sizes by tightening the layout instead of letting the
    shrink-to-fit scale the whole slide down.
 
-   Model, Impact and Contact's headlines are each scaled with their
-   OWN vw-based clamp() at this breakpoint: at the shared --fs-h2 size,
-   narrow phones don't have room to wrap "The value is in the turn.",
-   "The numbers we're willing to be held to." or "Fund it, research
-   it, build it with us." into the same number of lines desktop uses
-   (1, 2 and 2, via text-wrap:balance). --fs-h2 itself can't fix this:
-   its own floor (32px) is flat all the way from 400px width down to
-   0, so it doesn't shrink any further exactly where these three text
-   strings need it most — a narrow phone (~360px) needs meaningfully
-   smaller type than a wide one (~600px) to hold the same line count,
-   and a multiple of a value that's ALREADY flat across that range
-   stays flat too. Each clamp()'s three numbers were picked by
-   measuring, at both ends of this breakpoint's width range, the
-   largest size that still wraps to the target line count, then
-   solving a straight line between those two points (with a couple of
-   px of safety margin) — not derived from --fs-h2 at all.
-   Selector specificity note: plain `.s-model .headline` (0,2,0) LOSES
-   to the base `.slide:not(#about) .headline` rule (1,2,0 — :not()'s
-   argument #about contributes ID-level specificity) regardless of
-   media-query nesting or source order, so it would have silently done
-   nothing — same as the original single-property version of this
-   override apparently always had. `.slide#model` etc. ties that
-   rule's specificity exactly (1,2,0); being later in the stylesheet,
-   the tie resolves in this rule's favor. */
+   The per-slide headline font-size clamps that used to live here are
+   gone. They existed to force each mobile headline to wrap into the
+   same number of lines as desktop, which required sizing each one
+   differently — directly at odds with every headline being the same
+   size. Uniform size wins; line counts now fall where the text
+   naturally wraps. */
 @media (max-width: 600px) {
-  .slide#model .headline { font-size: clamp(20px, 6vw, 26px); }
-  .slide#impact .headline { font-size: clamp(20px, 6.5vw, 27px); }
-  .slide#contact .headline { font-size: clamp(24px, 7.5vw, 32px); }
   .s-model .lede { font-size: 14px; }
   /* +25% over the original mobile size (matches the compact rule above) */
   .cycle-fig { width: 188px; }
@@ -928,13 +923,24 @@ html:not(.js) #contact-form { display: none; }
   .chip-row-sm { gap: 5px; }
   .chip-row-sm .chip { padding: 5px 10px; }
 }
+/* Not-very-tall viewports (small phones, and any phone once the
+   browser's own chrome is showing). Every headline is one shared size
+   now, and at full --fs-h1 that header eats enough of a ~560px-tall
+   viewport to squeeze the body below the readability floor (measured
+   0.45 on Impact at 375x560). Stepping the shared token down keeps all
+   four slides identical to each other — the uniformity is in the
+   token, so it survives — while handing the body back its room.
+   Placed BEFORE the 520px tier so that stricter tier still wins on the
+   shortest screens. */
+@media (max-height: 620px) {
+  :root { --fs-h1: clamp(30px, 8.2vmin, 66px); }
+}
 /* Short viewports (landscape phones). Everything stays on screen — these
    rules buy the space by tightening layout, not by dropping content. */
 @media (max-height: 520px) {
   :root {
     --chrome-t: 42px; --chrome-b: 36px;
     --fs-h1: clamp(31.5px, 8.4vmin, 51px);
-    --fs-h2: clamp(25.5px, 6.3vmin, 39px);
     --fs-lede: clamp(13px, 2.3vmin, 16.5px);
     --fs-body: clamp(10.5px, 1.6vmin, 13px);
     --fs-stat: clamp(21px, 5.2vmin, 34px);
@@ -968,7 +974,8 @@ html:not(.js) #contact-form { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .pan { transition: none; }
   .slide, .nav { transition: opacity .01s; }
-  .slide.is-active .slide-inner > * { animation: none; }
+  .slide.is-active .slide-inner > *,
+  .slide.is-active .slide-body > * { animation: none; }
   .nav-next:not([disabled]) { animation: none; }
 }
 

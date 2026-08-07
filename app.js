@@ -91,26 +91,6 @@
     scale = Math.max(scale, 0.55);
     body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
 
-    /* Verify, don't just trust: re-read the ACTUAL rendered box. A late
-       web-font swap (fallback metrics at measurement time, real metrics
-       after) or any other post-measurement reflow can make the true
-       size disagree with what scrollWidth/scrollHeight reported above —
-       that gap is exactly what let real devices overflow while every
-       simulated check here passed. If reality still overflows, no-scroll
-       wins over the 0.55 readability floor and we shrink further. */
-    var r = body.getBoundingClientRect();
-    var slideR = slide.getBoundingClientRect();
-    var overW = r.right - (slideR.right - parseFloat(cs.paddingRight));
-    var overH = r.bottom - (slideR.bottom - parseFloat(cs.paddingBottom));
-    if (overW > 1 || overH > 1) {
-      var factor = Math.min(
-        overW > 1 ? (r.width - overW) / r.width : 1,
-        overH > 1 ? (r.height - overH) / r.height : 1
-      );
-      scale = Math.max(0.01, scale * factor);
-      body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
-    }
-
     /* Undo the shrink's effect on WIDTH only, for lede/.team inside
        About's body. Two different targets:
        - lede: just restore its own natural (--body-fit:1) width — the
@@ -152,6 +132,28 @@
         }
         if (targetRenderedWidth > 0) el.style.width = (targetRenderedWidth / scale) + 'px';
       });
+    }
+
+    /* Final no-overflow guarantee, measured AFTER the width
+       corrections above. Those corrections re-wrap content, so the
+       body's real height can differ from the height `scale` was
+       computed against — measured at 1024x768 as 645px natural
+       becoming 700px corrected, which pushed the About slide's
+       content down under the bottom nav bar. Also covers genuine late
+       reflow (a web-font finishing its swap after the first measure).
+       Layout metrics only, never getBoundingClientRect: a rect
+       reflects this element's own transform, and while the entrance
+       animation is running that transform is the animation's, not
+       ours (see the .slide-body animation note in styles.css) — the
+       rect would describe an unscaled box and this check would shrink
+       an already-correct slide. Only ever shrinks, and no-scroll wins
+       over the 0.55 readability floor. */
+    var h2 = body.scrollHeight;
+    var w2 = body.scrollWidth;
+    var hardScale = Math.min(1, (availH - headerH) / h2, availW / w2);
+    if (hardScale < scale) {
+      scale = Math.max(0.01, hardScale);
+      body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
     }
   }
 
@@ -303,28 +305,11 @@
   var start = ids.indexOf((location.hash || '').replace('#', ''));
   fitAll();
   show(start < 0 ? 0 : start, { replace: true });
-  /* One or more authoritative passes shortly after boot: the very
-     first fitAll() has been observed measuring About's body ~170px
-     taller than its true steady-state height (confirmed by resetting
-     and re-measuring later: the "natural" scrollHeight itself was
-     already back to the smaller, correct figure by then) — a one-time
-     boot discrepancy, not the width-correction feedback loop (that's
-     ruled out separately: the reset-and-remeasure check is stable run
-     to run once settled). Calling fitAll() directly again didn't
-     reproduce the fix; dispatching an actual resize event did (the
-     difference is the team carousel's own resize handler also
-     running) — but how LONG after boot it needed to fire varied run to
-     run (300ms wasn't always enough; ~2s reliably was), which points
-     at this environment's own degraded timer behavior (see the team
-     carousel's setInterval-over-rAF workaround) rather than a fixed,
-     learnable delay. Multiple checkpoints instead of one guessed
-     number, so this self-corrects whatever the real settle time turns
-     out to be on an actual device rather than assuming it matches
-     what was observed here. Harmless either way: once converged, a
-     resize event just re-triggers the same stable computation. */
-  [300, 900, 2000].forEach(function (ms) {
-    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, ms);
-  });
+  /* The delayed resize-dispatch workaround that used to sit here is
+     gone: the "boot needs a second pass to settle" symptom it papered
+     over was the same stale-transform read fixed in fit()'s verify
+     pass above, which is why a later pass appeared to "correct" the
+     value. fonts.ready and load still re-fit for genuine late reflow. */
 
   /* ── Cycle diagram ──────────────────────────────────────────── */
   var cyBtns = Array.prototype.slice.call(document.querySelectorAll('[data-cy]'));
