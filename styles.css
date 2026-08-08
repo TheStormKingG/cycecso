@@ -376,7 +376,7 @@ body:has(#contact.is-active) .scrim {
    at its true CSS size instead. Three rows still show: one faded, one
    highlighted, one faded. */
 @media (min-width: 901px) {
-  :root { --tm-h: clamp(158px, 20vh, 190px); }
+  :root { --tm-h: clamp(166px, 20vh, 202px); }
 }
 
 .about-cols {
@@ -433,7 +433,15 @@ body:has(#contact.is-active) .scrim {
 
 /* Exactly three rows tall: one faded, one highlighted, one faded. */
 .team-vp {
-  height: calc(3 * var(--tm-h) + 2 * var(--tm-gap));
+  /* Two rows, not three. The cards had to grow by half to fit a whole
+     bio, and at three rows that made the carousel 156px taller, which
+     the slide's shrink-to-fit paid for by scaling ALL of slide 1 down
+     about 15% - the bio fitted but everything got harder to read. Two
+     of the taller rows occupy 314px against the 320px three short ones
+     used, so the slide is back to its original scale and the bio still
+     fits. The cost is seeing two members at a time instead of three;
+     the list scrolls continuously, so none are hidden. */
+  height: calc(2 * var(--tm-h) + 1 * var(--tm-gap));
   overflow: hidden;
   /* gentle edge fade only: the outer rows stay whole, never clipped */
   -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.55), #000 14%, #000 86%, rgba(0,0,0,.55));
@@ -519,7 +527,13 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
   flex-shrink: 0;
   font-size: clamp(8.5px, 1.05vmin, 10px);
   font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
-  line-height: 1; white-space: nowrap;
+  /* Wraps at EVERY width, not just narrow ones. On one line this pill
+     is the widest thing in the card - 126px of a 425px card at 1920,
+     nearly a third - which left the bio 196px for 17.8px type and sent
+     it to six lines. Breaking after "EXECUTIVE" costs a few pixels of
+     height and returns about 55px to the text column. */
+  line-height: 1.15; white-space: normal; text-align: center;
+  max-width: 13ch;
   padding: .38em .72em;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, .45);
@@ -545,11 +559,7 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
    these are scaled down by the fit system, so the 8.5px base was
    reaching the eye at 5.4px. */
 @media (max-width: 1100px) {
-  .tm-badge {
-    white-space: normal; text-align: center;
-    max-width: 13ch; line-height: 1.15;
-    font-size: clamp(10px, 1.05vmin, 11px);
-  }
+  .tm-badge { font-size: clamp(10px, 1.05vmin, 11px); }
   .tm-id .tm-ava { height: 56%; }
 }
 
