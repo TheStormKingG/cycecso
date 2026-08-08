@@ -447,9 +447,16 @@ body:has(#contact.is-active) .scrim {
 }
 
 .tm {
+  /* Held in variables because the LinkedIn panel has to cancel the
+     vertical padding to reach the card's top and bottom edges. */
+  --tm-pad-y: clamp(8px, 1.3vmin, 12px);
+  --tm-pad-x: clamp(10px, 1.5vmin, 15px);
   height: var(--tm-h); flex-shrink: 0; overflow: hidden;
   display: flex; gap: clamp(12px, 2vmin, 20px); align-items: center;
-  padding: clamp(8px, 1.3vmin, 12px) clamp(10px, 1.5vmin, 15px);
+  /* No right padding: the LinkedIn panel runs to the card's own edge,
+     which also makes its 18% resolve against very nearly the full card
+     width rather than an inset content box. */
+  padding: var(--tm-pad-y) 0 var(--tm-pad-y) var(--tm-pad-x);
   border-radius: var(--radius-sm);
   opacity: .30; filter: saturate(.75);
   transition: opacity .5s ease, filter .5s ease, background .5s ease;
@@ -556,24 +563,31 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
    rather than anything inside .tm-body, because the card has a fixed
    height and clips: content added to the text column would eat into
    the bio instead of sitting beside it. */
+/* The whole right-hand 18% of the card is the LinkedIn target, rather
+   than a small disc floating in it. Stretch plus negative vertical
+   margins cancel the card's padding so the panel reaches all four of
+   its own edges; the card's overflow:hidden and border-radius then
+   clip its outer corners to the card's curve, so it needs no radius
+   of its own. */
 .tm-li {
-  flex-shrink: 0;
+  /* A flex basis resolves against the CONTENT box, which is the card
+     minus its left padding, so a flat 18% measured 17.4-17.8% of the
+     card itself. Content = card - padX, so 18% of the card is 18% of
+     the content plus 18% of that padding. */
+  flex: 0 0 calc(18% + var(--tm-pad-x) * .18);
+  align-self: stretch;
+  margin-block: calc(-1 * var(--tm-pad-y));
   display: grid; place-items: center;
-  /* Sized against the RENDERED result, not the CSS value: these sit
-     inside .slide-body, which the fit system scales down, so 28px was
-     reaching a thumb as 27px on a 390px phone and 14px in landscape.
-     The floor is what does the work; the vmin term only lets it grow
-     on large screens. */
-  width: clamp(38px, 4.2vmin, 44px); aspect-ratio: 1;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, .45);
-  background: rgba(255, 255, 255, .06);
+  border-left: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(255, 255, 255, .07);
   color: var(--ink);
 }
-.tm-li svg { width: 52%; height: 52%; fill: currentColor; }
+/* Sized off the panel so it tracks the card rather than the viewport,
+   with a ceiling so it does not become a billboard on wide screens. */
+.tm-li svg { width: min(46%, 30px); height: auto; fill: currentColor; }
 @media (hover: hover) and (pointer: fine) {
-  .tm-li { transition: background .2s ease, color .2s ease, border-color .2s ease; }
-  .tm-li:hover { background: var(--accent); border-color: var(--accent); color: var(--deep); }
+  .tm-li { transition: background .2s ease, color .2s ease; }
+  .tm-li:hover { background: var(--accent); color: var(--deep); }
 }
 /* Off-centre cards sit at 30% opacity, but their links are still
    tabbable. Lift the whole card while anything inside it holds focus,
