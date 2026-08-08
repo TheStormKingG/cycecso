@@ -505,7 +505,16 @@
 
     /* Duplicate the whole set once: a continuous loop needs a second
        copy to scroll into as the first copy scrolls out, then wraps. */
-    base.forEach(function (it) { list.appendChild(it.cloneNode(true)); });
+    base.forEach(function (it) {
+      var copy = it.cloneNode(true);
+      /* The copy exists only so the loop has something to scroll into.
+         Leaving it in the accessibility tree would announce all fifteen
+         members twice, and leaving its LinkedIn link tabbable would put
+         thirty tab stops in a fifteen-person list. */
+      copy.setAttribute('aria-hidden', 'true');
+      copy.querySelectorAll('a, button').forEach(function (el) { el.tabIndex = -1; });
+      list.appendChild(copy);
+    });
     var all = Array.prototype.slice.call(list.children);
 
     var SPEED = 15;           // px/s of layout height — slow, ambient

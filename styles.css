@@ -490,6 +490,40 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 .tm:nth-child(5n+4) .tm-ava { border-color: var(--c3); }
 .tm:nth-child(5n)   .tm-ava { border-color: var(--c4); }
 
+/* Takes the slack so the LinkedIn link is pushed to the card's right
+   edge. min-width:0 is load-bearing: without it a flex item refuses to
+   shrink below its min-content width, and the long member names would
+   push the link off the end of an overflow:hidden card. */
+.tm-body { flex: 1 1 auto; min-width: 0; }
+
+/* LinkedIn link, one per member. It is the row's third flex child
+   rather than anything inside .tm-body, because the card has a fixed
+   height and clips: content added to the text column would eat into
+   the bio instead of sitting beside it. */
+.tm-li {
+  flex-shrink: 0;
+  display: grid; place-items: center;
+  /* Sized against the RENDERED result, not the CSS value: these sit
+     inside .slide-body, which the fit system scales down, so 28px was
+     reaching a thumb as 27px on a 390px phone and 14px in landscape.
+     The floor is what does the work; the vmin term only lets it grow
+     on large screens. */
+  width: clamp(38px, 4.2vmin, 44px); aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .45);
+  background: rgba(255, 255, 255, .06);
+  color: var(--ink);
+}
+.tm-li svg { width: 52%; height: 52%; fill: currentColor; }
+@media (hover: hover) and (pointer: fine) {
+  .tm-li { transition: background .2s ease, color .2s ease, border-color .2s ease; }
+  .tm-li:hover { background: var(--accent); border-color: var(--accent); color: var(--deep); }
+}
+/* Off-centre cards sit at 30% opacity, but their links are still
+   tabbable. Lift the whole card while anything inside it holds focus,
+   so a keyboard user never lands a focus ring on faded content. */
+.tm:focus-within { opacity: 1; filter: none; }
+
 .tm-name {
   /* +15% over the shared body token, scoped to the carousel only */
   font-size: calc(var(--fs-body) * 1.15); font-weight: 700; color: var(--ink);
