@@ -472,6 +472,17 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
   overflow: hidden;
 }
 .tm-ava svg { width: 72%; height: 72%; }
+/* A real headshot fills the disc. The adjacent-sibling selector is what
+   makes the fallback work without JS having to toggle a class: the
+   silhouette is hidden only while an <img> actually precedes it, so
+   app.js removing a broken <img> brings the silhouette straight back. */
+.tm-ava img {
+  grid-area: 1 / 1;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center 22%;
+  display: block;
+}
+.tm-ava img + svg { display: none; }
 /* placeholder tint rotates through the logo palette */
 .tm:nth-child(5n+1) .tm-ava { border-color: var(--c1); }
 .tm:nth-child(5n+2) .tm-ava { border-color: var(--c2); }

@@ -467,6 +467,31 @@
   }
   cycleSpinFor(ids[index]); /* boot ran show() before this section existed */
 
+  /* ── Member photos: fall back to the silhouette ─────────────────────
+        A member whose headshot is missing or fails to load must not
+        leave a broken-image icon inside the ring. Removing the <img>
+        un-hides the <svg> silhouette sitting behind it in the markup
+        (see .tm-ava img + svg), so the card degrades to exactly what an
+        unphotographed member already looks like. The complete/
+        naturalWidth check catches images that already failed before
+        this deferred script ran, which a listener alone would miss. */
+  (function () {
+    function drop(img) { if (img.parentNode) img.parentNode.removeChild(img); }
+    /* Delegated on the document in the CAPTURE phase, for two reasons
+       that both defeat per-image listeners here: error does not bubble,
+       and the carousel below clones every card to build its loop, so
+       images that do not exist yet at this point still get covered.
+       The photos are lazy, so most of these fire long after boot. */
+    document.addEventListener('error', function (e) {
+      var t = e.target;
+      if (t && t.tagName === 'IMG' && t.parentNode && t.parentNode.classList.contains('tm-ava')) drop(t);
+    }, true);
+    /* And a sweep for any that already failed before this ran. */
+    document.querySelectorAll('.tm-ava img').forEach(function (img) {
+      if (img.complete && img.naturalWidth === 0) drop(img);
+    });
+  }());
+
   /* ── Team carousel: continuous auto-scroll, 3 visible, whichever
         member sits nearest the centre is the highlighted one ──────── */
   (function () {

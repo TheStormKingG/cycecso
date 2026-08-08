@@ -18,7 +18,7 @@
 <link rel="preload" href="assets/fonts/Montserrat.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="assets/img/pano.jpg" media="(min-width: 801px)">
 <link rel="stylesheet" href="assets/fonts/fonts.css">
-<link rel="stylesheet" href="styles.css?v=54">
+<link rel="stylesheet" href="styles.css?v=55">
 </head>
 <body>
 
@@ -61,10 +61,15 @@
           <div class="team-vp" aria-label="Team members, auto-scrolling list. Hover to pause.">
             <ul class="team-list">
           <li class="tm">
-            <span class="tm-ava" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="4.2"/><path d="M12 13.7c-4.6 0-8 2.4-8 5.9V21h16v-1.4c0-3.5-3.4-5.9-8-5.9Z"/></svg></span>
+            <!-- Photo first, silhouette second: CSS hides the silhouette
+                 while the <img> is present, and app.js removes the <img>
+                 if the file is missing or fails, which reveals it again.
+                 A listener rather than an onerror attribute, because the
+                 page's CSP allows script-src 'self' only. -->
+            <span class="tm-ava" aria-hidden="true"><img src="assets/img/team/stefan-gravesande.jpg" alt="" width="240" height="240" loading="lazy" decoding="async"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="4.2"/><path d="M12 13.7c-4.6 0-8 2.4-8 5.9V21h16v-1.4c0-3.5-3.4-5.9-8-5.9Z"/></svg></span>
             <div class="tm-body">
-              <p class="tm-name">Member Name 01 <span class="tm-role">Role · Organisation</span></p>
-              <p class="tm-bio">Placeholder bio: replace with about sixty words on this member: their role inside CYCLE, what they work on across the five pillars, their background and community, and one line on why they do this work. Keep it warm, specific and short, written in the third person, ending with the region they call home.</p>
+              <p class="tm-name">Dr. Stefan Gravesande <span class="tm-role">Co-founder &amp; President · CYCLE</span></p>
+              <p class="tm-bio">Stefan co-founded CYCLE and serves as its President. A quality-management specialist, he founded Preqal, where he builds ISO 9001 systems for Guyanese organisations. At CYCLE he connects the five pillars into one operating model and represents the ensemble in biodiversity forums. He does this work because a farm, a clinic and a market fail or thrive together. East Bank Demerara.</p>
             </div>
           </li>
           <li class="tm">
@@ -392,6 +397,6 @@
 
 <p class="sr-live" id="srLive" role="status" aria-live="polite"></p>
 
-<script src="app.js?v=27" defer></script>
+<script src="app.js?v=28" defer></script>
 </body>
 </html>
