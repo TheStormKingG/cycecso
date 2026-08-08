@@ -1274,7 +1274,23 @@ html:not(.js) #contact-form { display: none; }
      device can overflow here even though vw's own arithmetic (0.9 +
      0.9 = fits) is correct. dvw tracks the chrome-aware, currently
      visible viewport instead. */
-  .team { width: 90dvw; margin-inline: calc(50% - 45dvw); }
+  /* Divided by --body-fit because a viewport unit does NOT survive the
+     shrink-to-fit system. That system gives .slide-body a layout width
+     of targetW/scale and then scales it back down by `scale`, so a
+     child sized 90dvw in layout px renders at 90dvw x scale. At scale
+     0.95 that is a 5% error nobody sees; at 0.64 - a real phone with
+     its address bar showing - the carousel came out 224px instead of
+     351px and the name column fell to 119px, which wrapped member
+     names one word per line. Dividing puts the width in the same
+     inflated coordinate space as its parent, so it renders at exactly
+     90dvw again. The 50% in the margin is already in that space.
+     Safe against the fit solver's own feedback: the carousel's height
+     is fixed by --tm-h, so nothing here changes the height the solver
+     is measuring. */
+  .team {
+    width: calc(90dvw / var(--body-fit, 1));
+    margin-inline: calc(50% - (45dvw / var(--body-fit, 1)));
+  }
 }
 /* Short but wide (landscape phones): keep the two columns side by side
    and shrink the carousel rows instead of stacking everything */
