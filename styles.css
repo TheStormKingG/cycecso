@@ -490,6 +490,62 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 .tm:nth-child(5n+4) .tm-ava { border-color: var(--c3); }
 .tm:nth-child(5n)   .tm-ava { border-color: var(--c4); }
 
+/* Avatar and tier badge as one column. */
+.tm-id {
+  flex-shrink: 0;
+  align-self: stretch;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: clamp(3px, .5vmin, 6px);
+}
+/* The avatar is now sized off the CARD's height rather than the
+   viewport. Every width-based clamp left a different amount of room
+   underneath it - measured 8px at 768px, 12px at 560px, but 37px on a
+   landscape phone - so any badge big enough to read at one breakpoint
+   clipped at another. A share of the stretched column leaves the same
+   proportion free everywhere. Two selectors deep so it outranks the
+   four .tm-ava width clamps in the media queries below without
+   depending on source order. */
+.tm-id .tm-ava { width: auto; height: 66%; }
+
+.tm-badge {
+  flex-shrink: 0;
+  font-size: clamp(8.5px, 1.05vmin, 10px);
+  font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+  line-height: 1; white-space: nowrap;
+  padding: .38em .72em;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .45);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+/* The narrow bright band either side of 50% is what reads as metal. A
+   flat tint, or a plain two-stop gradient, just reads as a coloured
+   pill - the specular highlight is the whole effect. */
+.tm-badge-exec {
+  color: #3B2B06;
+  background-image: linear-gradient(158deg, #7A5B12 0%, #C9A13D 17%, #F7E7AA 41%, #FFFAE4 50%, #EFD894 59%, #B7902E 82%, #6C4D0D 100%);
+}
+.tm-badge-carib {
+  color: #23282B;
+  background-image: linear-gradient(158deg, #6B7277 0%, #A8B1B7 17%, #E7EDF0 41%, #FFFFFF 50%, #DAE1E5 59%, #99A2A8 82%, #656C71 100%);
+}
+/* Below the wide layouts the pill is the widest thing in the card, not
+   the avatar, and a single line of it was taking the text column down
+   to 59px at 320px - narrower than the name it sits beside. Wrapping
+   to two lines cuts the column to the width of "EXECUTIVE" and hands
+   the difference back to the text. The avatar's share drops to make
+   room for the second line, and the floor on the font size goes up:
+   these are scaled down by the fit system, so the 8.5px base was
+   reaching the eye at 5.4px. */
+@media (max-width: 1100px) {
+  .tm-badge {
+    white-space: normal; text-align: center;
+    max-width: 13ch; line-height: 1.15;
+    font-size: clamp(10px, 1.05vmin, 11px);
+  }
+  .tm-id .tm-ava { height: 56%; }
+}
+
 /* Takes the slack so the LinkedIn link is pushed to the card's right
    edge. min-width:0 is load-bearing: without it a flex item refuses to
    shrink below its min-content width, and the long member names would
