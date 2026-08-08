@@ -523,7 +523,21 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
    proportion free everywhere. Two selectors deep so it outranks the
    four .tm-ava width clamps in the media queries below without
    depending on source order. */
-.tm-id .tm-ava { width: auto; height: 66%; }
+/* Derived from --tm-h, not from a percentage of the stretched column.
+   iOS Safari resolves a child's percentage height against a stretched
+   flex item unreliably (treats it as indefinite), so height:66% fell
+   to auto, aspect-ratio had nothing to bind, and the avatar took its
+   content's intrinsic size — the img's 240px attribute on a photo
+   card, the svg default elsewhere. The id column blew out to most of
+   the card and crushed the text to nothing on real iPhones, while
+   Chrome resolved the same percentage fine, which is why every local
+   sweep passed. --tm-h minus the card's own padding is the same
+   number the percentage was aiming at, computed from definite tokens. */
+.tm-id .tm-ava {
+  --tm-ava: calc((var(--tm-h) - 2 * var(--tm-pad-y)) * .66);
+  width: var(--tm-ava);
+  height: var(--tm-ava);
+}
 
 .tm-badge {
   flex-shrink: 0;
@@ -562,7 +576,7 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
    reaching the eye at 5.4px. */
 @media (max-width: 1100px) {
   .tm-badge { font-size: clamp(10px, 1.05vmin, 11px); }
-  .tm-id .tm-ava { height: 56%; }
+  .tm-id .tm-ava { --tm-ava: calc((var(--tm-h) - 2 * var(--tm-pad-y)) * .56); }
 }
 
 /* Takes the slack so the LinkedIn link is pushed to the card's right
