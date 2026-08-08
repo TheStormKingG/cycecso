@@ -637,7 +637,12 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 .tm-role {
   font-weight: 600; color: var(--accent);
   font-size: .82em; letter-spacing: .04em;
-  white-space: nowrap;
+  /* No nowrap. It kept the role from breaking beside the name, but it
+     also made the whole title one unbreakable run, and the real
+     titles are longer than the placeholders were: "Co-founder &
+     Committee Member" ran 15px past the text column at 1024px, where
+     "Co-founder & President" had always just fit. A role wrapping
+     between words is ordinary; a card clipping its title is not. */
 }
 .tm-bio {
   font-size: calc(var(--fs-small) * 1.15); color: var(--ink-dim); line-height: 1.42;
