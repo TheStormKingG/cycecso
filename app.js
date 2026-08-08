@@ -517,12 +517,20 @@
     });
     var all = Array.prototype.slice.call(list.children);
 
-    var SPEED = 15;           // px/s of layout height — slow, ambient
-    var TICK_MS = 40;          // ~25fps: smooth for a 15px/s creep, cheap
+    /* Steps row by row instead of creeping continuously. With three
+       rows visible a creep read as ambient drift: the outer two were
+       dimmed and mask-faded, so a part-row at each edge looked like
+       "more above and below". At two rows there is no middle, so a
+       creep leaves one of the only two cards permanently sliced
+       through its badge, which reads as broken rather than ambient.
+       Stepping parks on exact row boundaries, so between moves two
+       whole cards are framed. */
+    var DWELL_MS = 3400;       // resting time with two whole rows framed
+    var STEP_MS = 620;         // glide to the next row
+    var TICK_MS = 40;          // ~25fps: smooth for this, and cheap
     var pos = 0;               // scrolled distance, px, wraps at setH
     var setH = 0;              // layout height of ONE full set (N rows)
-    var playTimer = null;      // set <=> currently auto-scrolling
-    var lastT = null;
+    var playTimer = null;      // dwell timeout; set <=> auto-advancing
     var stepTimer = null;      // in-flight button-step animation
     var touchDragging = false, touchY = 0, touchPos0 = 0;
 
@@ -573,39 +581,60 @@
        and, unlike rAF, reliably fires in every embedding context this
        page runs in. Frame-independent math means the interval period
        is purely a smoothness/cost knob, not a correctness one. */
-    function tickOnce() {
-      var t = performance.now();
-      if (lastT == null) lastT = t;
-      pos += SPEED * ((t - lastT) / 1000);
-      lastT = t;
-      wrap();
-      render();
-    }
-    function play() {
-      if (playTimer || reduced.matches) return; /* reduced: stays parked */
-      lastT = null;
-      playTimer = setInterval(tickOnce, TICK_MS);
-    }
-    function pause() {
-      clearInterval(playTimer);
-      playTimer = null;
-    }
-
     function cancelStepAnim() {
       if (stepTimer) { clearInterval(stepTimer); stepTimer = null; }
     }
-    /* Buttons: pause, then glide exactly one row (eased, not a jump) */
-    function stepManual(dir) {
-      pause();
+    function ease(p) { return 1 - Math.pow(1 - p, 3); }
+
+    /* Glides to an ABSOLUTE position rather than by a delta. Callers
+       pass an exact row boundary, so a finger-drag that stopped
+       mid-row is corrected by the next step instead of that offset
+       being carried for the rest of the session. */
+    function glideTo(target, dur, done) {
       cancelStepAnim();
-      var from = pos, delta = dir * rowPitch(), dur = 420, start = performance.now();
-      function ease(p) { return 1 - Math.pow(1 - p, 3); }
+      var from = pos, delta = target - from, start = performance.now();
       stepTimer = setInterval(function () {
         var p = Math.min(1, (performance.now() - start) / dur);
         pos = from + delta * ease(p);
         wrap(); render();
-        if (p >= 1) cancelStepAnim();
+        if (p >= 1) { cancelStepAnim(); if (done) done(); }
       }, TICK_MS);
+    }
+
+    function nextBoundary(dir) {
+      var pitch = rowPitch();
+      if (pitch <= 0) return pos;
+      return (Math.round(pos / pitch) + dir) * pitch;
+    }
+
+    function autoStep() { glideTo(nextBoundary(1), STEP_MS, scheduleAuto); }
+    function scheduleAuto() {
+      clearTimeout(playTimer);
+      playTimer = setTimeout(autoStep, DWELL_MS);
+    }
+    function play() {
+      if (reduced.matches) return;  /* reduced: stays parked */
+      pause();
+      /* The old creep re-rendered 25 times a second, so the highlight
+         corrected itself constantly. Stepping renders only during a
+         glide, which left nothing marked for the whole first dwell:
+         the init render runs before the slide's fit has resized
+         anything, so no row intersects the viewport yet and every card
+         gets toggled OFF. Rendering here re-establishes it whenever
+         auto-advance (re)starts, including from show(). */
+      render();
+      scheduleAuto();
+    }
+    function pause() {
+      clearTimeout(playTimer);
+      playTimer = null;
+      cancelStepAnim();
+    }
+
+    /* Buttons: pause, then glide exactly one row (eased, not a jump) */
+    function stepManual(dir) {
+      pause();
+      glideTo(nextBoundary(dir), 420);
     }
 
     /* Hover pause/resume — real mouse devices only, so touch never
@@ -664,6 +693,11 @@
     measure();
     render();
     play();
+    /* One re-sync after the slide's shrink-to-fit has settled. Row
+       pitch is measured from a laid-out card, and at boot that
+       measurement predates the fit, so both setH and the highlight can
+       be based on the pre-fit geometry. */
+    setTimeout(function () { measure(); wrap(); render(); }, 900);
 
     /* Switching to another slide and back (or a fresh load) also
        retriggers it — wired from show() via this global. */
