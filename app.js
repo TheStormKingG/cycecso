@@ -492,7 +492,7 @@
     });
   }());
 
-  /* ── Team carousel: continuous auto-scroll, 3 visible, whichever
+  /* ── Team carousel: continuous auto-scroll, two visible, whichever
         member sits nearest the centre is the highlighted one ──────── */
   (function () {
     var vp = document.querySelector('.team-vp');
@@ -517,20 +517,19 @@
     });
     var all = Array.prototype.slice.call(list.children);
 
-    /* Steps row by row instead of creeping continuously. With three
-       rows visible a creep read as ambient drift: the outer two were
-       dimmed and mask-faded, so a part-row at each edge looked like
-       "more above and below". At two rows there is no middle, so a
-       creep leaves one of the only two cards permanently sliced
-       through its badge, which reads as broken rather than ambient.
-       Stepping parks on exact row boundaries, so between moves two
-       whole cards are framed. */
-    var DWELL_MS = 3400;       // resting time with two whole rows framed
-    var STEP_MS = 620;         // glide to the next row
-    var TICK_MS = 40;          // ~25fps: smooth for this, and cheap
+    /* Creeps continuously — the deck's original ambient motion,
+       restored by request after a stepped version (dwell, then glide
+       one row) read as the carousel not moving at all. The accepted
+       cost of creeping past two visible rows: at most moments a card
+       edge is mid-slice at the viewport's top or bottom. The mask
+       fade on .team-vp is what keeps that reading as depth rather
+       than clipping. */
+    var SPEED = 15;            // px/s of layout height — slow, ambient
+    var TICK_MS = 40;          // ~25fps: smooth for a 15px/s creep, cheap
     var pos = 0;               // scrolled distance, px, wraps at setH
     var setH = 0;              // layout height of ONE full set (N rows)
-    var playTimer = null;      // dwell timeout; set <=> auto-advancing
+    var playTimer = null;      // set <=> currently creeping
+    var lastT = null;          // delta-time anchor for the creep
     var stepTimer = null;      // in-flight button-step animation
     var touchDragging = false, touchY = 0, touchPos0 = 0;
 
@@ -590,14 +589,14 @@
        pass an exact row boundary, so a finger-drag that stopped
        mid-row is corrected by the next step instead of that offset
        being carried for the rest of the session. */
-    function glideTo(target, dur, done) {
+    function glideTo(target, dur) {
       cancelStepAnim();
       var from = pos, delta = target - from, start = performance.now();
       stepTimer = setInterval(function () {
         var p = Math.min(1, (performance.now() - start) / dur);
         pos = from + delta * ease(p);
         wrap(); render();
-        if (p >= 1) { cancelStepAnim(); if (done) done(); }
+        if (p >= 1) cancelStepAnim();
       }, TICK_MS);
     }
 
@@ -607,31 +606,28 @@
       return (Math.round(pos / pitch) + dir) * pitch;
     }
 
-    function autoStep() { glideTo(nextBoundary(1), STEP_MS, scheduleAuto); }
-    function scheduleAuto() {
-      clearTimeout(playTimer);
-      playTimer = setTimeout(autoStep, DWELL_MS);
+    function tickOnce() {
+      var t = performance.now();
+      if (lastT == null) lastT = t;
+      pos += SPEED * ((t - lastT) / 1000);
+      lastT = t;
+      wrap();
+      render();
     }
     function play() {
-      if (reduced.matches) return;  /* reduced: stays parked */
-      pause();
-      /* The old creep re-rendered 25 times a second, so the highlight
-         corrected itself constantly. Stepping renders only during a
-         glide, which left nothing marked for the whole first dwell:
-         the init render runs before the slide's fit has resized
-         anything, so no row intersects the viewport yet and every card
-         gets toggled OFF. Rendering here re-establishes it whenever
-         auto-advance (re)starts, including from show(). */
-      render();
-      scheduleAuto();
+      if (playTimer || reduced.matches) return; /* reduced: stays parked */
+      cancelStepAnim();  /* a resume mid-glide hands pos to the creep */
+      lastT = null;
+      playTimer = setInterval(tickOnce, TICK_MS);
     }
     function pause() {
-      clearTimeout(playTimer);
+      clearInterval(playTimer);
       playTimer = null;
-      cancelStepAnim();
     }
 
-    /* Buttons: pause, then glide exactly one row (eased, not a jump) */
+    /* Buttons: pause, then glide to the NEXT row boundary (eased, not
+       a jump). A boundary rather than a delta, so a drag or a paused
+       creep that stopped mid-row is squared up by the first press. */
     function stepManual(dir) {
       pause();
       glideTo(nextBoundary(dir), 420);
