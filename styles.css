@@ -316,10 +316,19 @@ body:has(#contact.is-active) .scrim {
 /* Break the contact headline where the sense divides, not where
    text-wrap:balance would put it. Only once there's room for the
    first clause on one line; narrower screens wrap naturally. */
-.headline .lb { display: none; }
+/* Two kinds of authored break: .lb is the desktop break, .br-m the
+   phone breaks. The slide-4 break after "research it," carries BOTH
+   classes — it is wanted in each layout, for different reasons — and
+   the cascade resolves it: this base rule hides both, the min-width
+   block below re-shows .lb, the max-width block re-shows .br-m, and
+   in the 701-900px band neither fires so the text wraps naturally. */
+.headline .lb, .headline .br-m { display: none; }
 @media (min-width: 901px) {
   .headline .lb { display: inline; }
   .s-contact .headline { text-wrap: wrap; max-width: 26ch; }
+}
+@media (max-width: 700px) {
+  .headline .br-m { display: inline; }
 }
 
 .lede {
@@ -1410,6 +1419,31 @@ html:not(.js) #contact-form { display: none; }
    shortest screens. */
 @media (max-height: 620px) {
   :root { --fs-h1: clamp(26px, 7.2vmin, 58px); }
+}
+/* Phones: slide 4's headline is authored as three fixed lines (see
+   .br-m), and the longest — "build it with us." — measures 8.15x the
+   font size in this face at weight 800. The shared token therefore
+   caps at what lets that line fit the column, or every phone would
+   overflow the forced break. Every headline shrinks together — the
+   deck's one-size rule holds; the cost is ~13% off the headline on a
+   390px phone. Two width terms because the column is 100vw - 2*rail
+   and the rail changes law at 583px (fixed 58px below, 7.2vw + 16px
+   above); 8.2 not 8.15 is the whisker of safety; the 4px inside the
+   subtractions is rounding headroom. Placed after the max-height
+   step above so the min() wins when both conditions hold. */
+@media (max-width: 700px) {
+  :root {
+    --fs-h1: min(clamp(37px, 9.77vmin, 108px),
+                 calc((100vw - 120px) / 8.2),
+                 calc((85.6vw - 36px) / 8.2));
+  }
+}
+@media (max-width: 700px) and (max-height: 620px) {
+  :root {
+    --fs-h1: min(clamp(26px, 7.2vmin, 58px),
+                 calc((100vw - 120px) / 8.2),
+                 calc((85.6vw - 36px) / 8.2));
+  }
 }
 /* Short viewports (landscape phones). Everything stays on screen — these
    rules buy the space by tightening layout, not by dropping content. */
