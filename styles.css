@@ -363,7 +363,7 @@ body:has(#contact.is-active) .scrim {
 /* ── 01 · team carousel ────────────────────────────────────────── */
 :root {
   /* +15% over the base row to hold the larger member text */
-  --tm-h:   clamp(148px, 24vh, 175px);
+  --tm-h:   clamp(188px, 30vh, 215px);
   --tm-gap: clamp(8px, 1.4vmin, 14px);
 }
 /* Desktop rows are shorter than that base. The carousel is the only
@@ -376,7 +376,7 @@ body:has(#contact.is-active) .scrim {
    at its true CSS size instead. Three rows still show: one faded, one
    highlighted, one faded. */
 @media (min-width: 901px) {
-  :root { --tm-h: clamp(118px, 15vh, 135px); }
+  :root { --tm-h: clamp(158px, 20vh, 190px); }
 }
 
 .about-cols {
@@ -574,7 +574,7 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
      minus its left padding, so a flat 18% measured 17.4-17.8% of the
      card itself. Content = card - padX, so 18% of the card is 18% of
      the content plus 18% of that padding. */
-  flex: 0 0 calc(18% + var(--tm-pad-x) * .18);
+  flex: 0 0 calc(12% + var(--tm-pad-x) * .12);
   align-self: stretch;
   margin-block: calc(-1 * var(--tm-pad-y));
   display: grid; place-items: center;
@@ -606,7 +606,7 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 }
 .tm-bio {
   font-size: calc(var(--fs-small) * 1.15); color: var(--ink-dim); line-height: 1.42;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
 }
 /* Desktop rows are shorter than the base (see the --tm-h override
    above), so the avatar and bio are sized to actually fit inside one.
@@ -617,7 +617,7 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
    130px row, i.e. both visibly clipped. */
 @media (min-width: 901px) {
   .tm-ava { width: clamp(74px, 9.8vmin, 96px); }
-  .tm-bio { -webkit-line-clamp: 2; }
+  .tm-bio { -webkit-line-clamp: 4; }
 }
 
 /* Step buttons: up above, down below, centred on the carousel */
@@ -1239,9 +1239,9 @@ html:not(.js) #contact-form { display: none; }
      short for their own content on smaller phones — 92px rows around
      99px of content, clipped. Row height answers to the content, not
      to the viewport. */
-  :root { --tm-h: 100px; }
+  :root { --tm-h: 152px; }
   .tm-ava { width: clamp(52px, 13vmin, 72px); }
-  .tm-bio { -webkit-line-clamp: 2; }
+  .tm-bio { -webkit-line-clamp: 4; }
   /* Break the carousel out of the slide's own side padding so it
      measures against the true screen width, not the content column.
      Pure margin math (not margin+transform): the slide is itself
@@ -1266,8 +1266,8 @@ html:not(.js) #contact-form { display: none; }
      stays inside its own grid column instead of breaking full-bleed */
   .team { width: auto; margin-left: 0; transform: none; }
   .about-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
-  :root { --tm-h: 115px; }
-  .tm-bio { -webkit-line-clamp: 3; font-size: 12.5px; }
+  :root { --tm-h: 155px; }
+  .tm-bio { -webkit-line-clamp: 4; font-size: 12.5px; }
   .tm-name { font-size: 14.5px; }
   .tm-ava { width: 62px; border-width: 2px; }
   .team-h { margin-bottom: 4px; }
