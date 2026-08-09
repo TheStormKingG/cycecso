@@ -635,6 +635,12 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
   line-height: 1.25; margin-bottom: 3px;
 }
 .tm-role {
+  /* Its own line, not a run trailing the name. Inline, a long title
+     broke wherever the name happened to end - "Dr. Stefan Gravesande
+     Co-" / "founder & President" - which reads as a typo rather than
+     a title. A block puts the break where it belongs, and every card
+     then has the same two-line shape regardless of name length. */
+  display: block;
   font-weight: 600; color: var(--accent);
   font-size: .82em; letter-spacing: .04em;
   /* No nowrap. It kept the role from breaking beside the name, but it
