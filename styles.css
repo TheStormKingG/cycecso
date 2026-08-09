@@ -1277,19 +1277,56 @@ html:not(.js) #contact-form { display: none; }
   translate: 0 -50%;
   width: clamp(40px, 5.6vw, 60px); aspect-ratio: 1;
   display: grid; place-items: center;
-  border: none; border-radius: 50%; cursor: pointer;
+  /* Hairline rim. box-sizing is border-box globally, so this costs no
+     outer size — it reads as an edge on the glass, not a frame. */
+  border: 1px solid rgba(226, 232, 230, .34);
+  border-radius: 50%; cursor: pointer;
   background: var(--surf-2); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-  box-shadow: var(--neu);
+  /* Deeper than the shared --neu token: these float free over the
+     photograph rather than sitting on a surface, so they need to read
+     as lifted from any background the panorama pans past. */
+  box-shadow: 0 14px 30px rgba(0, 0, 0, .5), 0 5px 12px rgba(0, 0, 0, .38),
+              -5px -5px 14px rgba(255, 255, 255, .06),
+              inset 0 1px 0 rgba(255, 255, 255, .1);
   color: var(--ink);
-  transition: transform .18s ease, background .18s ease, opacity .25s ease;
+  transition: transform .18s ease, background .18s ease, opacity .25s ease,
+              box-shadow .18s ease, border-color .18s ease;
+  /* Floats on `translate`, NOT `transform`. Two reasons: the -50%
+     vertical centring already lives on translate so the float can ride
+     with it, and transform is left free for the hover/active scale —
+     an animation on transform outranks those declarations and would
+     kill the press feedback for as long as it ran, which here is
+     forever. */
+  animation: nav-float 4.6s ease-in-out infinite;
+}
+@keyframes nav-float {
+  0%, 100% { translate: 0 calc(-50% - 3px); }
+  50%      { translate: 0 calc(-50% + 3px); }
 }
 .nav svg { width: 44%; height: 44%; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .nav-prev { left: clamp(8px, 1.6vw, 26px); }
 .nav-next { right: clamp(8px, 1.6vw, 26px); }
-.nav:hover { background: rgba(45, 106, 79, .8); transform: scale(1.06); }
+.nav:hover {
+  background: rgba(45, 106, 79, .8); transform: scale(1.06);
+  border-color: rgba(226, 232, 230, .6);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, .55), 0 6px 14px rgba(0, 0, 0, .42),
+              -5px -5px 14px rgba(255, 255, 255, .07),
+              inset 0 1px 0 rgba(255, 255, 255, .12);
+}
 .nav:active { transform: scale(.94); box-shadow: inset 3px 3px 8px rgba(0, 0, 0, .4); }
 .nav[disabled] { opacity: 0; pointer-events: none; }
-.nav-next:not([disabled]) { animation: nudge 2.6s ease-in-out 1.4s 3; }
+/* Both animations listed together, not one replacing the other: they
+   drive different properties (float on translate, nudge on transform),
+   so declaring nudge alone here would have dropped the float from this
+   arrow only. The negative delay offsets the float's phase so the two
+   arrows breathe out of step rather than in lockstep. */
+.nav-next:not([disabled]) {
+  animation: nav-float 4.6s ease-in-out -2.3s infinite,
+             nudge 2.6s ease-in-out 1.4s 3;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav, .nav-next:not([disabled]) { animation: none; translate: 0 -50%; }
+}
 @keyframes nudge {
   0%, 100% { transform: translateX(0); }
   50%      { transform: translateX(5px); }
