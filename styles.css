@@ -435,7 +435,18 @@ body:has(#contact.is-active) .scrim {
 .s-model .lede { font-size: var(--fs-standfirst); line-height: 1.34; }
 
 .team-h {
-  font-size: var(--fs-eyebrow); font-weight: 700;
+  /* Sized to span the carousel exactly, on one line. Measured: this
+     string at weight 700 with .16em tracking, uppercased, is 19.72x
+     its own font size wide, so dividing the container's inline size
+     by a whisker more than that fills the width and leaves a hair of
+     slack. A container query, not vw: the carousel is 90dvw on
+     phones but a grid column on desktop, and only the container knows
+     which. The clamp is a guard against absurdity, not a design
+     bound - it is set wide enough never to bind in practice, because
+     if it binds the heading stops spanning. */
+  font-size: clamp(10px, calc(100cqw / 19.9), 80px);
+  white-space: nowrap;
+  font-weight: 700;
   letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mut);
   /* Deep enough that the up chevron, which straddles the viewport's
      top edge, clears this line instead of clipping the "15". */
@@ -453,6 +464,16 @@ body:has(#contact.is-active) .scrim {
      fits. The cost is seeing two members at a time instead of three;
      the list scrolls continuously, so none are hidden. */
   height: calc(2 * var(--tm-h) + 1 * var(--tm-gap));
+  /* Negative margin widens the clipping box, the equal padding puts
+     the rows back where they were — so card width is untouched (and
+     the bios stay inside their line budget) while the selected card's
+     scale-up has somewhere to bleed instead of having its rounded
+     corners sliced off by this overflow. Percentage rather than a
+     flat 8px: the bleed a scale-up needs is proportional to card
+     width (1.25% each side), so a fixed value that suited a 335px
+     phone card fell 5px short on an 810px one and sliced it. */
+  margin-inline: -2%;
+  padding-inline: 2%;
   overflow: hidden;
   /* gentle edge fade only: the outer rows stay whole, never clipped */
   -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.55), #000 14%, #000 86%, rgba(0,0,0,.55));
@@ -470,6 +491,7 @@ body:has(#contact.is-active) .scrim {
      vertical padding to reach the card's top and bottom edges. */
   --tm-pad-y: clamp(8px, 1.3vmin, 12px);
   --tm-pad-x: clamp(10px, 1.5vmin, 15px);
+  position: relative;   /* anchors the one-shot shine on selection */
   height: var(--tm-h); flex-shrink: 0; overflow: hidden;
   display: flex; gap: clamp(12px, 2vmin, 20px); align-items: center;
   /* No right padding: the LinkedIn panel runs to the card's own edge,
@@ -478,12 +500,49 @@ body:has(#contact.is-active) .scrim {
   padding: var(--tm-pad-y) 0 var(--tm-pad-y) var(--tm-pad-x);
   border-radius: var(--radius-sm);
   opacity: .30; filter: saturate(.75);
-  transition: opacity .5s ease, filter .5s ease, background .5s ease;
+  transition: opacity .5s ease, filter .5s ease, background .5s ease,
+              transform .45s cubic-bezier(.22, 1, .36, 1), box-shadow .45s ease;
 }
 .tm-mid {
   opacity: 1; filter: none;
   background: var(--surf); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-  box-shadow: var(--neu-sm);
+  /* Lifted and deepened while selected, back to flat when not — the
+     transition on .tm carries it both ways, so deselection is the
+     same move in reverse rather than a snap. */
+  transform: scale(1.025);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .46), 0 3px 8px rgba(0, 0, 0, .32),
+              inset 0 1px 0 rgba(255, 255, 255, .07);
+}
+/* One-shot shine, fired by selection. The overlay only EXISTS while
+   .tm-mid is on the card, so the animation runs once when the class
+   lands and is gone when it leaves — no reset logic, and re-selecting
+   the same member later plays it again. app.js toggles the class with
+   classList.toggle(name, force), which is a no-op when the state is
+   unchanged, so the ~10Hz highlight pass does not retrigger it. */
+.tm-mid::after {
+  content: "";
+  position: absolute;
+  top: -50%; bottom: -50%; left: -60%; right: -60%;
+  background: linear-gradient(
+    100deg,
+    transparent 42%,
+    rgba(255, 255, 255, .12) 47%,
+    rgba(255, 255, 255, .5) 50%,
+    rgba(255, 255, 255, .12) 53%,
+    transparent 58%
+  );
+  transform: translateX(-100%);
+  animation: card-sheen .95s cubic-bezier(.4, 0, .3, 1) 1 both;
+  pointer-events: none;
+  z-index: 3;
+}
+@keyframes card-sheen {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tm-mid { transform: none; }
+  .tm-mid::after { animation: none; opacity: 0; }
 }
 html:not(.js) .tm { opacity: 1; filter: none; height: auto; }
 html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: none; mask-image: none; }
@@ -667,7 +726,11 @@ html:not(.js) .team-vp { height: auto; overflow: visible; -webkit-mask-image: no
 }
 
 /* Step buttons: up above, down below, centred on the carousel */
-.team { position: relative; }
+/* container-type so .team-h can size itself against the carousel's own
+   width. Safe here: both .about-cols tracks are already minmax(0, Nfr)
+   precisely so this element's intrinsic width never drives the grid,
+   which is the same independence inline-size containment asserts. */
+.team { position: relative; container-type: inline-size; }
 .team-btn {
   position: absolute; left: 50%; translate: -50% 0; z-index: 8;
   width: clamp(34px, 4.6vmin, 42px); aspect-ratio: 1;
@@ -1629,4 +1692,36 @@ body.legal-page { overflow: auto; position: static; }
   padding: 13px 26px; border-radius: 999px;
   font-weight: 700; font-size: 15px; text-decoration: none;
   box-shadow: var(--neu-sm);
+}
+
+/* ── Carousel heading width guards ──────────────────────────────────
+   The heading spans the carousel (see .team-h), but two layouts need
+   the span bounded, and they need OPPOSITE bounds — which is why this
+   is two queries and not one. */
+
+/* Phones and small tablets — the same query that creates the
+   full-bleed, so the two never disagree about which layout is live.
+   The carousel is a 90dvw full-bleed that runs UNDER the
+   next-slide arrow, so spanning it fully hid the last letter behind
+   that button. Stop at the arrow's left edge, derived rather than
+   guessed: the team's right edge is 95dvw and the arrow's left edge is
+   100dvw minus its own inset and width, so the overlap is
+   (inset + width - 5dvw). Divided by --body-fit to land in the same
+   inflated space cqw uses, less 8px of air. */
+@media (max-width: 900px), (max-height: 600px) {
+  .team-h {
+    font-size: clamp(10px, calc(
+      (95dvw - clamp(8px, 1.6vw, 26px) - clamp(40px, 5.6vw, 60px) - 8px)
+      / var(--body-fit, 1) / 19.9), 80px);
+  }
+}
+
+/* Landscape phones: here the carousel is NOT full-bleed but a grid
+   column, and that column already extends past the right edge of the
+   viewport — a pre-existing condition the old 14px heading was simply
+   too small to reveal. Spanning it would push the text 220px
+   off-screen, so the size is capped instead. The heading gives up
+   spanning on this one layout rather than running off the display. */
+@media (max-height: 600px) and (min-width: 700px) {
+  .team-h { font-size: clamp(10px, calc(100cqw / 19.9), 34px); }
 }
