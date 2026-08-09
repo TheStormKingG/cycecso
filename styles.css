@@ -532,7 +532,12 @@ body:has(#contact.is-active) .scrim {
     transparent 58%
   );
   transform: translateX(-100%);
-  animation: card-sheen .95s cubic-bezier(.4, 0, .3, 1) 1 both;
+  /* 1.36s, not .95s: a 30% speed cut. Unlike the looping shine on
+     the social icons — where the cycle is a crossing plus a rest and
+     only the crossing is the "speed" — this one is a single sweep
+     with no hold, so the whole duration IS the crossing and scales
+     directly: .95 / 0.7. */
+  animation: card-sheen 1.36s cubic-bezier(.4, 0, .3, 1) 1 both;
   pointer-events: none;
   z-index: 3;
 }
