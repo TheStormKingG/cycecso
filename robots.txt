@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://cycecso.vercel.app/sitemap.xml
+Sitemap: https://cyclecso.com/sitemap.xml
