@@ -417,7 +417,14 @@ body:has(#contact.is-active) .scrim {
 /* Half the old single gap, because the divider track means there are
    now two of them — the columns keep the widths they had. */
 :root { --about-gap: clamp(14px, 2.25vmin, 36px); }
-.about-rule { align-self: stretch; background: rgba(255, 255, 255, .18); }
+/* The divider between a slide's two columns, shared by slides 1 and 4.
+   One declaration covers both orientations, so it needs no media
+   queries of its own and simply follows whatever its grid is doing:
+   in the three-track layout the 1px track gives its width and stretch
+   gives it the row's full height; once the grid collapses to one
+   column it spans that column and min-height keeps the hairline that
+   an auto row would otherwise flatten to nothing. */
+.col-rule { align-self: stretch; min-height: 1px; background: rgba(255, 255, 255, .18); }
 /* Ranged left, not justified: the other two standfirst texts have
    always been left-aligned, so justifying this one made the same role
    look different slide to slide — and in a narrow phone column
@@ -1093,7 +1100,12 @@ html:not(.js) .cy-desc[hidden] { display: block; }
 
 /* ── 04 · contact ──────────────────────────────────────────────── */
 .contact-grid {
-  display: grid; grid-template-columns: 1.15fr .85fr;
+  /* Equal tracks with a divider between, matching slide 1: the form
+     sits left of the screen's centre line, the contact details right of
+     it. The gutter value is unchanged and now applies on both sides of
+     the rule, which is what keeps this divider looking like slide 1's
+     rather than a tighter variant. */
+  display: grid; grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
   gap: clamp(14px, 2.2vw, 40px);
   margin-top: clamp(12px, 2.8vmin, 30px);
   align-items: start;
@@ -1453,10 +1465,6 @@ html:not(.js) #contact-form { display: none; }
      the old gap read as barely any breathing room between the lede's
      last line and "THE ENSEMBLE" label right below it. */
   .about-cols { grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 5.5vmin, 40px); }
-  /* Stacked: the same divider element becomes a horizontal rule
-     between the opening line and the carousel. It needs an explicit
-     height because as its own grid row it would otherwise be 0. */
-  .about-rule { height: 1px; }
   /* Stacked layout puts the carousel BELOW a full-width opening line
      rather than beside it, so it is what pushed slide 1 over its slot
      (measured at 390x844: 805px of content against a 596px slot, of
@@ -1517,10 +1525,6 @@ html:not(.js) #contact-form { display: none; }
      restating it the rule would be auto-placed into a second row and
      push the carousel out of line. */
   .about-cols { grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1.1fr); }
-  /* Undo the stacked layout's horizontal rule: that block's media query
-     also matches landscape phones, which are still two columns here, so
-     the divider has to go back to spanning the row vertically. */
-  .about-rule { height: auto; align-self: stretch; }
   :root { --tm-h: 155px; }
   .tm-bio { -webkit-line-clamp: 4; font-size: 12.5px; }
   .tm-name { font-size: 14.5px; }

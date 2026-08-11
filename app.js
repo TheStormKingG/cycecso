@@ -57,6 +57,51 @@
      page booted directly into via URL hash. */
   void document.body.offsetHeight;
 
+  /* Width of the widest line the headline's copy actually asks for:
+     the segments between its <br>s, at the element's current font size.
+     Only breaks that are switched ON count — the deck authors one break
+     per layout and hides the rest (.lb, .br-m, .hb in styles.css), so
+     which segments exist changes with the breakpoint.
+
+     Measured on a probe rather than by reading the element's own line
+     boxes, because those are already wrapped: once a line is too long
+     the browser has broken it, and the resulting rects describe the
+     wrapping, not the width that would have avoided it. */
+  var probe = null;
+  function widestAuthoredLine(el) {
+    var cs = getComputedStyle(el);
+    if (!probe) {
+      probe = document.createElement('span');
+      probe.setAttribute('aria-hidden', 'true');
+      probe.style.cssText = 'position:absolute;left:-9999px;top:0;white-space:pre;visibility:hidden';
+      document.body.appendChild(probe);
+    }
+    probe.style.fontFamily = cs.fontFamily;
+    probe.style.fontSize = cs.fontSize;
+    probe.style.fontWeight = cs.fontWeight;
+    probe.style.fontStyle = cs.fontStyle;
+    probe.style.letterSpacing = cs.letterSpacing;
+
+    var segments = [];
+    var current = '';
+    [].forEach.call(el.childNodes, function (node) {
+      if (node.nodeName === 'BR') {
+        if (getComputedStyle(node).display !== 'none') { segments.push(current); current = ''; }
+        return;
+      }
+      current += node.textContent;
+    });
+    segments.push(current);
+
+    var widest = 0;
+    segments.forEach(function (seg) {
+      probe.textContent = seg.replace(/\s+/g, ' ').trim();
+      var w = probe.getBoundingClientRect().width;
+      if (w > widest) widest = w;
+    });
+    return widest;
+  }
+
   /* ── Shrink-to-fit: guarantees a slide never needs scrolling ─── */
   function fit(slide) {
     var inner = slide.querySelector('.slide-inner');
@@ -172,30 +217,30 @@
        width is the real answer whatever happened. Track sizes are
        layout metrics, so unlike a rect they are not polluted by the
        entrance animation's transform. */
-    var cols = body.querySelector('.about-cols');
+    var cols = body.querySelector('.about-cols, .contact-grid');
     var headline = inner.querySelector('.headline');
     if (cols && headline) {
       var tracks = getComputedStyle(cols).gridTemplateColumns.split(/\s+/);
       /* Three tracks = the two-column layout. One = stacked, where the
          headline should span the full width again. */
       var twoCol = tracks.length === 3;
-      var colW = twoCol ? parseFloat(tracks[0]) * scale : 0;
-      headline.style.maxWidth = twoCol ? colW + 'px' : '';
-
-      /* Cap the size so the headline's longest line, "we regenerate.",
-         keeps to one line inside that column. A CSS multiplier of
-         --fs-h1 cannot do this: --fs-h1 grows with the viewport while
-         .slide-inner is capped at 1180px, so any fixed ratio that fits
-         at 1440 overflows by 1920. Sized against the column instead.
-
-         8 is the string's width as a multiple of its own font size,
-         measured at 7.80 and rounded up for margin — the same
-         measured-constant trick as .team-h in styles.css. Re-measure it
-         if the headline copy or the display face ever changes. */
       headline.style.fontSize = '';
+      headline.style.maxWidth = '';
       if (twoCol) {
+        var colW = parseFloat(tracks[0]) * scale;
+        headline.style.maxWidth = colW + 'px';
+        /* Then shrink, if need be, until the headline's longest
+           AUTHORED line fits that column — so it keeps the number of
+           lines the copy asks for instead of wrapping to more. A CSS
+           multiplier of --fs-h1 cannot do this: --fs-h1 grows with the
+           viewport while .slide-inner is capped at 1180px, so a ratio
+           that fits at 1440 overflows by 1920. .99 leaves a hair of
+           slack against sub-pixel rounding. */
         var natural = parseFloat(getComputedStyle(headline).fontSize);
-        headline.style.fontSize = Math.min(natural, colW / 8) + 'px';
+        var widest = widestAuthoredLine(headline);
+        if (widest > colW) {
+          headline.style.fontSize = (natural * colW / widest * 0.99) + 'px';
+        }
       }
     }
   }
