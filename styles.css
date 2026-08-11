@@ -322,7 +322,10 @@ body:has(#contact.is-active) .scrim {
    the cascade resolves it: this base rule hides both, the min-width
    block below re-shows .lb, the max-width block re-shows .br-m, and
    in the 701-900px band neither fires so the text wraps naturally. */
-.headline .lb, .headline .br-m { display: none; }
+/* .hb is a third authored break: slide 1's, wanted only in the
+   two-column desktop layout, so it is switched on in that block rather
+   than by the width-only queries below. */
+.headline .lb, .headline .br-m, .headline .hb { display: none; }
 @media (min-width: 901px) {
   .headline .lb { display: inline; }
   .s-contact .headline { text-wrap: wrap; max-width: 26ch; }
@@ -459,14 +462,27 @@ body:has(#contact.is-active) .scrim {
      the standfirst parity with slide 2 — see --fs-standfirst above.
      The two changes very nearly cancel in height (.92 x 1.42/1.34 =
      .975), so the slide's fit is unaffected. */
-  /* Stepped down so "Together, we" still fits the half-width column on
-     one line. At full --fs-h1 it cannot: the line breaks three ways and
-     strands "we" alone, and the taller header then squeezes the body
-     hard enough to shrink the carousel by a fifth. This is the one
-     headline in the deck that is not --fs-h1 — see the note by
+  /* Wider gutters either side of the divider. Overridden here rather
+     than at :root so phones, which set their own `gap`, and landscape
+     phones, which don't, both keep the tighter original. */
+  :root { --about-gap: clamp(26px, 4.2vmin, 64px); }
+
+  /* Break after "Together," instead of letting it wrap where it likes.
+     text-wrap has to go back to `wrap`: `balance` re-flows around an
+     authored break and undoes it. */
+  .s-about .headline { text-wrap: wrap; }
+  .s-about .headline .hb { display: inline; }
+
+  /* Stepped down so the longest line, "we regenerate.", fits the
+     half-width column. At full --fs-h1 it does not: the headline breaks
+     three ways, strands a word alone, and the taller header squeezes
+     the body hard enough to shrink the carousel by a fifth. This is the
+     one headline in the deck that is not --fs-h1 — see the note by
      .slide:not(#about) .headline — and it is the price of putting the
      divider on the centre line rather than on a 1.25/.75 split. */
-  #about .headline { font-size: calc(var(--fs-h1) * .86); }
+  /* No font-size here: fit() caps it against the measured column, so
+     the headline stays as close to --fs-h1 as the column allows rather
+     than paying a fixed penalty at every width. */
   /* Justified here, against the general rule two blocks up that keeps
      the standfirsts ranged left. That rule's two objections both fall
      away in this layout: it now sits in a column of its own with the

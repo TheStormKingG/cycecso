@@ -178,9 +178,25 @@
       var tracks = getComputedStyle(cols).gridTemplateColumns.split(/\s+/);
       /* Three tracks = the two-column layout. One = stacked, where the
          headline should span the full width again. */
-      headline.style.maxWidth = tracks.length === 3
-        ? (parseFloat(tracks[0]) * scale) + 'px'
-        : '';
+      var twoCol = tracks.length === 3;
+      var colW = twoCol ? parseFloat(tracks[0]) * scale : 0;
+      headline.style.maxWidth = twoCol ? colW + 'px' : '';
+
+      /* Cap the size so the headline's longest line, "we regenerate.",
+         keeps to one line inside that column. A CSS multiplier of
+         --fs-h1 cannot do this: --fs-h1 grows with the viewport while
+         .slide-inner is capped at 1180px, so any fixed ratio that fits
+         at 1440 overflows by 1920. Sized against the column instead.
+
+         8 is the string's width as a multiple of its own font size,
+         measured at 7.80 and rounded up for margin — the same
+         measured-constant trick as .team-h in styles.css. Re-measure it
+         if the headline copy or the display face ever changes. */
+      headline.style.fontSize = '';
+      if (twoCol) {
+        var natural = parseFloat(getComputedStyle(headline).fontSize);
+        headline.style.fontSize = Math.min(natural, colW / 8) + 'px';
+      }
     }
   }
 
