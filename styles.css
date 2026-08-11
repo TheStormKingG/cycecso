@@ -1196,8 +1196,20 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   }
 }
 .fund-list .tm {
-  flex: 0 0 calc((100cqw - (var(--fund-per) - 1) * var(--tm-gap)) / var(--fund-per));
+  flex: 0 0 calc(
+    (100cqw - (var(--fund-per) - 1) * var(--tm-gap)) / var(--fund-per)
+    * var(--fund-scale, 1)
+  );
 }
+/* A deliberate departure from "exactly --fund-per across". Kept as its
+   own multiplier rather than folded into the divisor so the count and
+   the card's width stay separately legible: the count is what the
+   layout is built around, this is a trim on top of it. Both overrides
+   sit here, after the base, because these rules are split across two
+   places in this file and the later one wins at equal specificity. */
+.funders { --fund-scale: 1; }
+@media (min-width: 1001px) { .funders { --fund-scale: 1.15; } }
+@media (max-width: 700px)  { .funders { --fund-scale: .82; } }
 /* White panels rather than the members' dark ones. The veil stays low
    because the card's own text is the deck's light ink: a heavier white
    lifts the background towards the text instead of away from it, and
