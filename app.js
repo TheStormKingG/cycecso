@@ -788,8 +788,10 @@
       body: JSON.stringify({ name: name, email: email, message: composed, consent: true })
     }).then(function (res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      /* Notify admin@cyclecso.com via EmailJS (same account and Gmail
-         service preqal.org uses; the branded body lives in the
+      /* Notify admin@cyclecso.com via EmailJS (same account as preqal.org but
+         CYCLE's OWN Gmail service, connected to cyclegyinitiative@gmail.com
+         - preqal's service_qziw5dg returns 412 "Gmail_API: Mail service
+         not enabled", its Workspace mailbox having lost sending rights; the branded body lives in the
          dashboard template). Fire-and-forget on purpose: Supabase is
          the source of truth and the row is already stored, so a
          failed notification must not turn the user's successful
@@ -802,7 +804,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          service_id: 'service_qziw5dg',
+          service_id: 'service_8l8rnfe',
           template_id: 'template_qmksggf',
           user_id: 'mijyAm1ocwE6qYCiq',
           template_params: {
