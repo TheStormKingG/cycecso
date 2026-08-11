@@ -1123,7 +1123,10 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   /* Shorter cards than the member rows: this strip shares a slide with
      a headline, a form and the contact block, so its height comes out
      of what those leave. */
-  --tm-h: clamp(84px, 12.5vh, 108px);
+  /* Raised once the website panel took a slice of the card's width:
+     an eleven-word line no longer fits two rows beside the logo, so
+     the bio gets a third row and the card the height to hold it. */
+  --tm-h: clamp(96px, 14vh, 124px);
   /* container-type so the card width below can be a share of the strip
      itself, which is what "a third of the screen" means here — the
      strip is full-bleed within the slide. */
@@ -1178,9 +1181,6 @@ html:not(.js) .cy-desc[hidden] { display: block; }
 @media (max-width: 700px)  { .funders { --fund-per: 1; } }
 .fund-list .tm {
   flex: 0 0 calc((100cqw - (var(--fund-per) - 1) * var(--tm-gap)) / var(--fund-per));
-  /* .tm drops its right padding to let the LinkedIn panel reach the
-     card edge; these cards have no panel, so it comes back. */
-  padding-right: var(--tm-pad-x);
 }
 /* White panels rather than the members' dark ones. The veil stays low
    because the card's own text is the deck's light ink: a heavier white
@@ -1204,9 +1204,45 @@ html:not(.js) .cy-desc[hidden] { display: block; }
      otherwise outrank .tm-mid's own opacity:1, flattening the very
      contrast the highlight exists to create. */
   opacity: 1;
-  background: rgba(255, 255, 255, .46);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, .46), 0 3px 8px rgba(0, 0, 0, .32),
-              inset 0 0 0 1px rgba(255, 255, 255, .34);
+  /* Solid white, so the selected card reads as a printed sponsor card
+     rather than another veil. Opaque means the deck's light ink no
+     longer works on it — the text goes dark below. */
+  background: #fff;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .34),
+              inset 0 0 0 1px rgba(255, 255, 255, .5);
+}
+/* Dark type for the white card. Transitioned alongside the background
+   on .tm, so a card entering and leaving the centre changes ink as
+   smoothly as it changes panel rather than snapping at the ends. */
+.fund-list .tm-name, .fund-list .tm-role,
+.fund-list .tm-bio, .fund-list .tm-li {
+  transition: color .5s ease, background .5s ease, border-color .5s ease;
+}
+.fund-list .tm-mid .tm-name { color: var(--deep); }
+/* Not --accent: the deck's mint is drawn to sit on dark ground and
+   fails badly against white. This is the same hue taken down to where
+   it carries on paper. */
+.fund-list .tm-mid .tm-role { color: #15704a; }
+.fund-list .tm-mid .tm-bio  { color: rgba(14, 42, 28, .74); }
+.fund-list .tm-mid .tm-li {
+  border-left-color: rgba(14, 42, 28, .14);
+  background: rgba(14, 42, 28, .05);
+  color: var(--deep);
+}
+/* The missing-logo fallback is drawn in the deck's near-white ink,
+   which vanishes on the white card. */
+.fund-list .tm-mid .tm-ava svg { color: rgba(14, 42, 28, .38); }
+/* Green sweep rather than the members' white one — on a white card a
+   white shine is invisible. */
+.fund-list .tm-mid::after {
+  background: linear-gradient(
+    100deg,
+    transparent 42%,
+    rgba(143, 227, 180, .22) 47%,
+    rgba(60, 190, 130, .78) 50%,
+    rgba(143, 227, 180, .22) 53%,
+    transparent 58%
+  );
 }
 
 /* The member card's type is set for a full-height row; in a card a
@@ -1217,7 +1253,7 @@ html:not(.js) .cy-desc[hidden] { display: block; }
 .fund-list .tm-role { font-size: clamp(10.5px, 1.35vmin, 13px); }
 .fund-list .tm-bio {
   font-size: clamp(10.5px, 1.35vmin, 13px);
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   margin-top: 2px;
 }
 /* Logos are not faces: contain so wordmarks and wide lockups are shown
