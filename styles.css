@@ -396,11 +396,15 @@ body:has(#contact.is-active) .scrim {
      used to be deliberately asymmetric to accommodate per-element
      inline width corrections in fit(); those are gone — the body is
      widened as a whole now — so both can be protected again.) */
-  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr);
-  gap: clamp(28px, 4.5vmin, 72px);
+  display: grid; grid-template-columns: minmax(0, 1.25fr) 1px minmax(0, .75fr);
+  column-gap: var(--about-gap); row-gap: clamp(28px, 4.5vmin, 72px);
   align-items: center;
   margin-top: clamp(10px, 2.2vmin, 24px);
 }
+/* Half the old single gap, because the divider track means there are
+   now two of them — the columns keep the widths they had. */
+:root { --about-gap: clamp(14px, 2.25vmin, 36px); }
+.about-rule { align-self: stretch; background: rgba(255, 255, 255, .18); }
 /* Ranged left, not justified: the other two standfirst texts have
    always been left-aligned, so justifying this one made the same role
    look different slide to slide — and in a narrow phone column
@@ -433,6 +437,26 @@ body:has(#contact.is-active) .scrim {
    smaller than slide 2's identical one. */
 .s-about .lede,
 .s-model .lede { font-size: var(--fs-standfirst); line-height: 1.34; }
+
+/* ── Slide 1's two-column desktop layout ───────────────────────── */
+/* Desktop only: the guard is the exact inverse of the two breakpoints
+   that restack or reflow this slide, so phones and landscape phones
+   are untouched. */
+@media (min-width: 901px) and (min-height: 601px) {
+  /* The headline is pulled into the left column by fit() in app.js,
+     which sets an inline max-width from the measured track — it cannot
+     be done here, because the headline lives outside the scaled body
+     and the two boxes don't share a coordinate system. See the comment
+     at the end of fit() for why measuring beats deriving.
+
+     Set down a step and opened up slightly, per the two-column
+     rebalance: the narrower column takes a smaller size better, and
+     the extra leading keeps it readable. Note this deliberately breaks
+     the standfirst parity with slide 2 — see --fs-standfirst above.
+     The two changes very nearly cancel in height (.92 x 1.42/1.34 =
+     .975), so the slide's fit is unaffected. */
+  .s-about .lede { font-size: calc(var(--fs-standfirst) * .92); line-height: 1.42; }
+}
 
 .team-h {
   /* Sized to span the carousel exactly, on one line. Measured: this
@@ -1382,6 +1406,10 @@ html:not(.js) #contact-form { display: none; }
      the old gap read as barely any breathing room between the lede's
      last line and "THE ENSEMBLE" label right below it. */
   .about-cols { grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 5.5vmin, 40px); }
+  /* Stacked: the same divider element becomes a horizontal rule
+     between the opening line and the carousel. It needs an explicit
+     height because as its own grid row it would otherwise be 0. */
+  .about-rule { height: 1px; }
   /* Stacked layout puts the carousel BELOW a full-width opening line
      rather than beside it, so it is what pushed slide 1 over its slot
      (measured at 390x844: 805px of content against a 596px slot, of
@@ -1438,7 +1466,14 @@ html:not(.js) #contact-form { display: none; }
   /* landscape phones keep the two-column layout, so the carousel
      stays inside its own grid column instead of breaking full-bleed */
   .team { width: auto; margin-left: 0; transform: none; }
-  .about-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+  /* Still two columns here, so the divider keeps its own track — without
+     restating it the rule would be auto-placed into a second row and
+     push the carousel out of line. */
+  .about-cols { grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1.1fr); }
+  /* Undo the stacked layout's horizontal rule: that block's media query
+     also matches landscape phones, which are still two columns here, so
+     the divider has to go back to spanning the row vertically. */
+  .about-rule { height: auto; align-self: stretch; }
   :root { --tm-h: 155px; }
   .tm-bio { -webkit-line-clamp: 4; font-size: 12.5px; }
   .tm-name { font-size: 14.5px; }

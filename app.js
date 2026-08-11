@@ -63,7 +63,12 @@
     var body = slide.querySelector('.slide-body');
     if (!inner || !body) return;
     body.style.width = '';
-    body.style.setProperty('--body-fit', '1');
+    /* Set on .slide-inner rather than on .slide-body, though only the
+       body is scaled by it. The body inherits it either way, and
+       putting it on the parent also exposes it to the UNSCALED header
+       above — slide 1's headline needs it to size itself to the width
+       of a body column it is not inside of. */
+    inner.style.setProperty('--body-fit', '1');
     var cs = getComputedStyle(slide);
     var availH = slide.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
     /* .slide-inner itself is never scaled — only .slide-body is — so
@@ -138,7 +143,7 @@
        rail, which showed up as a visibly off-centre slide on landscape
        phones (59px inset on the left, 137px on the right). */
     if (body.scrollHeight * scale > availBodyH + 1) scale = solve(0.01);
-    body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
+    inner.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
 
     /* Last-resort clamp, measured against the final layout: covers a
        convergence that ran out of rounds and genuine late reflow (a
@@ -152,7 +157,30 @@
     var finalH = body.scrollHeight;
     if (finalH > 0 && finalH * scale > availBodyH + 1) {
       scale = Math.max(0.01, availBodyH / finalH);
-      body.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
+      inner.style.setProperty('--body-fit', String(Math.round(scale * 1000) / 1000));
+    }
+
+    /* Slide 1's headline belongs to the left column visually, but it
+       lives OUTSIDE the scaled body (it has to — see the .slide-body
+       note in styles.css), so nothing about the grid constrains it.
+       Match it to the column by measurement.
+
+       Measured, not derived in CSS: the body's layout width and the
+       scale finally applied to it can disagree — the clamp above moves
+       the scale without resizing the box — so any formula in terms of
+       "100% / scale" is wrong exactly when that clamp fires. The track
+       width is the real answer whatever happened. Track sizes are
+       layout metrics, so unlike a rect they are not polluted by the
+       entrance animation's transform. */
+    var cols = body.querySelector('.about-cols');
+    var headline = inner.querySelector('.headline');
+    if (cols && headline) {
+      var tracks = getComputedStyle(cols).gridTemplateColumns.split(/\s+/);
+      /* Three tracks = the two-column layout. One = stacked, where the
+         headline should span the full width again. */
+      headline.style.maxWidth = tracks.length === 3
+        ? (parseFloat(tracks[0]) * scale) + 'px'
+        : '';
     }
   }
 

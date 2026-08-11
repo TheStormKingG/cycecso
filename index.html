@@ -18,7 +18,7 @@
 <link rel="preload" href="assets/fonts/Montserrat.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="assets/img/pano.jpg" media="(min-width: 801px)">
 <link rel="stylesheet" href="assets/fonts/fonts.css">
-<link rel="stylesheet" href="styles.css?v=76">
+<link rel="stylesheet" href="styles.css?v=77">
 </head>
 <body>
 
@@ -53,6 +53,11 @@
           agriculture, biodiversity, community health, youth and women's enterprise as
           <strong>one system</strong>, because a farmer with healthy soil and no market is still poor,
           and a clinic without nutritious food still treats the same illness twice.</p>
+        <!-- A real grid item on its own 1px track, not a border or a
+             pseudo-element: it lands exactly on the column boundary at
+             any gap, and when the grid stacks it becomes a full-width
+             horizontal rule between the two sections for free. -->
+        <div class="about-rule" aria-hidden="true"></div>
         <div class="team">
           <p class="team-h">The ensemble · 17 members</p>
           <button type="button" class="team-btn team-up" id="teamUp" aria-label="Previous member">
@@ -428,6 +433,6 @@
 
 <p class="sr-live" id="srLive" role="status" aria-live="polite"></p>
 
-<script src="app.js?v=35" defer></script>
+<script src="app.js?v=36" defer></script>
 </body>
 </html>
