@@ -1278,10 +1278,11 @@ html:not(.js) .cy-desc[hidden] { display: block; }
    third as tall it overruns and .tm's own overflow:hidden slices the
    bio mid-sentence. Stepped down and the bio clamped to two lines,
    which is what an eleven-word line needs at this width. */
-.fund-list .tm-name { font-size: clamp(12px, 1.55vmin, 15.5px); }
-.fund-list .tm-role { font-size: clamp(10.5px, 1.35vmin, 13px); }
+/* Each 1.33x the size first set for these cards. */
+.fund-list .tm-name { font-size: clamp(15.96px, 2.06vmin, 20.6px); }
+.fund-list .tm-role { font-size: clamp(13.97px, 1.8vmin, 17.3px); }
 .fund-list .tm-bio {
-  font-size: clamp(10.5px, 1.35vmin, 13px);
+  font-size: clamp(13.97px, 1.8vmin, 17.3px);
   -webkit-line-clamp: 3;
   margin-top: 2px;
 }
@@ -1308,7 +1309,22 @@ html:not(.js) .cy-desc[hidden] { display: block; }
    specificity the base --fund-air would win and this would be a 6px
    sliver. The value is in layout px and the slide renders at ~0.74 on a
    phone, so it lands at roughly 16px on screen. */
-@media (max-width: 700px) { .funders { --fund-air: 22px; } }
+@media (max-width: 700px) {
+  .funders {
+    --fund-air: 22px;
+    /* Taller to hold the 1.33x card text: a narrower card and larger
+       type together need more rows, and at the old height the name,
+       amount and four bio lines simply ran past the card's bottom. */
+    --tm-h: 178px;
+  }
+  /* 1.4x the base label size, phones only. */
+  .funders .fund-h { font-size: clamp(17.5px, 2.47vmin, 23.9px); }
+  /* Card type carries the same fit-loss correction as the form above:
+     on a phone the 1.33 set on the shared rule arrives as ~1.15. */
+  .fund-list .tm-name { font-size: clamp(18.5px, 2.38vmin, 23.8px); }
+  .fund-list .tm-role,
+  .fund-list .tm-bio  { font-size: clamp(16.2px, 2.08vmin, 20px); }
+}
 .fund-prev, .fund-next { top: 50%; translate: 0 -50%; }
 .fund-prev { left: 0; }
 .fund-next { left: auto; right: 0; }
@@ -1902,12 +1918,33 @@ html:not(.js) #contact-form { display: none; }
      id-scoped rule here would outrank .looking-for .lf-opt and strip
      the choices of their width-aware cap. Field names are direct
      children; the choices sit inside .lf-opts. */
+  /* 1.18 x 1.33, then x1.14 again to cancel the shrink-to-fit's
+     response: growing this slide's content makes the fit solver scale
+     the whole body down, so a 1.33 written here arrives on screen as
+     about 1.17. The extra factor is that loss measured (0.645/0.736),
+     not a guess — see the note on --tm-h in .funders. */
   #contact-form .field > label,
-  #contact-form .looking-for legend { font-size: calc(var(--fs-chip) * 1.18); }
-  #contact-form .looking-for .lf-opt { --lf-up: 1.18; }
+  #contact-form .looking-for legend { font-size: calc(var(--fs-chip) * 1.79); }
+  /* The cap, not the multiplier, is what these choices were actually
+     rendering at on a phone — it resolves to ~11.6px and pinned them
+     there however high --lf-up went, which is why raising the
+     multiplier alone changed nothing. So the 1.33 is applied to the
+     cap itself, keeping the size width-aware while genuinely lifting
+     it. Dropping the cap entirely instead would have taken these to
+     roughly twice their old size, not a third larger. */
+  #contact-form .looking-for .lf-opt {
+    font-size: min(
+      calc(var(--fs-body) * 1.1 * 1.5694),
+      calc((100cqw - 130px) / 24.5 * 1.46)
+    );
+  }
   #contact-form .field input,
   #contact-form .field textarea { font-size: max(16px, calc(var(--fs-body) * 1.18)); }
-  #contact-form .consent-row label { font-size: calc(var(--fs-body) * 1.18); }
+  /* 1.18 x 1.5. The box grows with its label rather than staying an
+     18px square beside much larger text — which also takes the tap
+     target from 18px to a size worth aiming at. */
+  #contact-form .consent-row label { font-size: calc(var(--fs-body) * 2.02); }
+  #contact-form .consent-row input[type="checkbox"] { width: 27px; height: 27px; }
   #contact-form .btn-primary { font-size: calc(clamp(12.5px, 1.8vmin, 16px) * 1.18); }
 }
 
