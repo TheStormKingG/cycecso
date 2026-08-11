@@ -1207,9 +1207,10 @@ html:not(.js) .cy-desc[hidden] { display: block; }
    layout is built around, this is a trim on top of it. Both overrides
    sit here, after the base, because these rules are split across two
    places in this file and the later one wins at equal specificity. */
+/* Compounded: 1.15 x 1.15 and .82 x .82, two passes of the same trim. */
 .funders { --fund-scale: 1; }
-@media (min-width: 1001px) { .funders { --fund-scale: 1.15; } }
-@media (max-width: 700px)  { .funders { --fund-scale: .82; } }
+@media (min-width: 1001px) { .funders { --fund-scale: 1.3225; } }
+@media (max-width: 700px)  { .funders { --fund-scale: .6724; } }
 /* White panels rather than the members' dark ones. The veil stays low
    because the card's own text is the deck's light ink: a heavier white
    lifts the background towards the text instead of away from it, and
@@ -1284,6 +1285,10 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   -webkit-line-clamp: 3;
   margin-top: 2px;
 }
+/* The phone card's trim leaves a 115px text column, narrow enough that
+   an eleven-word line wants a fourth row. The card has the height
+   spare, so give it rather than truncate. */
+@media (max-width: 700px) { .fund-list .tm-bio { -webkit-line-clamp: 4; } }
 /* Logos are not faces: contain so wordmarks and wide lockups are shown
    whole rather than cropped to their middle, on a light disc because
    most are drawn for a pale background. */
