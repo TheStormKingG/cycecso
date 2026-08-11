@@ -1178,7 +1178,23 @@ html:not(.js) .cy-desc[hidden] { display: block; }
    a third of a phone is 86px, which fits a logo and nothing else. */
 .funders { --fund-per: 3; }
 @media (max-width: 1000px) { .funders { --fund-per: 2; } }
-@media (max-width: 700px)  { .funders { --fund-per: 1; } }
+@media (max-width: 700px)  {
+  .funders { --fund-per: 1; }
+  /* Break the strip out to the full screen. Inside the slide's text
+     column a phone left ~194px for the card once the chevrons had
+     their gutters, which is not a card so much as a sliver. Full-bleed
+     gives the chevrons room to stand clear AND the card the rest.
+
+     Divided by --body-fit for the reason spelled out on .team above:
+     a viewport unit does not survive the shrink-to-fit, so it has to
+     be put into the same inflated coordinate space as its parent.
+     Height is fixed by --tm-h, so this cannot feed back into the fit
+     solver's measurement. */
+  .funders {
+    width: calc(100dvw / var(--body-fit, 1));
+    margin-inline: calc(50% - (50dvw / var(--body-fit, 1)));
+  }
+}
 .fund-list .tm {
   flex: 0 0 calc((100cqw - (var(--fund-per) - 1) * var(--tm-gap)) / var(--fund-per));
 }
@@ -1265,7 +1281,17 @@ html:not(.js) .cy-desc[hidden] { display: block; }
    air, and because container queries measure the CONTENT box the cards
    re-size to the narrower strip automatically — three still fit
    exactly, they are just each a little narrower. */
-.funders { padding-inline: calc(var(--tm-btn) + clamp(6px, 1vmin, 12px)); }
+.funders {
+  --fund-air: clamp(6px, 1vmin, 12px);
+  padding-inline: calc(var(--tm-btn) + var(--fund-air));
+}
+/* Wider gutters on phones, so the chevrons stand clearly beside the
+   card rather than pressed against it. Declared HERE rather than in the
+   full-bleed block above, which comes earlier in the file: at equal
+   specificity the base --fund-air would win and this would be a 6px
+   sliver. The value is in layout px and the slide renders at ~0.74 on a
+   phone, so it lands at roughly 16px on screen. */
+@media (max-width: 700px) { .funders { --fund-air: 22px; } }
 .fund-prev, .fund-next { top: 50%; translate: 0 -50%; }
 .fund-prev { left: 0; }
 .fund-next { left: auto; right: 0; }
