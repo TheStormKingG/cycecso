@@ -1149,12 +1149,17 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   .funders .fund-h { font-size: clamp(16.5px, 2.325vmin, 22.5px); }
 }
 .fund-vp {
-  height: var(--tm-h);
-  overflow: hidden;
   /* Vertical room for the selected card's lift and shadow. Horizontally
      a scaled card simply overlaps the gap towards its neighbours, which
-     is what the lift should look like anyway. */
-  padding-block: 10px; margin-block: -10px;
+     is what the lift should look like anyway.
+
+     The height ADDS the bleed rather than declaring --tm-h flat:
+     box-sizing is border-box globally, so a flat --tm-h would have the
+     padding eat into it and clip 20px off the bottom of every card. */
+  --fund-bleed: 10px;
+  height: calc(var(--tm-h) + 2 * var(--fund-bleed));
+  overflow: hidden;
+  padding-block: var(--fund-bleed); margin-block: calc(var(--fund-bleed) * -1);
   -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,.35), #000 9%, #000 91%, rgba(0,0,0,.35));
   mask-image: linear-gradient(to right, rgba(0,0,0,.35), #000 9%, #000 91%, rgba(0,0,0,.35));
 }
@@ -1184,9 +1189,9 @@ html:not(.js) .cy-desc[hidden] { display: block; }
    does the dimming, so the selected card reads as the same panel
    brought forward rather than a different colour. */
 .fund-list .tm {
-  background: rgba(255, 255, 255, .13);
+  background: rgba(255, 255, 255, .3);
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .13);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
   /* Lifted from the members' .30: that value dims a card that has no
      panel of its own, but here it would take the white panel down with
      it and the cards would read as empty. High enough that every card
@@ -1199,9 +1204,9 @@ html:not(.js) .cy-desc[hidden] { display: block; }
      otherwise outrank .tm-mid's own opacity:1, flattening the very
      contrast the highlight exists to create. */
   opacity: 1;
-  background: rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .46);
   box-shadow: 0 12px 30px rgba(0, 0, 0, .46), 0 3px 8px rgba(0, 0, 0, .32),
-              inset 0 0 0 1px rgba(255, 255, 255, .22);
+              inset 0 0 0 1px rgba(255, 255, 255, .34);
 }
 
 /* The member card's type is set for a full-height row; in a card a
@@ -1219,9 +1224,15 @@ html:not(.js) .cy-desc[hidden] { display: block; }
    whole rather than cropped to their middle, on a light disc because
    most are drawn for a pale background. */
 .fund-list .tm-ava img { object-fit: contain; background: #f4f7f5; padding: 12%; }
+/* Both chevrons sit in a gutter of their own rather than half-over the
+   end cards. The strip is inset by exactly the button plus a little
+   air, and because container queries measure the CONTENT box the cards
+   re-size to the narrower strip automatically — three still fit
+   exactly, they are just each a little narrower. */
+.funders { padding-inline: calc(var(--tm-btn) + clamp(6px, 1vmin, 12px)); }
 .fund-prev, .fund-next { top: 50%; translate: 0 -50%; }
-.fund-prev { left: calc(var(--tm-btn) / -2); }
-.fund-next { left: auto; right: calc(var(--tm-btn) / -2); }
+.fund-prev { left: 0; }
+.fund-next { left: auto; right: 0; }
 
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(8px, 1vw, 14px); }
 .field { margin-bottom: clamp(7px, 1.5vmin, 14px); }
