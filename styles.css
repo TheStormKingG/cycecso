@@ -1111,6 +1111,80 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   align-items: start;
 }
 
+/* ── 04 · funders strip ────────────────────────────────────────── */
+/* Deliberately built out of .tm and its friends rather than a parallel
+   set of classes: the brief was "same style and animation", and the
+   surest way to keep two carousels identical as either changes is for
+   there to be one set of card rules. Only the things that are genuinely
+   different — the axis, the card's width and height, and the logo
+   treatment — are restated here. */
+.funders {
+  position: relative;
+  /* Shorter cards than the member rows: this strip shares a slide with
+     a headline, a form and the contact block, so its height comes out
+     of what those leave. */
+  --tm-h: clamp(84px, 12.5vh, 108px);
+  /* container-type so the card width below can be a share of the strip
+     itself, which is what "a third of the screen" means here — the
+     strip is full-bleed within the slide. */
+  container-type: inline-size;
+  margin-top: clamp(14px, 2.4vmin, 28px);
+}
+.fund-h {
+  /* Not span-fitted like .team-h: that element's size ratio is measured
+     from its own string, and at this strip's full width the same
+     treatment would set this label at ~80px. */
+  font-size: clamp(11px, 1.55vmin, 15px);
+  margin-bottom: clamp(8px, 1.4vmin, 14px);
+}
+.fund-vp {
+  height: var(--tm-h);
+  overflow: hidden;
+  /* Vertical room for the selected card's lift and shadow. Horizontally
+     a scaled card simply overlaps the gap towards its neighbours, which
+     is what the lift should look like anyway. */
+  padding-block: 10px; margin-block: -10px;
+  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,.35), #000 9%, #000 91%, rgba(0,0,0,.35));
+  mask-image: linear-gradient(to right, rgba(0,0,0,.35), #000 9%, #000 91%, rgba(0,0,0,.35));
+}
+.fund-list {
+  list-style: none;
+  display: flex; flex-direction: row;
+  gap: var(--tm-gap);
+  width: max-content;
+  will-change: transform;
+}
+/* Three across on desktop: each card is a third of the strip less its
+   share of the gaps between them. The count drops on narrow screens —
+   a third of a phone is 86px, which fits a logo and nothing else. */
+.funders { --fund-per: 3; }
+@media (max-width: 1000px) { .funders { --fund-per: 2; } }
+@media (max-width: 700px)  { .funders { --fund-per: 1; } }
+.fund-list .tm {
+  flex: 0 0 calc((100cqw - (var(--fund-per) - 1) * var(--tm-gap)) / var(--fund-per));
+  /* .tm drops its right padding to let the LinkedIn panel reach the
+     card edge; these cards have no panel, so it comes back. */
+  padding-right: var(--tm-pad-x);
+}
+/* The member card's type is set for a full-height row; in a card a
+   third as tall it overruns and .tm's own overflow:hidden slices the
+   bio mid-sentence. Stepped down and the bio clamped to two lines,
+   which is what an eleven-word line needs at this width. */
+.fund-list .tm-name { font-size: clamp(12px, 1.55vmin, 15.5px); }
+.fund-list .tm-role { font-size: clamp(10.5px, 1.35vmin, 13px); }
+.fund-list .tm-bio {
+  font-size: clamp(10.5px, 1.35vmin, 13px);
+  -webkit-line-clamp: 2;
+  margin-top: 2px;
+}
+/* Logos are not faces: contain so wordmarks and wide lockups are shown
+   whole rather than cropped to their middle, on a light disc because
+   most are drawn for a pale background. */
+.fund-list .tm-ava img { object-fit: contain; background: #f4f7f5; padding: 12%; }
+.fund-prev, .fund-next { top: 50%; translate: 0 -50%; }
+.fund-prev { left: calc(var(--tm-btn) / -2); }
+.fund-next { left: auto; right: calc(var(--tm-btn) / -2); }
+
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(8px, 1vw, 14px); }
 .field { margin-bottom: clamp(7px, 1.5vmin, 14px); }
 .field label {

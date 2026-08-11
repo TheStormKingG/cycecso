@@ -581,12 +581,20 @@
     });
   }());
 
-  /* ── Team carousel: continuous auto-scroll, two visible, whichever
-        member sits nearest the centre is the highlighted one ──────── */
-  (function () {
-    var vp = document.querySelector('.team-vp');
-    var list = document.querySelector('.team-list');
-    var widget = vp && vp.closest('.team');
+  /* ── Looping carousel: continuous auto-scroll, whichever card sits
+        nearest the centre is the highlighted one ───────────────────
+     Written once and instantiated per axis — the members list runs
+     vertically, the funders list horizontally. Everything below is
+     axis-agnostic except the handful of places that read a size or
+     write a translate, which go through `AX`. */
+  var resumers = [];
+  function makeCarousel(cfg) {
+    var AX = cfg.axis === 'x'
+      ? { size: 'offsetWidth',  gap: 'columnGap', translate: 'translateX', start: 'left', extent: 'width',  client: 'clientX' }
+      : { size: 'offsetHeight', gap: 'rowGap',    translate: 'translateY', start: 'top',  extent: 'height', client: 'clientY' };
+    var vp = document.querySelector(cfg.vp);
+    var list = document.querySelector(cfg.list);
+    var widget = vp && vp.closest(cfg.widget);
     if (!vp || !list || !widget) return;
     var base = Array.prototype.slice.call(list.children);
     var N = base.length;
@@ -626,8 +634,8 @@
        --fit scale transform, so the rect is in scaled px while the
        translate we write is in layout px. Mixing them drifts the rows. */
     function rowPitch() {
-      var gap = parseFloat(getComputedStyle(list).rowGap) || 0;
-      return base[0].offsetHeight + gap;
+      var gap = parseFloat(getComputedStyle(list)[AX.gap]) || 0;
+      return base[0][AX.size] + gap;
     }
     function measure() { setH = rowPitch() * N; }
     /* Modulo, not a single add/subtract: one correction only covers an
@@ -648,19 +656,21 @@
       if (now - lastMid < 100) return; /* cheap throttle, not every frame */
       lastMid = now;
       var vpR = vp.getBoundingClientRect();
-      var centerY = vpR.top + vpR.height / 2;
+      var vpStart = vpR[AX.start], vpEnd = vpStart + vpR[AX.extent];
+      var centre = vpStart + vpR[AX.extent] / 2;
       var closest = null, closestD = Infinity;
       all.forEach(function (el) {
         var r = el.getBoundingClientRect();
-        if (r.bottom < vpR.top - 4 || r.top > vpR.bottom + 4) return;
-        var d = Math.abs((r.top + r.height / 2) - centerY);
+        var s = r[AX.start], e = s + r[AX.extent];
+        if (e < vpStart - 4 || s > vpEnd + 4) return;
+        var d = Math.abs((s + r[AX.extent] / 2) - centre);
         if (d < closestD) { closestD = d; closest = el; }
       });
       all.forEach(function (el) { el.classList.toggle('tm-mid', el === closest); });
     }
 
     function render() {
-      list.style.transform = 'translateY(' + (-pos) + 'px)';
+      list.style.transform = AX.translate + '(' + (-pos) + 'px)';
       updateMid();
     }
 
@@ -729,8 +739,8 @@
       widget.addEventListener('mouseleave', play);
     }
 
-    var upBtn = document.getElementById('teamUp');
-    var downBtn = document.getElementById('teamDown');
+    var upBtn = document.getElementById(cfg.prev);
+    var downBtn = document.getElementById(cfg.next);
     if (upBtn) upBtn.addEventListener('click', function () { stepManual(-1); });
     if (downBtn) downBtn.addEventListener('click', function () { stepManual(1); });
 
@@ -743,9 +753,13 @@
       var now = performance.now();
       if (now - wheelTs > 280) wheelArmed = true;
       wheelTs = now;
-      if (!wheelArmed || Math.abs(e.deltaY) < 8) return;
+      /* Either axis of the gesture drives it: a trackpad swipe on the
+         horizontal strip reads as deltaX, a mouse wheel over it still
+         only produces deltaY. */
+      var d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (!wheelArmed || Math.abs(d) < 8) return;
       wheelArmed = false;
-      stepManual(e.deltaY > 0 ? 1 : -1);
+      stepManual(d > 0 ? 1 : -1);
     }, { passive: false });
 
     /* Touch: tapping/dragging inside pauses and drags freely; lifting
@@ -755,13 +769,13 @@
       pause();
       cancelStepAnim();
       touchDragging = true;
-      touchY = e.touches[0].clientY;
+      touchY = e.touches[0][AX.client];
       touchPos0 = pos;
     }, { passive: true });
     vp.addEventListener('touchmove', function (e) {
       if (!touchDragging) return;
       e.stopPropagation();
-      pos = touchPos0 - (e.touches[0].clientY - touchY);
+      pos = touchPos0 - (e.touches[0][AX.client] - touchY);
       wrap(); render();
     }, { passive: true });
     vp.addEventListener('touchend', function (e) { e.stopPropagation(); touchDragging = false; }, { passive: true });
@@ -784,10 +798,23 @@
        be based on the pre-fit geometry. */
     setTimeout(function () { measure(); wrap(); render(); }, 900);
 
-    /* Switching to another slide and back (or a fresh load) also
-       retriggers it — wired from show() via this global. */
-    window.__teamResume = play;
-  })();
+    resumers.push(play);
+  }
+
+  makeCarousel({
+    axis: 'y', vp: '.team-vp', list: '.team-list', widget: '.team',
+    prev: 'teamUp', next: 'teamDown'
+  });
+  makeCarousel({
+    axis: 'x', vp: '.fund-vp', list: '.fund-list', widget: '.funders',
+    prev: 'fundPrev', next: 'fundNext'
+  });
+
+  /* Switching to another slide and back (or a fresh load) retriggers
+     every carousel — wired from show() via this global. */
+  window.__teamResume = function () {
+    resumers.forEach(function (resume) { resume(); });
+  };
 
   /* ── Contact form → Supabase (consent-gated, RLS-enforced) ──── */
   var form = document.getElementById('contact-form');
