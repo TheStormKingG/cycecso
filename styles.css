@@ -1945,7 +1945,15 @@ html:not(.js) #contact-form { display: none; }
      target from 18px to a size worth aiming at. */
   #contact-form .consent-row label { font-size: calc(var(--fs-body) * 2.02); }
   #contact-form .consent-row input[type="checkbox"] { width: 27px; height: 27px; }
-  #contact-form .btn-primary { font-size: calc(clamp(12.5px, 1.8vmin, 16px) * 1.18); }
+  /* 1.18 x 1.7, plus the same fit-loss correction the rest of this
+     block carries. The padding and min-height scale with the label so
+     the button grows as one object rather than becoming a large word
+     in a small pill. */
+  #contact-form .btn-primary {
+    font-size: calc(clamp(12.5px, 1.8vmin, 16px) * 2.05);
+    padding: calc(clamp(9px, 1.7vmin, 15px) * 1.7) calc(clamp(18px, 2.6vmin, 32px) * 1.7);
+    min-height: 68px;
+  }
 }
 
 /* Phones: the social links become a vertical column to the LEFT of the
