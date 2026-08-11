@@ -804,7 +804,13 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          service_id: 'service_8l8rnfe',
+          /* Sends as stefan.gravesande@gmail.com, deliberately NOT the
+             CYCLE account. admin@cyclecso.com forwards to
+             cyclegyinitiative@gmail.com, and Gmail silently drops an
+             inbound message it also sent — notifications landed in Sent
+             and never reached the Inbox. Sender and destination must
+             stay different mailboxes. */
+          service_id: 'service_pjx3d3h',
           template_id: 'template_qmksggf',
           user_id: 'mijyAm1ocwE6qYCiq',
           template_params: {
