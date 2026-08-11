@@ -788,6 +788,32 @@
       body: JSON.stringify({ name: name, email: email, message: composed, consent: true })
     }).then(function (res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
+      /* Notify admin@cyclecso.com via EmailJS (same account and Gmail
+         service preqal.org uses; the branded body lives in the
+         dashboard template). Fire-and-forget on purpose: Supabase is
+         the source of truth and the row is already stored, so a
+         failed notification must not turn the user's successful
+         submission into an error. The raw message goes here — the
+         template renders looking_for as its own field, so the
+         "Looking for:" prefix composed for the DB row would double
+         it. REST endpoint rather than the EmailJS SDK because CSP
+         script-src is 'self'. */
+      fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: 'service_qziw5dg',
+          template_id: 'template_qmksggf',
+          user_id: 'mijyAm1ocwE6qYCiq',
+          template_params: {
+            name: name,
+            email: email,
+            looking_for: lookingFor || 'Not specified',
+            message: message,
+            submitted_at: new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })
+          }
+        })
+      }).catch(function () { /* row is saved; nothing actionable client-side */ });
       form.reset();
       setStatus('ok', 'Thank you — we’ll reply to you by email.');
     }).catch(function () {
