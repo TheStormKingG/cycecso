@@ -396,7 +396,11 @@ body:has(#contact.is-active) .scrim {
      used to be deliberately asymmetric to accommodate per-element
      inline width corrections in fit(); those are gone — the body is
      widened as a whole now — so both can be protected again.) */
-  display: grid; grid-template-columns: minmax(0, 1.25fr) 1px minmax(0, .75fr);
+  /* Equal tracks, so the divider lands on the centre line of the slide
+     — and, because .slide-inner is centred in the viewport, on the
+     centre of the screen. The carousel column gains what the text
+     column gives up. */
+  display: grid; grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
   column-gap: var(--about-gap); row-gap: clamp(28px, 4.5vmin, 72px);
   align-items: center;
   margin-top: clamp(10px, 2.2vmin, 24px);
@@ -455,7 +459,21 @@ body:has(#contact.is-active) .scrim {
      the standfirst parity with slide 2 — see --fs-standfirst above.
      The two changes very nearly cancel in height (.92 x 1.42/1.34 =
      .975), so the slide's fit is unaffected. */
-  .s-about .lede { font-size: calc(var(--fs-standfirst) * .92); line-height: 1.42; }
+  /* Stepped down so "Together, we" still fits the half-width column on
+     one line. At full --fs-h1 it cannot: the line breaks three ways and
+     strands "we" alone, and the taller header then squeezes the body
+     hard enough to shrink the carousel by a fifth. This is the one
+     headline in the deck that is not --fs-h1 — see the note by
+     .slide:not(#about) .headline — and it is the price of putting the
+     divider on the centre line rather than on a 1.25/.75 split. */
+  #about .headline { font-size: calc(var(--fs-h1) * .86); }
+  /* Justified here, against the general rule two blocks up that keeps
+     the standfirsts ranged left. That rule's two objections both fall
+     away in this layout: it now sits in a column of its own with the
+     divider on its right edge, where a ragged edge reads as uneven
+     space rather than as texture, and the rivers it warns about were a
+     narrow-phone problem, which this desktop-only block excludes. */
+  .s-about .lede { font-size: calc(var(--fs-standfirst) * .92); line-height: 1.42; text-align: justify; }
 }
 
 .team-h {
