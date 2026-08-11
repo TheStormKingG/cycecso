@@ -1130,12 +1130,23 @@ html:not(.js) .cy-desc[hidden] { display: block; }
   container-type: inline-size;
   margin-top: clamp(14px, 2.4vmin, 28px);
 }
-.fund-h {
+/* Qualified by .funders, not left as a bare .fund-h: this element also
+   carries .team-h for its weight, tracking and colour, and the
+   responsive blocks near the end of this file restate .team-h's
+   font-size. At equal specificity those later rules would win and the
+   label would take the carousel heading's span-to-fit size on every
+   screen below 901px. */
+.funders .fund-h {
   /* Not span-fitted like .team-h: that element's size ratio is measured
      from its own string, and at this strip's full width the same
      treatment would set this label at ~80px. */
   font-size: clamp(11px, 1.55vmin, 15px);
   margin-bottom: clamp(8px, 1.4vmin, 14px);
+}
+/* 1.5x on desktop. Guarded at 1001px, the width at which slide 4 stops
+   stacking, so the label grows exactly when the strip is three across. */
+@media (min-width: 1001px) {
+  .funders .fund-h { font-size: clamp(16.5px, 2.325vmin, 22.5px); }
 }
 .fund-vp {
   height: var(--tm-h);
@@ -1166,6 +1177,33 @@ html:not(.js) .cy-desc[hidden] { display: block; }
      card edge; these cards have no panel, so it comes back. */
   padding-right: var(--tm-pad-x);
 }
+/* White panels rather than the members' dark ones. The veil stays low
+   because the card's own text is the deck's light ink: a heavier white
+   lifts the background towards the text instead of away from it, and
+   the two meet in the middle. .tm's opacity:.30 on unselected cards
+   does the dimming, so the selected card reads as the same panel
+   brought forward rather than a different colour. */
+.fund-list .tm {
+  background: rgba(255, 255, 255, .13);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .13);
+  /* Lifted from the members' .30: that value dims a card that has no
+     panel of its own, but here it would take the white panel down with
+     it and the cards would read as empty. High enough that every card
+     is visibly a white card, low enough that the centre one still
+     clearly leads. */
+  opacity: .62;
+}
+.fund-list .tm-mid {
+  /* Restated because the .62 above is a two-class selector and would
+     otherwise outrank .tm-mid's own opacity:1, flattening the very
+     contrast the highlight exists to create. */
+  opacity: 1;
+  background: rgba(255, 255, 255, .2);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .46), 0 3px 8px rgba(0, 0, 0, .32),
+              inset 0 0 0 1px rgba(255, 255, 255, .22);
+}
+
 /* The member card's type is set for a full-height row; in a card a
    third as tall it overruns and .tm's own overflow:hidden slices the
    bio mid-sentence. Stepped down and the bio clamped to two lines,
