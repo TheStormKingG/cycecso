@@ -63,24 +63,24 @@
      per layout and hides the rest (.lb, .br-m, .hb in styles.css), so
      which segments exist changes with the breakpoint.
 
-     Measured on a probe rather than by reading the element's own line
+     Measured on a probe element rather than by reading the element's own line
      boxes, because those are already wrapped: once a line is too long
      the browser has broken it, and the resulting rects describe the
      wrapping, not the width that would have avoided it. */
-  var probe = null;
+  var lineProbe = null;
   function widestAuthoredLine(el) {
     var cs = getComputedStyle(el);
-    if (!probe) {
-      probe = document.createElement('span');
-      probe.setAttribute('aria-hidden', 'true');
-      probe.style.cssText = 'position:absolute;left:-9999px;top:0;white-space:pre;visibility:hidden';
-      document.body.appendChild(probe);
+    if (!lineProbe) {
+      lineProbe = document.createElement('span');
+      lineProbe.setAttribute('aria-hidden', 'true');
+      lineProbe.style.cssText = 'position:absolute;left:-9999px;top:0;white-space:pre;visibility:hidden';
+      document.body.appendChild(lineProbe);
     }
-    probe.style.fontFamily = cs.fontFamily;
-    probe.style.fontSize = cs.fontSize;
-    probe.style.fontWeight = cs.fontWeight;
-    probe.style.fontStyle = cs.fontStyle;
-    probe.style.letterSpacing = cs.letterSpacing;
+    lineProbe.style.fontFamily = cs.fontFamily;
+    lineProbe.style.fontSize = cs.fontSize;
+    lineProbe.style.fontWeight = cs.fontWeight;
+    lineProbe.style.fontStyle = cs.fontStyle;
+    lineProbe.style.letterSpacing = cs.letterSpacing;
 
     var segments = [];
     var current = '';
@@ -95,8 +95,8 @@
 
     var widest = 0;
     segments.forEach(function (seg) {
-      probe.textContent = seg.replace(/\s+/g, ' ').trim();
-      var w = probe.getBoundingClientRect().width;
+      lineProbe.textContent = seg.replace(/\s+/g, ' ').trim();
+      var w = lineProbe.getBoundingClientRect().width;
       if (w > widest) widest = w;
     });
     return widest;
@@ -941,7 +941,7 @@
       form.reset();
       setStatus('ok', 'Thank you — we’ll reply to you by email.');
     }).catch(function () {
-      setStatus('err', 'Could not send just now. Please email cyclegyinitiative@gmail.com.');
+      setStatus('err', 'Could not send just now. Please email admin@cyclecso.com.');
     }).finally(function () {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Send message';
